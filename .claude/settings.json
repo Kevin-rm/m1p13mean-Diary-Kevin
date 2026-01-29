@@ -1,0 +1,28 @@
+{
+  "companyAnnouncements": [
+    "📘 Refer to the project documentation for usage details.",
+    "📄 Review guidelines before proceeding.",
+    "🧠 Keep modifications minimal and focused.",
+    "⚠️ Ensure adjustments align with project requirements.",
+    "🔍 Please review generated changes carefully before applying them."
+  ],
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "allow": ["WebFetch", "Bash(ls:*)"],
+    "deny": [
+      "Read(**/.env*)",
+      "Read(**/*.key)",
+      "Read(**/*.pem)",
+      "Read(**/secrets/**)",
+
+      "Bash(sudo:*)",
+      "Bash(rm -rf:*)"
+    ],
+    "defaultMode": "acceptEdits",
+    "disableBypassPermissionsMode": "disable"
+  },
+  "showTurnDuration": true
+}
