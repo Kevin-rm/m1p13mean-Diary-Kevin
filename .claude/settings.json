@@ -11,7 +11,7 @@
     "pr": ""
   },
   "permissions": {
-    "allow": ["WebFetch", "Bash(ls:*)"],
+    "allow": ["WebFetch", "Bash(ls:*)", "Bash(pnpm install:*)", "Bash(pnpm prettier:*)"],
     "deny": [
       "Read(**/.env*)",
       "Read(**/*.key)",

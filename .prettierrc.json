@@ -1,3 +1,11 @@
 {
-  "printWidth": 100
+  "printWidth": 100,
+  "overrides": [
+    {
+      "files": "frontend/**/*.html",
+      "options": {
+        "parser": "angular"
+      }
+    }
+  ]
 }

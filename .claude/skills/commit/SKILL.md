@@ -1,15 +1,7 @@
 ---
 name: commit
 description: Generate and execute Conventional Commit messages from Git changes.
-allowed-tools:
-  - Bash(git status:*)
-  - Bash(git diff:*)
-  - Bash(git log:*)
-  - Bash(git branch:*)
-  - Bash(git add:*)
-  - Bash(git commit:*)
-  - Bash(git reset HEAD:*)
-  - AskUserQuestion
+allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git branch:*), Bash(git add:*), Bash(git commit:*), Bash(git reset HEAD:*), AskUserQuestion
 ---
 
 # Git Commit
