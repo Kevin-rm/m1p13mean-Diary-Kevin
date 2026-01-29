@@ -1,7 +1,7 @@
 {
   "name": "mallhub",
   "version": "1.0.0",
-  "description": "",
+  "description": "MEAN stack web application for shopping mall management",
   "private": true,
   "license": "UNLICENSED",
   "author": "Kevin RAMAROZATOVO",
@@ -15,7 +15,12 @@
       "email": "kevinramarozatovo@gmail.com"
     }
   ],
-  "keywords": [],
+  "keywords": [
+    "mall",
+    "shopping-center",
+    "ecommerce",
+    "mean-stack"
+  ],
   "scripts": {
     "prepare": "husky"
   },
@@ -35,7 +40,7 @@
       "eslint --fix",
       "prettier --write"
     ],
-    "**/*.{json,md,html,css}": [
+    "**/*.{json,md,html,css,scss,sass}": [
       "prettier --write"
     ]
   },
