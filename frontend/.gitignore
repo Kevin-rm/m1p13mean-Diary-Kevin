@@ -1,0 +1,8 @@
+/.angular/cache
+/out-tsc
+/bazel-out
+/connect.lock
+/libpeerconnection.log
+/typings
+testem.log
+__screenshots__/

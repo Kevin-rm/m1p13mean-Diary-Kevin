@@ -1,0 +1,41 @@
+# Dependencies & build
+node_modules
+dist
+tmp
+
+# Logs
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Test coverage
+coverage
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDEs / editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+.history/*
+
+# Claude
+.claude/settings.local.json
+CLAUDE.local.md
+
+# System files
+.DS_Store
+Thumbs.db
