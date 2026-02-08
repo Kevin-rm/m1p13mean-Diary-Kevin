@@ -16,6 +16,7 @@
       "WebSearch",
       "Bash(cd:*)",
       "Bash(ls:*)",
+      "Bash(pnpm run:*)",
       "Bash(pnpm install:*)",
       "Bash(pnpm prettier:*)",
       "Bash(git add:*)",
