@@ -1,10 +1,12 @@
-import { created, badRequest } from "../../shared/utils/apiResponse.js";
+import { ok, created, badRequest, unauthorized } from "../../shared/utils/apiResponse.js";
+import { setAuthCookies } from "../../shared/utils/cookies.js";
 import * as authService from "./auth.service.js";
 
 export async function registerBuyer(req, res) {
   try {
     const result = await authService.registerBuyer(req.body);
-    return created(res, result, "Registration successful");
+    setAuthCookies(res, result);
+    return created(res, { user: result.user, context: result.context }, "Registration successful");
   } catch (error) {
     if (error.code === 11000 && error.keyPattern?.email) {
       return badRequest(res, "Email already in use");
@@ -16,7 +18,12 @@ export async function registerBuyer(req, res) {
 export async function registerShop(req, res) {
   try {
     const result = await authService.registerShop(req.body);
-    return created(res, result, "Registration successful");
+    setAuthCookies(res, result);
+    return created(
+      res,
+      { user: result.user, context: result.context, shop: result.shop },
+      "Registration successful",
+    );
   } catch (error) {
     if (error.code === 11000) {
       if (error.keyPattern?.email) return badRequest(res, "Email already in use");
@@ -24,4 +31,18 @@ export async function registerShop(req, res) {
     }
     throw error;
   }
+}
+
+export async function login(req, res) {
+  const result = await authService.login(req.body);
+  if (!result) return unauthorized(res, "Invalid email or password");
+
+  setAuthCookies(res, result);
+  return ok(res, { user: result.user, context: result.context }, "Login successful");
+}
+
+export async function getMe(req, res) {
+  const result = await authService.getMe(req.user.userId, req.user.contextId);
+  if (!result) return unauthorized(res, "User not found");
+  return ok(res, result);
 }

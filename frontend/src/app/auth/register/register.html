@@ -1,0 +1,90 @@
+<app-navbar />
+
+<div class="flex justify-center items-center min-h-[calc(100vh-64px)] p-4">
+  <mat-card class="w-full max-w-md">
+    <mat-card-header>
+      <mat-card-title>S'inscrire</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (errorMessage()) {
+        <p class="text-red-500 mb-4">{{ errorMessage() }}</p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <mat-radio-group
+          [value]="accountType()"
+          (change)="onTypeChange($event.value)"
+          class="flex gap-4 mb-2"
+        >
+          <mat-radio-button value="buyer">Client</mat-radio-button>
+          <mat-radio-button value="shop">Boutique</mat-radio-button>
+        </mat-radio-group>
+
+        <div class="flex gap-4">
+          <mat-form-field class="flex-1">
+            <mat-label>Prenom</mat-label>
+            <input matInput formControlName="firstName" />
+            @if (form.controls.firstName.hasError("required")) {
+              <mat-error>Prenom requis</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="flex-1">
+            <mat-label>Nom</mat-label>
+            <input matInput formControlName="lastName" />
+            @if (form.controls.lastName.hasError("required")) {
+              <mat-error>Nom requis</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" />
+          @if (form.controls.email.hasError("required")) {
+            <mat-error>Email requis</mat-error>
+          } @else if (form.controls.email.hasError("email")) {
+            <mat-error>Format d'email invalide</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Mot de passe</mat-label>
+          <input matInput type="password" formControlName="password" />
+          @if (form.controls.password.hasError("required")) {
+            <mat-error>Mot de passe requis</mat-error>
+          } @else if (form.controls.password.hasError("minlength")) {
+            <mat-error>8 caracteres minimum</mat-error>
+          }
+        </mat-form-field>
+
+        @if (accountType() === "shop") {
+          <mat-form-field>
+            <mat-label>Nom de la boutique</mat-label>
+            <input matInput formControlName="shopName" />
+            @if (form.controls.shopName.hasError("required")) {
+              <mat-error>Nom de boutique requis</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Description de la boutique</mat-label>
+            <textarea matInput formControlName="shopDescription" rows="3"></textarea>
+            @if (form.controls.shopDescription.hasError("required")) {
+              <mat-error>Description requise</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        <button mat-flat-button type="submit" [disabled]="form.invalid || loading()">
+          {{ loading() ? "Inscription..." : "S'inscrire" }}
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions class="justify-center">
+      <a mat-button routerLink="/login">Deja un compte ? Se connecter</a>
+    </mat-card-actions>
+  </mat-card>
+</div>

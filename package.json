@@ -45,5 +45,14 @@
       "prettier --write"
     ]
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt",
+      "esbuild",
+      "@parcel/watcher",
+      "lmdb",
+      "msgpackr-extract"
+    ]
+  },
   "packageManager": "pnpm@10.27.0"
 }

@@ -11,14 +11,19 @@ import {
 } from "../../shared/utils/jwt.js";
 import { withTransaction } from "../../shared/utils/withTransaction.js";
 
-async function generateTokens(user, context, profileCode, session) {
-  const tokenPayload = { userId: user._id, contextId: context._id, profileCode };
+async function generateTokens(user, context, profileCode, session = null) {
+  const tokenPayload = {
+    userId: user._id.toString(),
+    contextId: context._id.toString(),
+    profileCode,
+  };
 
   const [accessToken, refreshToken] = await Promise.all([
     generateAccessToken(tokenPayload),
     generateRefreshToken(tokenPayload),
   ]);
 
+  const createOptions = session ? { session } : {};
   await RefreshToken.create(
     [
       {
@@ -28,7 +33,7 @@ async function generateTokens(user, context, profileCode, session) {
         expiresAt: await getRefreshTokenExpiryDate(refreshToken),
       },
     ],
-    { session },
+    createOptions,
   );
 
   return { accessToken, refreshToken };
@@ -95,4 +100,28 @@ export async function registerShop({
 
     return { user, context, shop, accessToken, refreshToken };
   });
+}
+
+export async function login({ email, password }) {
+  const user = await User.findOne({ email }).select("+password");
+  if (!user || !(await user.comparePassword(password))) return null;
+
+  const context = await UserContext.findOne({ user: user._id, isActive: true }).populate("profile");
+  if (!context) return null;
+
+  const { accessToken, refreshToken } = await generateTokens(user, context, context.profile.code);
+
+  user.lastLoginAt = new Date();
+  await user.save();
+
+  return { user, context, accessToken, refreshToken };
+}
+
+export async function getMe(userId, contextId) {
+  const [user, context] = await Promise.all([
+    User.findById(userId),
+    UserContext.findById(contextId).populate("profile").populate("role").populate("shop"),
+  ]);
+  if (!user || !context) return null;
+  return { user, context };
 }

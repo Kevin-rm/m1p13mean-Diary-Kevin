@@ -1,0 +1,43 @@
+<app-navbar />
+
+<div class="flex justify-center items-center min-h-[calc(100vh-64px)] p-4">
+  <mat-card class="w-full max-w-md">
+    <mat-card-header>
+      <mat-card-title>Se connecter</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (errorMessage()) {
+        <p class="text-red-500 mb-4">{{ errorMessage() }}</p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" />
+          @if (form.controls.email.hasError("required")) {
+            <mat-error>Email requis</mat-error>
+          } @else if (form.controls.email.hasError("email")) {
+            <mat-error>Format d'email invalide</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Mot de passe</mat-label>
+          <input matInput type="password" formControlName="password" />
+          @if (form.controls.password.hasError("required")) {
+            <mat-error>Mot de passe requis</mat-error>
+          }
+        </mat-form-field>
+
+        <button mat-flat-button type="submit" [disabled]="form.invalid || loading()">
+          {{ loading() ? "Connexion..." : "Se connecter" }}
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions class="justify-center">
+      <a mat-button routerLink="/register">Pas encore de compte ? S'inscrire</a>
+    </mat-card-actions>
+  </mat-card>
+</div>
