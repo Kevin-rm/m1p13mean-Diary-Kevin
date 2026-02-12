@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import { createSchema } from "../../shared/utils/createSchema.js";
+import { createSchema } from "../../utils/db/createSchema.js";
 
 const SALT_ROUNDS = 12;
 

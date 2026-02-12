@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { createSchema } from "../../shared/utils/createSchema.js";
+import { createSchema } from "../../utils/db/createSchema.js";
 
 export const SHOP_STATUSES = ["pending", "active", "suspended"];
 

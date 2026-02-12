@@ -4,12 +4,9 @@ import Role from "../users/role.model.js";
 import UserContext from "../users/userContext.model.js";
 import Shop from "../shops/shop.model.js";
 import RefreshToken from "./refreshToken.model.js";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  getRefreshTokenExpiryDate,
-} from "../../shared/utils/jwt.js";
-import { withTransaction } from "../../shared/utils/withTransaction.js";
+import { generateAccessToken, generateRefreshToken } from "../../utils/security/jwt.js";
+import { refreshTokenConfig } from "../../config/auth.js";
+import { withTransaction } from "../../utils/db/withTransaction.js";
 
 async function generateTokens(user, context, profileCode, session = null) {
   const tokenPayload = {
@@ -23,17 +20,16 @@ async function generateTokens(user, context, profileCode, session = null) {
     generateRefreshToken(tokenPayload),
   ]);
 
-  const createOptions = session ? { session } : {};
   await RefreshToken.create(
     [
       {
         token: refreshToken,
         user: user._id,
         userContext: context._id,
-        expiresAt: await getRefreshTokenExpiryDate(refreshToken),
+        expiresAt: new Date(Date.now() + refreshTokenConfig.maxAgeMs),
       },
     ],
-    createOptions,
+    session ? { session } : {},
   );
 
   return { accessToken, refreshToken };
