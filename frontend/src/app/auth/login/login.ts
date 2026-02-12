@@ -5,7 +5,6 @@ import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
-import { Navbar } from "../../shared/components/navbar/navbar";
 import { AuthService } from "../auth.service";
 
 @Component({
@@ -17,7 +16,6 @@ import { AuthService } from "../auth.service";
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    Navbar,
   ],
   templateUrl: "./login.html",
 })

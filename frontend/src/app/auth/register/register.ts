@@ -6,7 +6,6 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
 import { MatRadioModule } from "@angular/material/radio";
-import { Navbar } from "../../shared/components/navbar/navbar";
 import { AuthService } from "../auth.service";
 
 @Component({
@@ -19,7 +18,6 @@ import { AuthService } from "../auth.service";
     MatInputModule,
     MatButtonModule,
     MatRadioModule,
-    Navbar,
   ],
   templateUrl: "./register.html",
 })
