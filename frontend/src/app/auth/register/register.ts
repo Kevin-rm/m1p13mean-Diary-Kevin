@@ -1,11 +1,15 @@
 import { Component, inject, signal } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
-import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
-import { MatCardModule } from "@angular/material/card";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatButtonModule } from "@angular/material/button";
-import { MatRadioModule } from "@angular/material/radio";
+import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from "@angular/forms";
+import { Card } from "primeng/card";
+import { FloatLabel } from "primeng/floatlabel";
+import { InputText } from "primeng/inputtext";
+import { Password } from "primeng/password";
+import { Button } from "primeng/button";
+import { Fluid } from "primeng/fluid";
+import { Message } from "primeng/message";
+import { RadioButton } from "primeng/radiobutton";
+import { Textarea } from "primeng/textarea";
 import { AuthService } from "../auth.service";
 
 @Component({
@@ -13,11 +17,16 @@ import { AuthService } from "../auth.service";
   imports: [
     RouterLink,
     ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatRadioModule,
+    FormsModule,
+    Card,
+    FloatLabel,
+    InputText,
+    Password,
+    Button,
+    Fluid,
+    Message,
+    RadioButton,
+    Textarea,
   ],
   templateUrl: "./register.html",
 })

@@ -1,12 +1,14 @@
-<mat-toolbar color="primary">
-  <a routerLink="/" class="no-underline text-inherit font-medium text-xl">MallHub</a>
+<p-menubar [model]="menuItems">
+  <ng-template #start>
+    <a routerLink="/" class="no-underline text-inherit font-medium text-xl">MallHub</a>
+  </ng-template>
 
-  <span class="flex-1"></span>
-
-  @if (authService.isAuthenticated()) {
-    <span class="mr-4">{{ authService.user()?.firstName }}</span>
-  } @else {
-    <a mat-button routerLink="/login">Se connecter</a>
-    <a mat-flat-button routerLink="/register" class="ml-2">S'inscrire</a>
-  }
-</mat-toolbar>
+  <ng-template #end>
+    @if (authService.isAuthenticated()) {
+      <span class="mr-4">{{ authService.user()?.firstName }}</span>
+    } @else {
+      <p-button label="Se connecter" [text]="true" routerLink="/login" />
+      <p-button label="S'inscrire" routerLink="/register" class="ml-2" />
+    }
+  </ng-template>
+</p-menubar>

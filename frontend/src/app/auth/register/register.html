@@ -1,88 +1,134 @@
 <div class="flex justify-center items-center min-h-[calc(100vh-64px)] p-4">
-  <mat-card class="w-full max-w-md">
-    <mat-card-header>
-      <mat-card-title>S'inscrire</mat-card-title>
-    </mat-card-header>
+  <p-card class="w-full max-w-md">
+    <ng-template #title>S'inscrire</ng-template>
 
-    <mat-card-content>
+    <p-fluid>
       @if (errorMessage()) {
-        <p class="text-red-500 mb-4">{{ errorMessage() }}</p>
+        <p-message severity="error" [text]="errorMessage()" class="mb-4" />
       }
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-        <mat-radio-group
-          [value]="accountType()"
-          (change)="onTypeChange($event.value)"
-          class="flex gap-4 mb-2"
-        >
-          <mat-radio-button value="buyer">Client</mat-radio-button>
-          <mat-radio-button value="shop">Boutique</mat-radio-button>
-        </mat-radio-group>
-
         <div class="flex gap-4">
-          <mat-form-field class="flex-1">
-            <mat-label>Prénom</mat-label>
-            <input matInput formControlName="firstName" />
-            @if (form.controls.firstName.hasError("required")) {
-              <mat-error>Prénom requis</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field class="flex-1">
-            <mat-label>Nom</mat-label>
-            <input matInput formControlName="lastName" />
-            @if (form.controls.lastName.hasError("required")) {
-              <mat-error>Nom requis</mat-error>
-            }
-          </mat-form-field>
+          <div class="flex items-center gap-2">
+            <p-radiobutton
+              inputId="buyer"
+              value="buyer"
+              [ngModel]="accountType()"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onTypeChange($event)"
+            />
+            <label for="buyer">Client</label>
+          </div>
+          <div class="flex items-center gap-2">
+            <p-radiobutton
+              inputId="shop"
+              value="shop"
+              [ngModel]="accountType()"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onTypeChange($event)"
+            />
+            <label for="shop">Boutique</label>
+          </div>
         </div>
 
-        <mat-form-field>
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" />
-          @if (form.controls.email.hasError("required")) {
-            <mat-error>Email requis</mat-error>
-          } @else if (form.controls.email.hasError("email")) {
-            <mat-error>Format d'email invalide</mat-error>
-          }
-        </mat-form-field>
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <p-floatlabel variant="on">
+              <input pInputText id="firstName" formControlName="firstName" />
+              <label for="firstName">Prénom</label>
+            </p-floatlabel>
+            @if (form.controls.firstName.touched && form.controls.firstName.hasError("required")) {
+              <small class="text-red-500">Prénom requis</small>
+            }
+          </div>
 
-        <mat-form-field>
-          <mat-label>Mot de passe</mat-label>
-          <input matInput type="password" formControlName="password" />
-          @if (form.controls.password.hasError("required")) {
-            <mat-error>Mot de passe requis</mat-error>
-          } @else if (form.controls.password.hasError("minlength")) {
-            <mat-error>8 caractères minimum</mat-error>
+          <div class="flex-1">
+            <p-floatlabel variant="on">
+              <input pInputText id="lastName" formControlName="lastName" />
+              <label for="lastName">Nom</label>
+            </p-floatlabel>
+            @if (form.controls.lastName.touched && form.controls.lastName.hasError("required")) {
+              <small class="text-red-500">Nom requis</small>
+            }
+          </div>
+        </div>
+
+        <div>
+          <p-floatlabel variant="on">
+            <input pInputText id="register-email" type="email" formControlName="email" />
+            <label for="register-email">Email</label>
+          </p-floatlabel>
+          @if (form.controls.email.touched && form.controls.email.hasError("required")) {
+            <small class="text-red-500">Email requis</small>
+          } @else if (form.controls.email.touched && form.controls.email.hasError("email")) {
+            <small class="text-red-500">Format d'email invalide</small>
           }
-        </mat-form-field>
+        </div>
+
+        <div>
+          <p-floatlabel variant="on">
+            <p-password
+              id="register-password"
+              formControlName="password"
+              [feedback]="false"
+              [toggleMask]="true"
+            />
+            <label for="register-password">Mot de passe</label>
+          </p-floatlabel>
+          @if (form.controls.password.touched && form.controls.password.hasError("required")) {
+            <small class="text-red-500">Mot de passe requis</small>
+          } @else if (
+            form.controls.password.touched && form.controls.password.hasError("minlength")
+          ) {
+            <small class="text-red-500">8 caractères minimum</small>
+          }
+        </div>
 
         @if (accountType() === "shop") {
-          <mat-form-field>
-            <mat-label>Nom de la boutique</mat-label>
-            <input matInput formControlName="shopName" />
-            @if (form.controls.shopName.hasError("required")) {
-              <mat-error>Nom de boutique requis</mat-error>
+          <div>
+            <p-floatlabel variant="on">
+              <input pInputText id="shopName" formControlName="shopName" />
+              <label for="shopName">Nom de la boutique</label>
+            </p-floatlabel>
+            @if (form.controls.shopName.touched && form.controls.shopName.hasError("required")) {
+              <small class="text-red-500">Nom de boutique requis</small>
             }
-          </mat-form-field>
+          </div>
 
-          <mat-form-field>
-            <mat-label>Description de la boutique</mat-label>
-            <textarea matInput formControlName="shopDescription" rows="3"></textarea>
-            @if (form.controls.shopDescription.hasError("required")) {
-              <mat-error>Description requise</mat-error>
+          <div>
+            <p-floatlabel variant="on">
+              <textarea
+                pTextarea
+                id="shopDescription"
+                formControlName="shopDescription"
+                rows="3"
+              ></textarea>
+              <label for="shopDescription">Description de la boutique</label>
+            </p-floatlabel>
+            @if (
+              form.controls.shopDescription.touched &&
+              form.controls.shopDescription.hasError("required")
+            ) {
+              <small class="text-red-500">Description requise</small>
             }
-          </mat-form-field>
+          </div>
         }
 
-        <button mat-flat-button type="submit" [disabled]="form.invalid || loading()">
-          {{ loading() ? "Inscription..." : "S'inscrire" }}
-        </button>
+        <p-button
+          label="{{ loading() ? 'Inscription...' : 'S\'inscrire' }}"
+          type="submit"
+          [disabled]="form.invalid || loading()"
+        />
       </form>
-    </mat-card-content>
 
-    <mat-card-actions class="justify-center">
-      <a mat-button routerLink="/login">Déjà un compte ? Se connecter</a>
-    </mat-card-actions>
-  </mat-card>
+      <div class="text-center mt-4">
+        <p-button
+          label="Déjà un compte ? Se connecter"
+          [text]="true"
+          [link]="true"
+          routerLink="/login"
+        />
+      </div>
+    </p-fluid>
+  </p-card>
 </div>
