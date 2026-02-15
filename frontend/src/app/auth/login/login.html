@@ -1,16 +1,23 @@
 <div class="flex justify-center items-center min-h-[calc(100vh-64px)] p-4">
   <p-card class="w-full max-w-md">
     <ng-template #title>Se connecter</ng-template>
+    <ng-template #subtitle>Accédez à votre espace personnel</ng-template>
 
     <p-fluid>
       @if (errorMessage()) {
-        <p-message severity="error" [text]="errorMessage()" class="mb-4" />
+        <p-message severity="error" class="mb-4">{{ errorMessage() }}</p-message>
       }
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
         <div>
           <p-floatlabel variant="on">
-            <input pInputText id="email" type="email" formControlName="email" />
+            <input
+              pInputText
+              id="email"
+              type="email"
+              formControlName="email"
+              [invalid]="form.controls.email.touched && form.controls.email.invalid"
+            />
             <label for="email">Email</label>
           </p-floatlabel>
           @if (form.controls.email.touched && form.controls.email.hasError("required")) {
@@ -27,6 +34,7 @@
               formControlName="password"
               [feedback]="false"
               [toggleMask]="true"
+              [invalid]="form.controls.password.touched && form.controls.password.invalid"
             />
             <label for="password">Mot de passe</label>
           </p-floatlabel>

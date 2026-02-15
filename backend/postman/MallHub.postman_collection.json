@@ -29,16 +29,16 @@
     },
     {
       "name": "Auth",
-      "description": "Registration endpoints (buyer and shop flows).",
+      "description": "Registration endpoints (customer and shop flows).",
       "item": [
         {
-          "name": "Register Buyer",
+          "name": "Register Customer",
           "request": {
             "method": "POST",
             "url": {
-              "raw": "{{baseUrl}}/auth/register/buyer",
+              "raw": "{{baseUrl}}/auth/register/customer",
               "host": ["{{baseUrl}}"],
-              "path": ["auth", "register", "buyer"]
+              "path": ["auth", "register", "customer"]
             },
             "body": {
               "mode": "raw",
@@ -48,13 +48,13 @@
           }
         },
         {
-          "name": "Register Buyer - Duplicate Email",
+          "name": "Register Customer - Duplicate Email",
           "request": {
             "method": "POST",
             "url": {
-              "raw": "{{baseUrl}}/auth/register/buyer",
+              "raw": "{{baseUrl}}/auth/register/customer",
               "host": ["{{baseUrl}}"],
-              "path": ["auth", "register", "buyer"]
+              "path": ["auth", "register", "customer"]
             },
             "body": {
               "mode": "raw",
@@ -64,13 +64,13 @@
           }
         },
         {
-          "name": "Register Buyer - Validation Errors",
+          "name": "Register Customer - Validation Errors",
           "request": {
             "method": "POST",
             "url": {
-              "raw": "{{baseUrl}}/auth/register/buyer",
+              "raw": "{{baseUrl}}/auth/register/customer",
               "host": ["{{baseUrl}}"],
-              "path": ["auth", "register", "buyer"]
+              "path": ["auth", "register", "customer"]
             },
             "body": {
               "mode": "raw",

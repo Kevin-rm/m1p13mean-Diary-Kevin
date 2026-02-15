@@ -29,13 +29,13 @@ export class AuthService {
     );
   }
 
-  registerBuyer(data: {
+  registerCustomer(data: {
     firstName: string;
     lastName: string;
     email: string;
     password: string;
   }): Observable<ApiResponse<AuthData>> {
-    return this.http.post<ApiResponse<AuthData>>(`${this.authUrl}/register/buyer`, data).pipe(
+    return this.http.post<ApiResponse<AuthData>>(`${this.authUrl}/register/customer`, data).pipe(
       tap(response => {
         if (response.data) this._authState.set(response.data);
       }),
@@ -49,6 +49,8 @@ export class AuthService {
     password: string;
     shopName: string;
     shopDescription: string;
+    contactEmail: string;
+    contactPhone: string;
   }): Observable<ApiResponse<AuthData>> {
     return this.http.post<ApiResponse<AuthData>>(`${this.authUrl}/register/shop`, data).pipe(
       tap(response => {

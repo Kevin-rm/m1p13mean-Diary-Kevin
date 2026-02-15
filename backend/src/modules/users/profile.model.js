@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { createSchema } from "../../utils/db/createSchema.js";
 
-export const PROFILE_CODES = ["admin", "shop", "buyer"];
+export const PROFILE_CODES = ["admin", "shop", "customer"];
 
 export const PERMISSIONS = [
   "shops:create",

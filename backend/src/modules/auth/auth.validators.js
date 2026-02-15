@@ -1,6 +1,6 @@
 import { body } from "express-validator";
 
-const baseRules = [
+const registrationRules = [
   body("firstName").trim().notEmpty().withMessage("First name is required"),
   body("lastName").trim().notEmpty().withMessage("Last name is required"),
   body("email")
@@ -17,10 +17,10 @@ const baseRules = [
     .withMessage("Password must be at least 8 characters"),
 ];
 
-export const buyerRegistrationRules = [...baseRules];
+export const customerRegistrationRules = [...registrationRules];
 
 export const shopRegistrationRules = [
-  ...baseRules,
+  ...registrationRules,
   body("shopName").trim().notEmpty().withMessage("Shop name is required"),
   body("shopDescription").trim().notEmpty().withMessage("Shop description is required"),
 ];

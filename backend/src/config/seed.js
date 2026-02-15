@@ -36,8 +36,8 @@ const profiles = [
     ],
   },
   {
-    code: "buyer",
-    label: "Buyer",
+    code: "customer",
+    label: "Customer",
     description: "Customer who can browse and purchase products",
     permissions: [
       "categories:read",

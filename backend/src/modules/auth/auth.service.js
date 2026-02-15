@@ -35,21 +35,22 @@ async function generateTokens(user, context, profileCode, session = null) {
   return { accessToken, refreshToken };
 }
 
-export async function registerBuyer({ firstName, lastName, email, password }) {
+export async function registerCustomer({ firstName, lastName, email, password }) {
   return withTransaction(async session => {
     const [user] = await User.create([{ firstName, lastName, email, password }], { session });
 
-    const buyerProfile = await Profile.findOne({ code: "buyer" }).session(session);
-    if (!buyerProfile) throw new Error("Buyer profile not found. Database may not be seeded.");
+    const customerProfile = await Profile.findOne({ code: "customer" }).session(session);
+    if (!customerProfile)
+      throw new Error("Customer profile not found. Database may not be seeded.");
 
-    const [context] = await UserContext.create([{ user: user._id, profile: buyerProfile._id }], {
+    const [context] = await UserContext.create([{ user: user._id, profile: customerProfile._id }], {
       session,
     });
 
     const { accessToken, refreshToken } = await generateTokens(
       user,
       context,
-      buyerProfile.code,
+      customerProfile.code,
       session,
     );
 
@@ -64,12 +65,22 @@ export async function registerShop({
   password,
   shopName,
   shopDescription,
+  contactEmail,
+  contactPhone,
 }) {
   return withTransaction(async session => {
     const [user] = await User.create([{ firstName, lastName, email, password }], { session });
 
     const [shop] = await Shop.create(
-      [{ name: shopName, description: shopDescription, createdBy: user._id }],
+      [
+        {
+          name: shopName,
+          description: shopDescription,
+          contactEmail,
+          contactPhone,
+          createdBy: user._id,
+        },
+      ],
       { session },
     );
 

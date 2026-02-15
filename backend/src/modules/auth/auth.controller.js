@@ -2,9 +2,9 @@ import { ok, created, badRequest, unauthorized } from "../../utils/http/apiRespo
 import { setAuthCookies } from "../../utils/security/cookies.js";
 import * as authService from "./auth.service.js";
 
-export async function registerBuyer(req, res) {
+export async function registerCustomer(req, res) {
   try {
-    const result = await authService.registerBuyer(req.body);
+    const result = await authService.registerCustomer(req.body);
     setAuthCookies(res, result);
     return created(res, { user: result.user, context: result.context }, "Registration successful");
   } catch (error) {

@@ -1,5 +1,6 @@
-import { Component, inject, signal } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import { Component, inject, signal, OnInit } from "@angular/core";
+import { NgTemplateOutlet } from "@angular/common";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from "@angular/forms";
 import { Card } from "primeng/card";
 import { FloatLabel } from "primeng/floatlabel";
@@ -10,11 +11,14 @@ import { Fluid } from "primeng/fluid";
 import { Message } from "primeng/message";
 import { RadioButton } from "primeng/radiobutton";
 import { Textarea } from "primeng/textarea";
+import { Fieldset } from "primeng/fieldset";
+import { Divider } from "primeng/divider";
 import { AuthService } from "../auth.service";
 
 @Component({
   selector: "app-register",
   imports: [
+    NgTemplateOutlet,
     RouterLink,
     ReactiveFormsModule,
     FormsModule,
@@ -27,17 +31,27 @@ import { AuthService } from "../auth.service";
     Message,
     RadioButton,
     Textarea,
+    Fieldset,
+    Divider,
   ],
   templateUrl: "./register.html",
 })
-export class Register {
+export class Register implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly errorMessage = signal("");
   protected readonly loading = signal(false);
-  protected readonly accountType = signal<"buyer" | "shop">("buyer");
+  protected readonly accountType = signal<"customer" | "shop">("customer");
+
+  ngOnInit(): void {
+    const type = this.route.snapshot.queryParamMap.get("type");
+    if (type === "customer" || type === "shop") {
+      this.onTypeChange(type);
+    }
+  }
 
   protected readonly form = this.fb.nonNullable.group({
     firstName: ["", Validators.required],
@@ -46,10 +60,16 @@ export class Register {
     password: ["", [Validators.required, Validators.minLength(8)]],
     shopName: [""],
     shopDescription: [""],
+    contactEmail: [""],
+    contactPhone: [""],
   });
 
-  protected onTypeChange(type: "buyer" | "shop"): void {
+  protected onTypeChange(type: "customer" | "shop"): void {
     this.accountType.set(type);
+    this.router.navigate([], {
+      queryParams: { type },
+      queryParamsHandling: "merge",
+    });
 
     if (type === "shop") {
       this.form.controls.shopName.setValidators(Validators.required);
@@ -72,8 +92,8 @@ export class Register {
     const values = this.form.getRawValue();
 
     const request$ =
-      this.accountType() === "buyer"
-        ? this.authService.registerBuyer(values)
+      this.accountType() === "customer"
+        ? this.authService.registerCustomer(values)
         : this.authService.registerShop(values);
 
     request$.subscribe({
