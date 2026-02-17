@@ -1,0 +1,42 @@
+<p-menubar [model]="menuItems" [dt]="{ root: { borderRadius: '0' } }">
+  <ng-template #start>
+    <a routerLink="/" class="no-underline text-inherit font-medium text-xl">MallHub</a>
+  </ng-template>
+
+  <ng-template #end>
+    @if (authService.isAuthenticated()) {
+      <p-avatar
+        [label]="avatarLabel()"
+        shape="circle"
+        class="cursor-pointer"
+        (click)="toggleUserMenu($event)"
+      />
+      <p-menu #userMenu [model]="userMenuItems" [popup]="true" [style]="{ 'min-width': '16rem' }">
+        <ng-template #start>
+          <div class="flex items-center gap-2 px-2 py-3">
+            <p-avatar [label]="avatarLabel()" shape="circle" size="large" />
+            <div class="flex flex-col overflow-hidden">
+              <span class="font-medium truncate">{{ fullName() }}</span>
+              <span class="text-sm text-muted-color truncate">{{ authService.user()?.email }}</span>
+            </div>
+          </div>
+        </ng-template>
+      </p-menu>
+    } @else {
+      <p-button
+        label="Se connecter"
+        [text]="true"
+        routerLink="/login"
+        class="hidden sm:inline-flex"
+      />
+      <p-button
+        icon="pi pi-sign-in"
+        [text]="true"
+        [rounded]="true"
+        routerLink="/login"
+        class="sm:hidden"
+      />
+      <p-button label="S'inscrire" routerLink="/register" class="hidden ml-2 sm:inline-flex" />
+    }
+  </ng-template>
+</p-menubar>

@@ -22,6 +22,8 @@ export const badRequest = (res, message = "Bad request", error) =>
   apiResponse(res, 400, { message, error });
 export const unauthorized = (res, message = "Unauthorized", error) =>
   apiResponse(res, 401, { message, error });
+export const forbidden = (res, message = "Forbidden", error) =>
+  apiResponse(res, 403, { message, error });
 export const notFound = (res, message = "Resource not found", error) =>
   apiResponse(res, 404, { message, error });
 export const internal = (res, message = "Internal server error", error) =>

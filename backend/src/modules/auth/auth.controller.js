@@ -1,5 +1,5 @@
 import { ok, created, badRequest, unauthorized } from "../../utils/http/apiResponse.js";
-import { setAuthCookies } from "../../utils/security/cookies.js";
+import { setAuthCookies, clearAuthCookies } from "../../utils/security/cookies.js";
 import * as authService from "./auth.service.js";
 
 export async function registerCustomer(req, res) {
@@ -39,6 +39,40 @@ export async function login(req, res) {
 
   setAuthCookies(res, result);
   return ok(res, { user: result.user, context: result.context }, "Login successful");
+}
+
+export async function logout(req, res) {
+  const refreshToken = req.cookies?.refreshToken;
+  if (refreshToken) await authService.logout(refreshToken);
+  clearAuthCookies(res);
+  return ok(res, null, "Logged out");
+}
+
+export async function refresh(req, res) {
+  const refreshToken = req.cookies?.refreshToken;
+  if (!refreshToken) return unauthorized(res, "No refresh token");
+
+  try {
+    const result = await authService.refresh(refreshToken);
+    if (!result) return unauthorized(res, "Invalid refresh token");
+    setAuthCookies(res, result);
+    return ok(res, null, "Token refreshed");
+  } catch {
+    clearAuthCookies(res);
+    return unauthorized(res, "Invalid or expired refresh token");
+  }
+}
+
+export async function updateProfile(req, res) {
+  const user = await authService.updateProfile(req.user.userId, req.body);
+  if (!user) return unauthorized(res, "User not found");
+  return ok(res, { user }, "Profile updated");
+}
+
+export async function changePassword(req, res) {
+  const result = await authService.changePassword(req.user.userId, req.body);
+  if (!result) return badRequest(res, "Current password is incorrect");
+  return ok(res, null, "Password changed");
 }
 
 export async function getMe(req, res) {

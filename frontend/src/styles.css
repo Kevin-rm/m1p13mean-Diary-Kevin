@@ -1,5 +1,6 @@
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
+@import "primeicons/primeicons.css";
 @import "tailwindcss";
 @import "tailwindcss-primeui";
 
@@ -10,4 +11,14 @@
 
 body {
   font-family: var(--font-sans);
+  background-color: var(--p-surface-100);
+}
+
+:root {
+  --app-navbar-height: 4rem;
+}
+
+app-root,
+app-front-office {
+  display: block;
 }

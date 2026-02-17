@@ -35,3 +35,22 @@ export const loginRules = [
     .normalizeEmail(),
   body("password").notEmpty().withMessage("Password is required"),
 ];
+
+export const updateProfileRules = [
+  body("firstName").trim().notEmpty().withMessage("First name is required"),
+  body("lastName").trim().notEmpty().withMessage("Last name is required"),
+  body("avatarUrl")
+    .optional({ values: "falsy" })
+    .trim()
+    .isURL()
+    .withMessage("Avatar URL must be a valid URL"),
+];
+
+export const changePasswordRules = [
+  body("currentPassword").notEmpty().withMessage("Current password is required"),
+  body("newPassword")
+    .notEmpty()
+    .withMessage("New password is required")
+    .isLength({ min: 8 })
+    .withMessage("New password must be at least 8 characters"),
+];

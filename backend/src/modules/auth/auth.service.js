@@ -4,7 +4,11 @@ import Role from "../users/role.model.js";
 import UserContext from "../users/userContext.model.js";
 import Shop from "../shops/shop.model.js";
 import RefreshToken from "./refreshToken.model.js";
-import { generateAccessToken, generateRefreshToken } from "../../utils/security/jwt.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../../utils/security/jwt.js";
 import { refreshTokenConfig } from "../../config/auth.js";
 import { withTransaction } from "../../utils/db/withTransaction.js";
 
@@ -122,6 +126,50 @@ export async function login({ email, password }) {
   await user.save();
 
   return { user, context, accessToken, refreshToken };
+}
+
+export async function logout(refreshTokenValue) {
+  await RefreshToken.findOneAndUpdate(
+    { token: refreshTokenValue, revokedAt: null },
+    { revokedAt: new Date() },
+  );
+}
+
+export async function refresh(refreshTokenValue) {
+  const payload = await verifyRefreshToken(refreshTokenValue);
+
+  const storedToken = await RefreshToken.findOne({ token: refreshTokenValue });
+  if (!storedToken || storedToken.revokedAt) return null;
+
+  storedToken.revokedAt = new Date();
+  await storedToken.save();
+
+  const context = await UserContext.findById(payload.contextId).populate("profile");
+  if (!context) return null;
+
+  const user = await User.findById(payload.userId);
+  if (!user) return null;
+
+  const { accessToken, refreshToken } = await generateTokens(user, context, context.profile.code);
+  return { accessToken, refreshToken };
+}
+
+export async function updateProfile(userId, { firstName, lastName, avatarUrl }) {
+  const update = { firstName, lastName };
+  if (avatarUrl !== undefined) update.avatarUrl = avatarUrl || null;
+  return User.findByIdAndUpdate(userId, update, { new: true });
+}
+
+export async function changePassword(userId, { currentPassword, newPassword }) {
+  const user = await User.findById(userId).select("+password");
+  if (!user) return null;
+
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) return null;
+
+  user.password = newPassword;
+  await user.save();
+  return user;
 }
 
 export async function getMe(userId, contextId) {

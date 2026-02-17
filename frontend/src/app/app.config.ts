@@ -13,13 +13,14 @@ import { firstValueFrom } from "rxjs";
 
 import { routes } from "./app.routes";
 import { credentialsInterceptor } from "./core/interceptors/credentials.interceptor";
+import { authInterceptor } from "./core/interceptors/auth.interceptor";
 import { AuthService } from "./auth/auth.service";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([credentialsInterceptor])),
+    provideHttpClient(withInterceptors([credentialsInterceptor, authInterceptor])),
     providePrimeNG({
       theme: {
         preset: definePreset(Aura, {
