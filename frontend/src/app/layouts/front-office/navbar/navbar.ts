@@ -1,4 +1,4 @@
-import { Component, computed, inject, ViewChild } from "@angular/core";
+import { Component, inject, ViewChild } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
 import { Menubar } from "primeng/menubar";
 import { Button } from "primeng/button";
@@ -13,28 +13,14 @@ import { AuthService } from "../../../auth/auth.service";
   templateUrl: "./navbar.html",
 })
 export class Navbar {
+  private readonly router = inject(Router);
+
   protected readonly authService = inject(AuthService);
   protected readonly menuItems: MenuItem[] = [
     { label: "Boutiques", routerLink: "/shops" },
     { label: "Produits", routerLink: "/products" },
     { label: "Catégories", routerLink: "/categories" },
   ];
-  private readonly router = inject(Router);
-
-  @ViewChild("userMenu") userMenu!: Menu;
-
-  protected readonly avatarLabel = computed(() => {
-    const user = this.authService.user();
-    if (!user) return "";
-    return (user.firstName[0] + user.lastName[0]).toUpperCase();
-  });
-
-  protected readonly fullName = computed(() => {
-    const user = this.authService.user();
-    if (!user) return "";
-    return `${user.firstName} ${user.lastName}`;
-  });
-
   protected readonly userMenuItems: MenuItem[] = [
     {
       label: "Mon profil",
@@ -49,6 +35,8 @@ export class Navbar {
       command: () => this.logout(),
     },
   ];
+
+  @ViewChild("userMenu") userMenu!: Menu;
 
   protected toggleUserMenu(event: Event): void {
     this.userMenu.toggle(event);

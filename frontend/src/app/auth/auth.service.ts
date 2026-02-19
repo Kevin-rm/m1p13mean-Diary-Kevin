@@ -1,6 +1,16 @@
-import { Injectable, inject, signal, computed, OnDestroy, NgZone } from "@angular/core";
+import { Injectable, inject, signal, computed } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable, tap, map, catchError, of, EMPTY } from "rxjs";
+import {
+  Observable,
+  tap,
+  map,
+  catchError,
+  of,
+  EMPTY,
+  share,
+  finalize,
+  OperatorFunction,
+} from "rxjs";
 import { environment } from "../../environments/environment";
 import { ApiResponse } from "../core/models/api-response.model";
 import { AuthData, User, UserContext } from "./auth.models";
@@ -10,38 +20,32 @@ interface AuthState {
   context: UserContext | null;
 }
 
-const TOKEN_REFRESH_INTERVAL = 12 * 60 * 1000; // 12 minutes (80% of 15 min TTL)
-
 @Injectable({ providedIn: "root" })
-export class AuthService implements OnDestroy {
+export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly ngZone = inject(NgZone);
   private readonly authUrl = `${environment.apiUrl}/auth`;
 
   private readonly _authState = signal<AuthState>({ user: null, context: null });
-  private refreshTimerId: ReturnType<typeof setTimeout> | null = null;
-  private readonly onVisibilityChange = this.handleVisibilityChange.bind(this);
+  private refreshInFlight$: Observable<ApiResponse<void>> | null = null;
 
   readonly user = computed(() => this._authState().user);
   readonly context = computed(() => this._authState().context);
   readonly isAuthenticated = computed(() => this._authState().user !== null);
-
-  constructor() {
-    document.addEventListener("visibilitychange", this.onVisibilityChange);
-  }
-
-  ngOnDestroy(): void {
-    this.cancelScheduledRefresh();
-    document.removeEventListener("visibilitychange", this.onVisibilityChange);
-  }
+  readonly fullName = computed(() => {
+    const user = this.user();
+    if (!user) return "";
+    return `${user.firstName} ${user.lastName}`;
+  });
+  readonly avatarLabel = computed(() => {
+    const user = this.user();
+    if (!user) return "";
+    return (user.firstName[0] + user.lastName[0]).toUpperCase();
+  });
 
   login(credentials: { email: string; password: string }): Observable<ApiResponse<AuthData>> {
-    return this.http.post<ApiResponse<AuthData>>(`${this.authUrl}/login`, credentials).pipe(
-      tap(response => {
-        if (response.data) this._authState.set(response.data);
-        this.scheduleTokenRefresh();
-      }),
-    );
+    return this.http
+      .post<ApiResponse<AuthData>>(`${this.authUrl}/login`, credentials)
+      .pipe(this.setAuthState());
   }
 
   registerCustomer(data: {
@@ -50,12 +54,9 @@ export class AuthService implements OnDestroy {
     email: string;
     password: string;
   }): Observable<ApiResponse<AuthData>> {
-    return this.http.post<ApiResponse<AuthData>>(`${this.authUrl}/register/customer`, data).pipe(
-      tap(response => {
-        if (response.data) this._authState.set(response.data);
-        this.scheduleTokenRefresh();
-      }),
-    );
+    return this.http
+      .post<ApiResponse<AuthData>>(`${this.authUrl}/register/customer`, data)
+      .pipe(this.setAuthState());
   }
 
   registerShop(data: {
@@ -68,20 +69,14 @@ export class AuthService implements OnDestroy {
     contactEmail: string;
     contactPhone: string;
   }): Observable<ApiResponse<AuthData>> {
-    return this.http.post<ApiResponse<AuthData>>(`${this.authUrl}/register/shop`, data).pipe(
-      tap(response => {
-        if (response.data) this._authState.set(response.data);
-        this.scheduleTokenRefresh();
-      }),
-    );
+    return this.http
+      .post<ApiResponse<AuthData>>(`${this.authUrl}/register/shop`, data)
+      .pipe(this.setAuthState());
   }
 
   checkAuthState(): Observable<boolean> {
     return this.http.get<ApiResponse<AuthData>>(`${this.authUrl}/me`).pipe(
-      tap(response => {
-        if (response.data) this._authState.set(response.data);
-        this.scheduleTokenRefresh();
-      }),
+      this.setAuthState(),
       map(() => true),
       catchError(() => {
         this.clearState();
@@ -98,9 +93,14 @@ export class AuthService implements OnDestroy {
   }
 
   refreshToken(): Observable<ApiResponse<void>> {
-    return this.http
-      .post<ApiResponse<void>>(`${this.authUrl}/refresh`, {})
-      .pipe(tap(() => this.scheduleTokenRefresh()));
+    if (this.refreshInFlight$) return this.refreshInFlight$;
+
+    this.refreshInFlight$ = this.http.post<ApiResponse<void>>(`${this.authUrl}/refresh`, {}).pipe(
+      finalize(() => (this.refreshInFlight$ = null)),
+      share(),
+    );
+
+    return this.refreshInFlight$;
   }
 
   hasPermission(...permissions: string[]): boolean {
@@ -116,37 +116,12 @@ export class AuthService implements OnDestroy {
   }
 
   clearState(): void {
-    this.cancelScheduledRefresh();
     this._authState.set({ user: null, context: null });
   }
 
-  private scheduleTokenRefresh(): void {
-    this.cancelScheduledRefresh();
-    this.ngZone.runOutsideAngular(() => {
-      this.refreshTimerId = setTimeout(() => {
-        this.ngZone.run(() => {
-          this.refreshToken().subscribe({
-            error: () => this.clearState(),
-          });
-        });
-      }, TOKEN_REFRESH_INTERVAL);
+  private setAuthState(): OperatorFunction<ApiResponse<AuthData>, ApiResponse<AuthData>> {
+    return tap(response => {
+      if (response.data) this._authState.set(response.data);
     });
-  }
-
-  private cancelScheduledRefresh(): void {
-    if (this.refreshTimerId !== null) {
-      clearTimeout(this.refreshTimerId);
-      this.refreshTimerId = null;
-    }
-  }
-
-  private handleVisibilityChange(): void {
-    if (document.visibilityState === "visible" && this.isAuthenticated()) {
-      this.ngZone.run(() => {
-        this.refreshToken().subscribe({
-          error: () => this.clearState(),
-        });
-      });
-    }
   }
 }

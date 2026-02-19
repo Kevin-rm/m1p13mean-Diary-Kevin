@@ -13,7 +13,7 @@ import { AuthService } from "../../auth/auth.service";
 let isRefreshing = false;
 const refreshSubject$ = new BehaviorSubject<boolean>(false);
 
-const SKIP_URLS = ["/auth/refresh", "/auth/login", "/auth/me"];
+const SKIP_URLS = ["/auth/refresh", "/auth/login"];
 
 function shouldSkip(url: string): boolean {
   return SKIP_URLS.some(path => url.includes(path));

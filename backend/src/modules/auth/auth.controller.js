@@ -63,18 +63,6 @@ export async function refresh(req, res) {
   }
 }
 
-export async function updateProfile(req, res) {
-  const user = await authService.updateProfile(req.user.userId, req.body);
-  if (!user) return unauthorized(res, "User not found");
-  return ok(res, { user }, "Profile updated");
-}
-
-export async function changePassword(req, res) {
-  const result = await authService.changePassword(req.user.userId, req.body);
-  if (!result) return badRequest(res, "Current password is incorrect");
-  return ok(res, null, "Password changed");
-}
-
 export async function getMe(req, res) {
   const result = await authService.getMe(req.user.userId, req.user.contextId);
   if (!result) return unauthorized(res, "User not found");

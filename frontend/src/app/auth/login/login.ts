@@ -2,13 +2,13 @@ import { Component, inject, signal } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { Card } from "primeng/card";
-import { FloatLabel } from "primeng/floatlabel";
 import { InputText } from "primeng/inputtext";
 import { Password } from "primeng/password";
 import { Button } from "primeng/button";
 import { Fluid } from "primeng/fluid";
 import { Message } from "primeng/message";
 import { AuthService } from "../auth.service";
+import { FormField } from "../../shared/form-field";
 
 @Component({
   selector: "app-login",
@@ -16,12 +16,12 @@ import { AuthService } from "../auth.service";
     RouterLink,
     ReactiveFormsModule,
     Card,
-    FloatLabel,
     InputText,
     Password,
     Button,
     Fluid,
     Message,
+    FormField,
   ],
   templateUrl: "./login.html",
 })

@@ -154,24 +154,6 @@ export async function refresh(refreshTokenValue) {
   return { accessToken, refreshToken };
 }
 
-export async function updateProfile(userId, { firstName, lastName, avatarUrl }) {
-  const update = { firstName, lastName };
-  if (avatarUrl !== undefined) update.avatarUrl = avatarUrl || null;
-  return User.findByIdAndUpdate(userId, update, { new: true });
-}
-
-export async function changePassword(userId, { currentPassword, newPassword }) {
-  const user = await User.findById(userId).select("+password");
-  if (!user) return null;
-
-  const isMatch = await user.comparePassword(currentPassword);
-  if (!isMatch) return null;
-
-  user.password = newPassword;
-  await user.save();
-  return user;
-}
-
 export async function getMe(userId, contextId) {
   const [user, context] = await Promise.all([
     User.findById(userId),

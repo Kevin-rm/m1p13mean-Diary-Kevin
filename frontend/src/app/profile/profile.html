@@ -1,155 +1,137 @@
-<div class="flex justify-center p-4 pt-8">
-  <div class="w-full max-w-3xl flex flex-col gap-6">
-    <div class="flex items-center gap-4">
-      <p-avatar [label]="avatarLabel()" shape="circle" size="xlarge" />
-      <div class="flex flex-col">
-        <span class="text-2xl font-semibold">{{ fullName() }}</span>
-        <span class="text-muted-color">{{ authService.user()?.email }}</span>
-        <span class="text-muted-color text-sm">{{ profileLabel() }}</span>
-      </div>
+<p-toast />
+<div class="flex flex-col gap-6 pt-4">
+  <div class="flex items-center gap-4">
+    <p-avatar [label]="authService.avatarLabel()" shape="circle" size="xlarge" />
+    <div class="flex flex-col">
+      <span class="text-2xl font-semibold">{{ authService.fullName() }}</span>
+      <span class="text-muted-color">{{ authService.user()?.email }}</span>
     </div>
-
-    <p-tabs value="0">
-      <p-tablist>
-        <p-tab value="0">Informations personnelles</p-tab>
-        <p-tab value="1">Sécurité</p-tab>
-      </p-tablist>
-
-      <p-tabpanels>
-        <p-tabpanel value="0">
-          <p-fluid>
-            @if (profileMessage()) {
-              <p-message [severity]="profileSuccess() ? 'success' : 'error'" class="mb-4">
-                {{ profileMessage() }}
-              </p-message>
-            }
-
-            <form
-              [formGroup]="profileForm"
-              (ngSubmit)="onProfileSubmit()"
-              class="flex flex-col gap-4"
-            >
-              <div>
-                <p-floatlabel variant="on">
-                  <input
-                    pInputText
-                    id="firstName"
-                    formControlName="firstName"
-                    [invalid]="
-                      profileForm.controls.firstName.touched &&
-                      profileForm.controls.firstName.invalid
-                    "
-                  />
-                  <label for="firstName">Prénom</label>
-                </p-floatlabel>
-                @if (
-                  profileForm.controls.firstName.touched &&
-                  profileForm.controls.firstName.hasError("required")
-                ) {
-                  <small class="text-red-500">Prénom requis</small>
-                }
-              </div>
-
-              <div>
-                <p-floatlabel variant="on">
-                  <input
-                    pInputText
-                    id="lastName"
-                    formControlName="lastName"
-                    [invalid]="
-                      profileForm.controls.lastName.touched && profileForm.controls.lastName.invalid
-                    "
-                  />
-                  <label for="lastName">Nom</label>
-                </p-floatlabel>
-                @if (
-                  profileForm.controls.lastName.touched &&
-                  profileForm.controls.lastName.hasError("required")
-                ) {
-                  <small class="text-red-500">Nom requis</small>
-                }
-              </div>
-
-              <p-button
-                label="{{ profileLoading() ? 'Enregistrement...' : 'Enregistrer' }}"
-                type="submit"
-                [disabled]="profileForm.invalid || profileForm.pristine || profileLoading()"
-              />
-            </form>
-          </p-fluid>
-        </p-tabpanel>
-
-        <p-tabpanel value="1">
-          <p-fluid>
-            @if (passwordMessage()) {
-              <p-message [severity]="passwordSuccess() ? 'success' : 'error'" class="mb-4">
-                {{ passwordMessage() }}
-              </p-message>
-            }
-
-            <form
-              [formGroup]="passwordForm"
-              (ngSubmit)="onPasswordSubmit()"
-              class="flex flex-col gap-4"
-            >
-              <div>
-                <p-floatlabel variant="on">
-                  <p-password
-                    id="currentPassword"
-                    formControlName="currentPassword"
-                    [feedback]="false"
-                    [toggleMask]="true"
-                    [invalid]="
-                      passwordForm.controls.currentPassword.touched &&
-                      passwordForm.controls.currentPassword.invalid
-                    "
-                  />
-                  <label for="currentPassword">Mot de passe actuel</label>
-                </p-floatlabel>
-                @if (
-                  passwordForm.controls.currentPassword.touched &&
-                  passwordForm.controls.currentPassword.hasError("required")
-                ) {
-                  <small class="text-red-500">Mot de passe actuel requis</small>
-                }
-              </div>
-
-              <div>
-                <p-floatlabel variant="on">
-                  <p-password
-                    id="newPassword"
-                    formControlName="newPassword"
-                    [feedback]="false"
-                    [toggleMask]="true"
-                    [invalid]="
-                      passwordForm.controls.newPassword.touched &&
-                      passwordForm.controls.newPassword.invalid
-                    "
-                  />
-                  <label for="newPassword">Nouveau mot de passe</label>
-                </p-floatlabel>
-                @if (
-                  passwordForm.controls.newPassword.touched &&
-                  passwordForm.controls.newPassword.hasError("required")
-                ) {
-                  <small class="text-red-500">Nouveau mot de passe requis</small>
-                } @else if (
-                  passwordForm.controls.newPassword.touched &&
-                  passwordForm.controls.newPassword.hasError("minlength")
-                ) {
-                  <small class="text-red-500">Minimum 8 caractères</small>
-                }
-              </div>
-
-              <p-button
-                label="{{ passwordLoading() ? 'Modification...' : 'Modifier le mot de passe' }}"
-                type="submit"
-                [disabled]="passwordForm.invalid || passwordLoading()"
-              />
-            </form>
-          </p-fluid>
-        </p-tabpanel>
-      </p-tabpanels>
-    </p-tabs>
   </div>
+
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="0">Informations personnelles</p-tab>
+      <p-tab value="1">Sécurité</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <p-tabpanel value="0">
+        <p-fluid>
+          <form
+            [formGroup]="profileForm"
+            (ngSubmit)="onProfileSubmit()"
+            class="flex flex-col gap-4"
+          >
+            <app-form-field
+              inputId="firstName"
+              label="Prénom"
+              [control]="profileForm.controls.firstName"
+              [errors]="{ required: 'Prénom requis' }"
+            >
+              <input
+                pInputText
+                id="firstName"
+                autocomplete="given-name"
+                formControlName="firstName"
+                [invalid]="
+                  profileForm.controls.firstName.touched && profileForm.controls.firstName.invalid
+                "
+              />
+            </app-form-field>
+
+            <app-form-field
+              inputId="lastName"
+              label="Nom"
+              [control]="profileForm.controls.lastName"
+              [errors]="{ required: 'Nom requis' }"
+            >
+              <input
+                pInputText
+                id="lastName"
+                autocomplete="family-name"
+                formControlName="lastName"
+                [invalid]="
+                  profileForm.controls.lastName.touched && profileForm.controls.lastName.invalid
+                "
+              />
+            </app-form-field>
+
+            <p-button
+              label="{{ profileLoading() ? 'Enregistrement...' : 'Enregistrer' }}"
+              type="submit"
+              [fluid]="false"
+              [disabled]="profileForm.invalid || profileForm.pristine || profileLoading()"
+            />
+          </form>
+        </p-fluid>
+      </p-tabpanel>
+
+      <p-tabpanel value="1">
+        <p-fluid>
+          <form
+            [formGroup]="passwordForm"
+            (ngSubmit)="onPasswordSubmit()"
+            class="flex flex-col gap-4"
+          >
+            <input
+              type="email"
+              name="username"
+              autocomplete="username"
+              [value]="authService.user()?.email"
+              class="hidden"
+              aria-hidden="true"
+              tabindex="-1"
+            />
+            <app-form-field
+              inputId="currentPassword"
+              label="Mot de passe actuel"
+              [control]="passwordForm.controls.currentPassword"
+              [errors]="{ required: 'Mot de passe actuel requis' }"
+            >
+              <p-password
+                inputId="currentPassword"
+                formControlName="currentPassword"
+                autocomplete="current-password"
+                [feedback]="false"
+                [toggleMask]="true"
+                [invalid]="
+                  passwordForm.controls.currentPassword.touched &&
+                  passwordForm.controls.currentPassword.invalid
+                "
+              />
+            </app-form-field>
+
+            <app-form-field
+              inputId="newPassword"
+              label="Nouveau mot de passe"
+              [control]="passwordForm.controls.newPassword"
+              [errors]="{
+                required: 'Nouveau mot de passe requis',
+                minlength: 'Minimum 8 caractères',
+              }"
+            >
+              <p-password
+                inputId="newPassword"
+                formControlName="newPassword"
+                autocomplete="new-password"
+                [feedback]="false"
+                [toggleMask]="true"
+                [invalid]="
+                  passwordForm.controls.newPassword.touched &&
+                  passwordForm.controls.newPassword.invalid
+                "
+              />
+            </app-form-field>
+
+            <p-button
+              label="{{ passwordLoading() ? 'Modification...' : 'Modifier le mot de passe' }}"
+              type="submit"
+              [fluid]="false"
+              [disabled]="passwordForm.invalid || passwordLoading()"
+            />
+          </form>
+        </p-fluid>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
 </div>
