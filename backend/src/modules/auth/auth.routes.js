@@ -13,6 +13,8 @@ router.post(
 );
 router.post("/register/shop", validate(shopRegistrationRules), authController.registerShop);
 router.post("/login", validate(loginRules), authController.login);
+router.post("/logout", authController.logout);
+router.post("/refresh", authController.refresh);
 router.get("/me", authenticate, authController.getMe);
 
 export default router;

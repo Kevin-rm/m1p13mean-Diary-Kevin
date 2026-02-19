@@ -3,7 +3,6 @@ import { NgTemplateOutlet } from "@angular/common";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from "@angular/forms";
 import { Card } from "primeng/card";
-import { FloatLabel } from "primeng/floatlabel";
 import { InputText } from "primeng/inputtext";
 import { Password } from "primeng/password";
 import { Button } from "primeng/button";
@@ -14,6 +13,7 @@ import { Textarea } from "primeng/textarea";
 import { Fieldset } from "primeng/fieldset";
 import { Divider } from "primeng/divider";
 import { AuthService } from "../auth.service";
+import { FormField } from "../../shared/form-field";
 
 @Component({
   selector: "app-register",
@@ -23,7 +23,6 @@ import { AuthService } from "../auth.service";
     ReactiveFormsModule,
     FormsModule,
     Card,
-    FloatLabel,
     InputText,
     Password,
     Button,
@@ -33,6 +32,7 @@ import { AuthService } from "../auth.service";
     Textarea,
     Fieldset,
     Divider,
+    FormField,
   ],
   templateUrl: "./register.html",
 })
@@ -45,14 +45,6 @@ export class Register implements OnInit {
   protected readonly errorMessage = signal("");
   protected readonly loading = signal(false);
   protected readonly accountType = signal<"customer" | "shop">("customer");
-
-  ngOnInit(): void {
-    const type = this.route.snapshot.queryParamMap.get("type");
-    if (type === "customer" || type === "shop") {
-      this.onTypeChange(type);
-    }
-  }
-
   protected readonly form = this.fb.nonNullable.group({
     firstName: ["", Validators.required],
     lastName: ["", Validators.required],
@@ -60,9 +52,16 @@ export class Register implements OnInit {
     password: ["", [Validators.required, Validators.minLength(8)]],
     shopName: [""],
     shopDescription: [""],
-    contactEmail: [""],
+    contactEmail: ["", Validators.email],
     contactPhone: [""],
   });
+
+  ngOnInit(): void {
+    const type = this.route.snapshot.queryParamMap.get("type");
+    if (type === "customer" || type === "shop") {
+      this.onTypeChange(type);
+    }
+  }
 
   protected onTypeChange(type: "customer" | "shop"): void {
     this.accountType.set(type);

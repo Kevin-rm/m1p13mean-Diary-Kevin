@@ -1,5 +1,5 @@
 import { ok, created, badRequest, unauthorized } from "../../utils/http/apiResponse.js";
-import { setAuthCookies } from "../../utils/security/cookies.js";
+import { setAuthCookies, clearAuthCookies } from "../../utils/security/cookies.js";
 import * as authService from "./auth.service.js";
 
 export async function registerCustomer(req, res) {
@@ -39,6 +39,34 @@ export async function login(req, res) {
 
   setAuthCookies(res, result);
   return ok(res, { user: result.user, context: result.context }, "Login successful");
+}
+
+export async function logout(req, res) {
+  const refreshToken = req.cookies?.refreshToken;
+  if (refreshToken) {
+    try {
+      await authService.logout(refreshToken);
+    } catch {
+      // Intentionally ignored: cookies are cleared regardless
+    }
+  }
+  clearAuthCookies(res);
+  return ok(res, null, "Logged out");
+}
+
+export async function refresh(req, res) {
+  const refreshToken = req.cookies?.refreshToken;
+  if (!refreshToken) return unauthorized(res, "No refresh token");
+
+  try {
+    const result = await authService.refresh(refreshToken);
+    if (!result) return unauthorized(res, "Invalid refresh token");
+    setAuthCookies(res, result);
+    return ok(res, null, "Token refreshed");
+  } catch {
+    clearAuthCookies(res);
+    return unauthorized(res, "Invalid or expired refresh token");
+  }
 }
 
 export async function getMe(req, res) {

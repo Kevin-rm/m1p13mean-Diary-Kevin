@@ -1,21 +1,7 @@
 import { body } from "express-validator";
+import { emailRules, nameRules, passwordRules } from "../../utils/validators.js";
 
-const registrationRules = [
-  body("firstName").trim().notEmpty().withMessage("First name is required"),
-  body("lastName").trim().notEmpty().withMessage("Last name is required"),
-  body("email")
-    .trim()
-    .notEmpty()
-    .withMessage("Email is required")
-    .isEmail()
-    .withMessage("Invalid email format")
-    .normalizeEmail(),
-  body("password")
-    .notEmpty()
-    .withMessage("Password is required")
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters"),
-];
+const registrationRules = [...nameRules, emailRules(), passwordRules()];
 
 export const customerRegistrationRules = [...registrationRules];
 
@@ -26,12 +12,6 @@ export const shopRegistrationRules = [
 ];
 
 export const loginRules = [
-  body("email")
-    .trim()
-    .notEmpty()
-    .withMessage("Email is required")
-    .isEmail()
-    .withMessage("Invalid email format")
-    .normalizeEmail(),
+  emailRules(),
   body("password").notEmpty().withMessage("Password is required"),
 ];

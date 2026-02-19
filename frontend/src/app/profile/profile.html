@@ -1,0 +1,137 @@
+<p-toast />
+<div class="flex flex-col gap-6 pt-4">
+  <div class="flex items-center gap-4">
+    <p-avatar [label]="authService.avatarLabel()" shape="circle" size="xlarge" />
+    <div class="flex flex-col">
+      <span class="text-2xl font-semibold">{{ authService.fullName() }}</span>
+      <span class="text-muted-color">{{ authService.user()?.email }}</span>
+    </div>
+  </div>
+
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="0">Informations personnelles</p-tab>
+      <p-tab value="1">Sécurité</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <p-tabpanel value="0">
+        <p-fluid>
+          <form
+            [formGroup]="profileForm"
+            (ngSubmit)="onProfileSubmit()"
+            class="flex flex-col gap-4"
+          >
+            <app-form-field
+              inputId="firstName"
+              label="Prénom"
+              [control]="profileForm.controls.firstName"
+              [errors]="{ required: 'Prénom requis' }"
+            >
+              <input
+                pInputText
+                id="firstName"
+                autocomplete="given-name"
+                formControlName="firstName"
+                [invalid]="
+                  profileForm.controls.firstName.touched && profileForm.controls.firstName.invalid
+                "
+              />
+            </app-form-field>
+
+            <app-form-field
+              inputId="lastName"
+              label="Nom"
+              [control]="profileForm.controls.lastName"
+              [errors]="{ required: 'Nom requis' }"
+            >
+              <input
+                pInputText
+                id="lastName"
+                autocomplete="family-name"
+                formControlName="lastName"
+                [invalid]="
+                  profileForm.controls.lastName.touched && profileForm.controls.lastName.invalid
+                "
+              />
+            </app-form-field>
+
+            <p-button
+              label="{{ profileLoading() ? 'Enregistrement...' : 'Enregistrer' }}"
+              type="submit"
+              [fluid]="false"
+              [disabled]="profileForm.invalid || profileForm.pristine || profileLoading()"
+            />
+          </form>
+        </p-fluid>
+      </p-tabpanel>
+
+      <p-tabpanel value="1">
+        <p-fluid>
+          <form
+            [formGroup]="passwordForm"
+            (ngSubmit)="onPasswordSubmit()"
+            class="flex flex-col gap-4"
+          >
+            <input
+              type="email"
+              name="username"
+              autocomplete="username"
+              [value]="authService.user()?.email"
+              class="hidden"
+              aria-hidden="true"
+              tabindex="-1"
+            />
+            <app-form-field
+              inputId="currentPassword"
+              label="Mot de passe actuel"
+              [control]="passwordForm.controls.currentPassword"
+              [errors]="{ required: 'Mot de passe actuel requis' }"
+            >
+              <p-password
+                inputId="currentPassword"
+                formControlName="currentPassword"
+                autocomplete="current-password"
+                [feedback]="false"
+                [toggleMask]="true"
+                [invalid]="
+                  passwordForm.controls.currentPassword.touched &&
+                  passwordForm.controls.currentPassword.invalid
+                "
+              />
+            </app-form-field>
+
+            <app-form-field
+              inputId="newPassword"
+              label="Nouveau mot de passe"
+              [control]="passwordForm.controls.newPassword"
+              [errors]="{
+                required: 'Nouveau mot de passe requis',
+                minlength: 'Minimum 8 caractères',
+              }"
+            >
+              <p-password
+                inputId="newPassword"
+                formControlName="newPassword"
+                autocomplete="new-password"
+                [feedback]="false"
+                [toggleMask]="true"
+                [invalid]="
+                  passwordForm.controls.newPassword.touched &&
+                  passwordForm.controls.newPassword.invalid
+                "
+              />
+            </app-form-field>
+
+            <p-button
+              label="{{ passwordLoading() ? 'Modification...' : 'Modifier le mot de passe' }}"
+              type="submit"
+              [fluid]="false"
+              [disabled]="passwordForm.invalid || passwordLoading()"
+            />
+          </form>
+        </p-fluid>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>

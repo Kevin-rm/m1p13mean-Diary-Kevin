@@ -1,11 +1,12 @@
 import { Routes } from "@angular/router";
 import { guestGuard } from "./auth/guest.guard";
-import { PublicLayout } from "./layouts/public-layout/public-layout";
+import { authGuard } from "./auth/auth.guard";
+import { FrontOffice } from "./layouts/front-office/front-office";
 
 export const routes: Routes = [
   {
     path: "",
-    component: PublicLayout,
+    component: FrontOffice,
     children: [
       {
         path: "",
@@ -20,6 +21,23 @@ export const routes: Routes = [
         path: "register",
         canActivate: [guestGuard],
         loadComponent: () => import("./auth/register/register").then(m => m.Register),
+      },
+      {
+        path: "shops",
+        loadComponent: () => import("./shops/shops").then(m => m.Shops),
+      },
+      {
+        path: "products",
+        loadComponent: () => import("./products/products").then(m => m.Products),
+      },
+      {
+        path: "categories",
+        loadComponent: () => import("./categories/categories").then(m => m.Categories),
+      },
+      {
+        path: "profile",
+        canActivate: [authGuard],
+        loadComponent: () => import("./profile/profile").then(m => m.Profile),
       },
     ],
   },
