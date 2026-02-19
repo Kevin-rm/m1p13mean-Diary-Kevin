@@ -9,6 +9,7 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../utils/security/jwt.js";
+import { throwIfDuplicateKey } from "../../utils/db/errors.js";
 import { refreshTokenConfig } from "../../config/auth.js";
 import { withTransaction } from "../../utils/db/withTransaction.js";
 
@@ -41,7 +42,12 @@ async function generateTokens(user, context, profileCode, session = null) {
 
 export async function registerCustomer({ firstName, lastName, email, password }) {
   return withTransaction(async session => {
-    const [user] = await User.create([{ firstName, lastName, email, password }], { session });
+    let user;
+    try {
+      [user] = await User.create([{ firstName, lastName, email, password }], { session });
+    } catch (error) {
+      throwIfDuplicateKey(error, { email: "Email already in use" });
+    }
 
     const customerProfile = await Profile.findOne({ code: "customer" }).session(session);
     if (!customerProfile)
@@ -73,20 +79,30 @@ export async function registerShop({
   contactPhone,
 }) {
   return withTransaction(async session => {
-    const [user] = await User.create([{ firstName, lastName, email, password }], { session });
+    let user;
+    try {
+      [user] = await User.create([{ firstName, lastName, email, password }], { session });
+    } catch (error) {
+      throwIfDuplicateKey(error, { email: "Email already in use" });
+    }
 
-    const [shop] = await Shop.create(
-      [
-        {
-          name: shopName,
-          description: shopDescription,
-          contactEmail,
-          contactPhone,
-          createdBy: user._id,
-        },
-      ],
-      { session },
-    );
+    let shop;
+    try {
+      [shop] = await Shop.create(
+        [
+          {
+            name: shopName,
+            description: shopDescription,
+            contactEmail,
+            contactPhone,
+            createdBy: user._id,
+          },
+        ],
+        { session },
+      );
+    } catch (error) {
+      throwIfDuplicateKey(error, { name: "Shop name already taken" });
+    }
 
     const [shopProfile, ownerRole] = await Promise.all([
       Profile.findOne({ code: "shop" }).session(session),

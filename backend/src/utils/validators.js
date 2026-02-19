@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param, query } from "express-validator";
 
 export const emailRules = (field = "email") =>
   body(field)
@@ -20,3 +20,15 @@ export const passwordRules = (field = "password") =>
     .withMessage("Password is required")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters");
+
+export const mongoIdRules = (paramName = "id") =>
+  param(paramName).isMongoId().withMessage(`Invalid ${paramName}`);
+
+export const paginationRules = [
+  query("page").optional().isInt({ min: 1 }).withMessage("Page must be a positive integer").toInt(),
+  query("limit")
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage("Limit must be between 1 and 100")
+    .toInt(),
+];
