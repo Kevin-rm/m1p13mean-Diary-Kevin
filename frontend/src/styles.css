@@ -23,7 +23,8 @@ body {
 }
 
 app-root,
-app-front-office {
+app-front-office,
+app-back-office {
   display: block;
 }
 
