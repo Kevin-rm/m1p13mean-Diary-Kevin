@@ -138,11 +138,11 @@ export async function logout(refreshTokenValue) {
 export async function refresh(refreshTokenValue) {
   const payload = await verifyRefreshToken(refreshTokenValue);
 
-  const storedToken = await RefreshToken.findOne({ token: refreshTokenValue });
-  if (!storedToken || storedToken.revokedAt) return null;
-
-  storedToken.revokedAt = new Date();
-  await storedToken.save();
+  const storedToken = await RefreshToken.findOneAndUpdate(
+    { token: refreshTokenValue, revokedAt: null },
+    { $set: { revokedAt: new Date() } },
+  );
+  if (!storedToken) return null;
 
   const context = await UserContext.findById(payload.contextId).populate("profile");
   if (!context) return null;

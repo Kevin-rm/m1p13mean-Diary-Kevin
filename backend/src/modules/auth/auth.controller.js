@@ -43,7 +43,13 @@ export async function login(req, res) {
 
 export async function logout(req, res) {
   const refreshToken = req.cookies?.refreshToken;
-  if (refreshToken) await authService.logout(refreshToken);
+  if (refreshToken) {
+    try {
+      await authService.logout(refreshToken);
+    } catch {
+      // Intentionally ignored: cookies are cleared regardless
+    }
+  }
   clearAuthCookies(res);
   return ok(res, null, "Logged out");
 }

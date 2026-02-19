@@ -1,16 +1,6 @@
 import { Injectable, inject, signal, computed } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import {
-  Observable,
-  tap,
-  map,
-  catchError,
-  of,
-  EMPTY,
-  share,
-  finalize,
-  OperatorFunction,
-} from "rxjs";
+import { Observable, tap, map, catchError, of, share, finalize, OperatorFunction } from "rxjs";
 import { environment } from "../../environments/environment";
 import { ApiResponse } from "../core/models/api-response.model";
 import { AuthData, User, UserContext } from "./auth.models";
@@ -87,7 +77,7 @@ export class AuthService {
 
   logout(): Observable<unknown> {
     return this.http.post(`${this.authUrl}/logout`, {}).pipe(
-      catchError(() => EMPTY),
+      catchError(() => of(null)),
       tap(() => this.clearState()),
     );
   }
