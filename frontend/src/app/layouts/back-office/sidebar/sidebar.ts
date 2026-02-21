@@ -14,10 +14,10 @@ interface SidebarItem {
   templateUrl: "./sidebar.html",
 })
 export class Sidebar {
-  collapsed = input(false);
-  toggle = output<void>();
-
   protected readonly items: SidebarItem[] = [
     { label: "Catégories", icon: "pi pi-tags", routerLink: "/admin/categories" },
   ];
+
+  collapsed = input(false);
+  toggle = output<void>();
 }

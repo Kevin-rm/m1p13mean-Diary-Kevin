@@ -1,18 +1,18 @@
 import { Component, inject, signal, OnInit } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { HttpClient } from "@angular/common/http";
-import { MessageService } from "primeng/api";
+import { finalize } from "rxjs";
 import { Avatar } from "primeng/avatar";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "primeng/tabs";
 import { InputText } from "primeng/inputtext";
 import { Password } from "primeng/password";
 import { Button } from "primeng/button";
 import { Fluid } from "primeng/fluid";
-import { Toast } from "primeng/toast";
 import { environment } from "../../environments/environment";
 import { ApiResponse } from "../core/models/api-response.model";
 import { AuthService } from "../auth/auth.service";
 import { User } from "../auth/auth.models";
+import { Toast } from "../core/utils/toast";
 import { FormField } from "../shared/form-field";
 
 @Component({
@@ -29,17 +29,16 @@ import { FormField } from "../shared/form-field";
     Password,
     Button,
     Fluid,
-    Toast,
     FormField,
   ],
-  providers: [MessageService],
   templateUrl: "./profile.html",
 })
 export class Profile implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly http = inject(HttpClient);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(Toast);
   private readonly accountUrl = `${environment.apiUrl}/account`;
+
   protected readonly authService = inject(AuthService);
 
   protected readonly profileLoading = signal(false);
@@ -68,27 +67,19 @@ export class Profile implements OnInit {
     this.profileLoading.set(true);
 
     this.http
-      .patch<
-        ApiResponse<{ user: User }>
-      >(`${this.accountUrl}/profile`, this.profileForm.getRawValue())
+      .patch<ApiResponse<{ user: User }>>(
+        `${this.accountUrl}/profile`,
+        this.profileForm.getRawValue(),
+      )
+      .pipe(finalize(() => this.profileLoading.set(false)))
       .subscribe({
         next: () => {
-          this.profileLoading.set(false);
-          this.messageService.add({
-            severity: "success",
-            summary: "Succès",
-            detail: "Profil mis à jour",
-          });
+          this.toast.success("Profil mis à jour");
           this.profileForm.markAsPristine();
           this.authService.checkAuthState().subscribe();
         },
         error: err => {
-          this.profileLoading.set(false);
-          this.messageService.add({
-            severity: "error",
-            summary: "Erreur",
-            detail: err.error?.message || "Une erreur est survenue",
-          });
+          this.toast.error(err.error?.message || "Une erreur est survenue");
         },
       });
   }
@@ -100,23 +91,14 @@ export class Profile implements OnInit {
 
     this.http
       .patch<ApiResponse<void>>(`${this.accountUrl}/password`, this.passwordForm.getRawValue())
+      .pipe(finalize(() => this.passwordLoading.set(false)))
       .subscribe({
         next: () => {
-          this.passwordLoading.set(false);
-          this.messageService.add({
-            severity: "success",
-            summary: "Succès",
-            detail: "Mot de passe modifié",
-          });
+          this.toast.success("Mot de passe modifié");
           this.passwordForm.reset();
         },
         error: err => {
-          this.passwordLoading.set(false);
-          this.messageService.add({
-            severity: "error",
-            summary: "Erreur",
-            detail: err.error?.message || "Une erreur est survenue",
-          });
+          this.toast.error(err.error?.message || "Une erreur est survenue");
         },
       });
   }

@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { Navbar } from "./navbar/navbar";
-import { Footer } from "./footer/footer";
+import { Footer } from "../../shared/footer/footer";
 
 @Component({
   selector: "app-front-office",

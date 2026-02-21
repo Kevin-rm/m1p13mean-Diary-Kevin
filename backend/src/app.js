@@ -1,8 +1,6 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import hpp from "hpp";
-import mongoSanitize from "express-mongo-sanitize";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.routes.js";
@@ -15,8 +13,6 @@ import { MS_PER_MINUTE } from "./utils/constants.js";
 const app = express();
 
 app.use(helmet());
-app.use(hpp());
-app.use(mongoSanitize());
 app.use(
   rateLimit({
     windowMs: 15 * MS_PER_MINUTE,

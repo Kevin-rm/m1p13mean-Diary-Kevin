@@ -1,23 +1,6 @@
-<header class="flex items-center justify-between h-16 px-4 border-b border-surface bg-surface-0">
+<header
+  class="flex items-center justify-between h-14 px-4 py-2 border-b border-surface bg-surface-0"
+>
   <p-button icon="pi pi-bars" [text]="true" [rounded]="true" (click)="menuToggle.emit()" />
-
-  <div class="flex items-center gap-2">
-    <p-avatar
-      [label]="authService.avatarLabel()"
-      shape="circle"
-      class="cursor-pointer"
-      (click)="toggleUserMenu($event)"
-    />
-    <p-menu #userMenu [model]="userMenuItems" [popup]="true" [style]="{ 'min-width': '16rem' }">
-      <ng-template #start>
-        <div class="flex items-center gap-3 px-2 py-3">
-          <p-avatar [label]="authService.avatarLabel()" shape="circle" size="large" />
-          <div class="flex flex-col overflow-hidden">
-            <span class="font-medium truncate">{{ authService.fullName() }}</span>
-            <span class="text-sm text-muted-color truncate">{{ authService.user()?.email }}</span>
-          </div>
-        </div>
-      </ng-template>
-    </p-menu>
-  </div>
+  <app-user-menu [extraItems]="userMenuItems" />
 </header>

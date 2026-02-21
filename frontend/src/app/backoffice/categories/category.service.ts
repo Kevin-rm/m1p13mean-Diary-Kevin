@@ -1,8 +1,9 @@
 import { Injectable, inject } from "@angular/core";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "../../../environments/environment";
 import { ApiResponse } from "../../core/models/api-response.model";
+import { buildQueryParams } from "../../core/utils/http-params";
 import { Category } from "./category.model";
 
 export interface CategoryListParams {
@@ -18,14 +19,9 @@ export class CategoryService {
   private readonly baseUrl = `${environment.apiUrl}/categories`;
 
   list(params: CategoryListParams = {}): Observable<ApiResponse<Category[]>> {
-    let httpParams = new HttpParams();
-    if (params.search) httpParams = httpParams.set("search", params.search);
-    if (params.isActive !== undefined)
-      httpParams = httpParams.set("isActive", String(params.isActive));
-    if (params.page) httpParams = httpParams.set("page", String(params.page));
-    if (params.limit) httpParams = httpParams.set("limit", String(params.limit));
-
-    return this.http.get<ApiResponse<Category[]>>(this.baseUrl, { params: httpParams });
+    return this.http.get<ApiResponse<Category[]>>(this.baseUrl, {
+      params: buildQueryParams(params),
+    });
   }
 
   getById(id: string): Observable<ApiResponse<Category>> {
