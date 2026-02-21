@@ -23,7 +23,8 @@ body {
 }
 
 app-root,
-app-front-office {
+app-front-office,
+app-back-office {
   display: block;
 }
 
@@ -33,4 +34,8 @@ app-front-office {
 
 .p-menubar .p-menubar-item-content:has(> .p-menubar-item-link-active) {
   background: var(--p-surface-100) !important;
+}
+
+.p-drawer .p-drawer-content {
+  padding-top: 1rem;
 }

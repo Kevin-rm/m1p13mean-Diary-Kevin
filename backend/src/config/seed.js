@@ -1,5 +1,7 @@
 import Profile from "../modules/users/profile.model.js";
 import Role from "../modules/users/role.model.js";
+import User from "../modules/users/user.model.js";
+import UserContext from "../modules/users/userContext.model.js";
 import logger from "./logger.js";
 
 const profiles = [
@@ -79,5 +81,23 @@ export async function seedDatabase() {
     ),
   ]);
 
-  logger.info("Database seeded (profiles & roles)");
+  const [adminProfile, adminExists] = await Promise.all([
+    Profile.findOne({ code: "admin" }),
+    User.findOne({ email: "admin@mallhub.com" }),
+  ]);
+  if (adminProfile && !adminExists) {
+    const admin = await User.create({
+      firstName: "Admin",
+      lastName: "MallHub",
+      email: "admin@mallhub.com",
+      password: "admin123",
+    });
+    await UserContext.create({
+      user: admin._id,
+      profile: adminProfile._id,
+    });
+    logger.info("Admin account created (admin@mallhub.com / admin123)");
+  }
+
+  logger.info("Database seeded");
 }

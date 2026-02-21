@@ -1,0 +1,6 @@
+<header
+  class="flex items-center justify-between h-14 px-4 py-2 border-b border-surface bg-surface-0"
+>
+  <p-button icon="pi pi-bars" [text]="true" [rounded]="true" (click)="menuToggle.emit()" />
+  <app-user-menu [extraItems]="userMenuItems" />
+</header>

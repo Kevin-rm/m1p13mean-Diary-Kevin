@@ -1,7 +1,7 @@
 <p-menubar
   [model]="menuItems"
   [dt]="{
-    root: { borderRadius: '0', padding: '0.75rem 1rem' },
+    root: { borderRadius: '0', padding: '0.75rem 1rem', height: '3.5rem' },
     item: { focusBackground: 'transparent' },
   }"
 >
@@ -11,23 +11,7 @@
 
   <ng-template #end>
     @if (authService.isAuthenticated()) {
-      <p-avatar
-        [label]="authService.avatarLabel()"
-        shape="circle"
-        class="cursor-pointer"
-        (click)="toggleUserMenu($event)"
-      />
-      <p-menu #userMenu [model]="userMenuItems" [popup]="true" [style]="{ 'min-width': '16rem' }">
-        <ng-template #start>
-          <div class="flex items-center gap-3 px-2 py-3">
-            <p-avatar [label]="authService.avatarLabel()" shape="circle" size="large" />
-            <div class="flex flex-col overflow-hidden">
-              <span class="font-medium truncate">{{ authService.fullName() }}</span>
-              <span class="text-sm text-muted-color truncate">{{ authService.user()?.email }}</span>
-            </div>
-          </div>
-        </ng-template>
-      </p-menu>
+      <app-user-menu [extraItems]="userMenuItems" />
     } @else {
       <p-button
         label="Se connecter"

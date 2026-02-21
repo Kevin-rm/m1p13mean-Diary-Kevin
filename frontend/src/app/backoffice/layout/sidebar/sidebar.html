@@ -1,0 +1,30 @@
+<div
+  class="flex flex-col h-full bg-surface-0 border-r border-surface transition-all duration-200"
+  [ngClass]="collapsed() ? 'w-16' : 'w-64'"
+>
+  <div class="flex items-center gap-2 h-14 px-4 py-2 border-b border-surface">
+    @if (!collapsed()) {
+      <a routerLink="/" class="no-underline text-color font-medium text-xl">MallHub</a>
+    } @else {
+      <a routerLink="/" class="no-underline text-color font-medium text-xl mx-auto">M</a>
+    }
+  </div>
+
+  <nav class="flex flex-col gap-1 p-2 flex-1">
+    @for (item of items(); track item.routerLink) {
+      <a
+        [routerLink]="item.routerLink"
+        routerLinkActive="bg-primary/10 text-primary"
+        pRipple
+        class="flex items-center gap-3 px-3 py-2 rounded-md no-underline text-color hover:bg-surface-100 transition-colors"
+        [class.justify-center]="collapsed()"
+        [title]="collapsed() ? item.label : ''"
+      >
+        <i [class]="item.icon"></i>
+        @if (!collapsed()) {
+          <span>{{ item.label }}</span>
+        }
+      </a>
+    }
+  </nav>
+</div>

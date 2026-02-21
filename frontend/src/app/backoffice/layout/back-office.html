@@ -1,0 +1,24 @@
+<div class="flex h-screen overflow-hidden">
+  <div class="hidden lg:flex">
+    <app-sidebar [collapsed]="sidebarCollapsed()" />
+  </div>
+
+  <p-drawer
+    [(visible)]="mobileSidebarVisible"
+    [modal]="true"
+    [showCloseIcon]="false"
+    styleClass="w-72 p-0"
+    position="left"
+  >
+    <app-sidebar [collapsed]="false" />
+  </p-drawer>
+
+  <div class="flex flex-col flex-1 min-w-0">
+    <app-bo-header (menuToggle)="mobileSidebarVisible.set(true)" class="lg:hidden" />
+    <app-bo-header (menuToggle)="toggleSidebar()" class="hidden lg:block" />
+    <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+      <router-outlet />
+    </main>
+    <app-footer />
+  </div>
+</div>
