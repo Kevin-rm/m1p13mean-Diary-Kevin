@@ -96,6 +96,11 @@ If there is uncertainty about the scope of the change
 - Use comments only to explain **why**, not **what**.
 - If code requires excessive comments to be understood, refactor it.
 
+## Project Context
+
+- Project name: **MallHub**.
+- Package manager: pnpm only.
+
 ## Safety & Constraints
 
 - Never introduce breaking changes without explicitly stating them.

@@ -1,6 +1,6 @@
 import { inject } from "@angular/core";
 import { Router, type CanActivateFn } from "@angular/router";
-import { AuthService } from "./auth.service";
+import { AuthService } from "../auth.service";
 
 export function profileGuard(...codes: string[]): CanActivateFn {
   return () => {

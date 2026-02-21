@@ -1,9 +1,10 @@
 import { Routes } from "@angular/router";
-import { guestGuard } from "./auth/guest.guard";
-import { authGuard } from "./auth/auth.guard";
-import { profileGuard } from "./auth/profile.guard";
-import { permissionGuard } from "./auth/permission.guard";
-import { FrontOffice } from "./layouts/front-office/front-office";
+import { guestGuard } from "./auth/guards/guest.guard";
+import { authGuard } from "./auth/guards/auth.guard";
+import { backofficeRedirectGuard } from "./auth/guards/backoffice-redirect.guard";
+import { profileGuard } from "./auth/guards/profile.guard";
+import { permissionGuard } from "./auth/guards/permission.guard";
+import { FrontOffice } from "./frontoffice/layout/front-office";
 
 export const routes: Routes = [
   {
@@ -12,7 +13,7 @@ export const routes: Routes = [
     children: [
       {
         path: "",
-        loadComponent: () => import("./landing/landing").then(m => m.Landing),
+        loadComponent: () => import("./frontoffice/landing/landing").then(m => m.Landing),
       },
       {
         path: "login",
@@ -26,38 +27,55 @@ export const routes: Routes = [
       },
       {
         path: "shops",
-        loadComponent: () => import("./shops/shops").then(m => m.Shops),
+        loadComponent: () => import("./frontoffice/shops/shops").then(m => m.Shops),
       },
       {
         path: "products",
-        loadComponent: () => import("./products/products").then(m => m.Products),
+        loadComponent: () => import("./frontoffice/products/products").then(m => m.Products),
       },
       {
         path: "categories",
-        loadComponent: () => import("./categories/categories").then(m => m.Categories),
+        loadComponent: () => import("./frontoffice/categories/categories").then(m => m.Categories),
       },
       {
         path: "profile",
         canActivate: [authGuard],
-        loadComponent: () => import("./profile/profile").then(m => m.Profile),
+        loadComponent: () => import("./frontoffice/profile/profile").then(m => m.Profile),
       },
     ],
   },
   {
-    path: "admin",
-    canActivate: [authGuard, profileGuard("admin")],
-    loadComponent: () => import("./layouts/back-office/back-office").then(m => m.BackOffice),
+    path: "backoffice",
+    canActivate: [authGuard],
+    loadComponent: () => import("./backoffice/layout/back-office").then(m => m.BackOffice),
     children: [
       {
         path: "",
-        redirectTo: "categories",
         pathMatch: "full",
+        canActivate: [backofficeRedirectGuard],
+        children: [],
       },
       {
-        path: "categories",
-        canActivate: [permissionGuard("categories:write")],
-        loadComponent: () =>
-          import("./backoffice/categories/categories").then(m => m.AdminCategories),
+        path: "admin",
+        canActivate: [profileGuard("admin")],
+        children: [
+          {
+            path: "",
+            redirectTo: "categories",
+            pathMatch: "full",
+          },
+          {
+            path: "categories",
+            canActivate: [permissionGuard("categories:write")],
+            loadComponent: () =>
+              import("./backoffice/categories/categories").then(m => m.AdminCategories),
+          },
+        ],
+      },
+      {
+        path: "shop",
+        canActivate: [profileGuard("shop")],
+        children: [],
       },
     ],
   },
