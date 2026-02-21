@@ -1,6 +1,6 @@
 <div
   class="flex flex-col h-full bg-surface-0 border-r border-surface transition-all duration-200"
-  [class]="collapsed() ? 'w-16' : 'w-64'"
+  [ngClass]="collapsed() ? 'w-16' : 'w-64'"
 >
   <div class="flex items-center gap-2 h-14 px-4 py-2 border-b border-surface">
     @if (!collapsed()) {
