@@ -5,6 +5,9 @@ export interface SidebarItem {
 }
 
 export const BACKOFFICE_SIDEBAR_ITEMS: Record<string, SidebarItem[]> = {
-  admin: [{ label: "Catégories", icon: "pi pi-tags", routerLink: "/backoffice/admin/categories" }],
+  admin: [
+    { label: "Boutiques", icon: "pi pi-shop", routerLink: "/backoffice/admin/shops" },
+    { label: "Catégories", icon: "pi pi-tags", routerLink: "/backoffice/admin/categories" },
+  ],
   shop: [],
 };

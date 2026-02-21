@@ -61,8 +61,13 @@ export const routes: Routes = [
         children: [
           {
             path: "",
-            redirectTo: "categories",
+            redirectTo: "shops",
             pathMatch: "full",
+          },
+          {
+            path: "shops",
+            canActivate: [permissionGuard("shops:validate")],
+            loadComponent: () => import("./backoffice/shops/shops").then(m => m.AdminShops),
           },
           {
             path: "categories",

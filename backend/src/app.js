@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.routes.js";
 import accountRoutes from "./modules/account/account.routes.js";
 import categoryRoutes from "./modules/catalog/category/category.routes.js";
+import shopRoutes from "./modules/shops/shop.routes.js";
 import { notFound } from "./utils/http/apiResponse.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { MS_PER_MINUTE } from "./utils/constants.js";
@@ -32,6 +33,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/account", accountRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/shops", shopRoutes);
 
 app.use((_req, res) => notFound(res, "Route not found"));
 app.use(errorHandler);

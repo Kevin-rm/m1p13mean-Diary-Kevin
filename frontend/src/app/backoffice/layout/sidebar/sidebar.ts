@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, output } from "@angular/core";
+import { NgClass } from "@angular/common";
 import { Router, NavigationEnd, RouterLink, RouterLinkActive } from "@angular/router";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { filter, map } from "rxjs";
@@ -7,7 +8,7 @@ import { BACKOFFICE_SIDEBAR_ITEMS } from "./sidebar-items.config";
 
 @Component({
   selector: "app-sidebar",
-  imports: [RouterLink, RouterLinkActive, Ripple],
+  imports: [NgClass, RouterLink, RouterLinkActive, Ripple],
   templateUrl: "./sidebar.html",
 })
 export class Sidebar {
