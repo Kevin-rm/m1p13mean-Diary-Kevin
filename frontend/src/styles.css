@@ -35,3 +35,7 @@ app-back-office {
 .p-menubar .p-menubar-item-content:has(> .p-menubar-item-link-active) {
   background: var(--p-surface-100) !important;
 }
+
+.p-drawer .p-drawer-content {
+  padding-top: 1rem;
+}

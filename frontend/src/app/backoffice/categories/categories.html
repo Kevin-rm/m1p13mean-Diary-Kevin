@@ -76,11 +76,12 @@
   </ng-template>
 </p-table>
 
-<p-dialog
+<p-drawer
   [header]="editing() ? 'Modifier la catégorie' : 'Nouvelle catégorie'"
   [(visible)]="dialogVisible"
   [modal]="true"
-  [style]="{ width: '28rem' }"
+  position="right"
+  styleClass="!w-full md:!w-80 lg:!w-[30rem]"
 >
   <p-fluid>
     <form [formGroup]="form" (ngSubmit)="saveCategory()" class="flex flex-col gap-4">
@@ -122,4 +123,4 @@
       </div>
     </form>
   </p-fluid>
-</p-dialog>
+</p-drawer>

@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { finalize } from "rxjs";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
-import { Dialog } from "primeng/dialog";
+import { Drawer } from "primeng/drawer";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
 import { Button } from "primeng/button";
@@ -22,7 +22,7 @@ import { FormField } from "../../shared/form-field";
     FormsModule,
     ReactiveFormsModule,
     TableModule,
-    Dialog,
+    Drawer,
     InputText,
     Textarea,
     Button,
