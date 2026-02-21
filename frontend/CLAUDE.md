@@ -12,7 +12,6 @@
 
 - `src/app/core/` — infrastructure (models, interceptors, utils)
 - `src/app/shared/` — reusable UI components
-- `src/app/layouts/` — layout shells (front, back)
 - `src/app/auth/` — auth (guards, service, login, register)
 - `src/app/frontoffice/` — front-office features
 - `src/app/backoffice/` — back-office features
