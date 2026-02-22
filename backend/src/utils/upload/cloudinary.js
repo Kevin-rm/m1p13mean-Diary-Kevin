@@ -1,0 +1,44 @@
+import cloudinary from "#config/cloudinary.js";
+
+const ROOT_FOLDER = "mallhub";
+const UPLOAD_SEGMENT = "/upload/";
+
+function uploadToCloudinary(buffer, options) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
+      if (error) return reject(error);
+      resolve(result);
+    });
+    stream.end(buffer);
+  });
+}
+
+export async function uploadImage(buffer, { folder }) {
+  const result = await uploadToCloudinary(buffer, {
+    folder: `${ROOT_FOLDER}/${folder}`,
+    resource_type: "image",
+  });
+  return { url: result.secure_url, publicId: result.public_id };
+}
+
+export async function uploadImages(buffers, { folder }) {
+  return Promise.all(buffers.map(buffer => uploadImage(buffer, { folder })));
+}
+
+export async function deleteImage(publicId) {
+  return cloudinary.uploader.destroy(publicId);
+}
+
+export async function deleteImages(publicIds) {
+  return Promise.all(publicIds.map(deleteImage));
+}
+
+export function extractPublicId(cloudinaryUrl) {
+  const uploadIndex = cloudinaryUrl.indexOf(UPLOAD_SEGMENT);
+  if (uploadIndex === -1) return null;
+
+  return cloudinaryUrl
+    .slice(uploadIndex + UPLOAD_SEGMENT.length)
+    .replace(/^v\d+\//, "")
+    .replace(/\.[^.]+$/, "");
+}
