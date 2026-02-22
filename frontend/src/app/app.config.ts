@@ -6,7 +6,7 @@ import {
 } from "@angular/core";
 import { provideRouter } from "@angular/router";
 import { provideHttpClient, withInterceptors } from "@angular/common/http";
-import { MessageService } from "primeng/api";
+import { ConfirmationService, MessageService } from "primeng/api";
 import { providePrimeNG } from "primeng/config";
 import { definePreset } from "@primeuix/themes";
 import Aura from "@primeuix/themes/aura";
@@ -20,6 +20,7 @@ import { AuthService } from "@auth/auth.service";
 export const appConfig: ApplicationConfig = {
   providers: [
     MessageService,
+    ConfirmationService,
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([credentialsInterceptor, authInterceptor])),

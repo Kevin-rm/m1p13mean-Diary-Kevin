@@ -31,6 +31,7 @@ export class AuthService {
     if (!user) return "";
     return (user.firstName[0] + user.lastName[0]).toUpperCase();
   });
+  readonly avatarUrl = computed(() => this.user()?.avatarUrl ?? null);
 
   login(credentials: { email: string; password: string }): Observable<ApiResponse<AuthData>> {
     return this.http

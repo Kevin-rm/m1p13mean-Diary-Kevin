@@ -1,9 +1,24 @@
 import User from "#modules/users/user.model.js";
+import { uploadImage, deleteImage, extractPublicId } from "#utils/upload/cloudinary.js";
 
-export async function updateProfile(userId, { firstName, lastName, avatarUrl }) {
-  const update = { firstName, lastName };
-  if (avatarUrl !== undefined) update.avatarUrl = avatarUrl || null;
-  return User.findByIdAndUpdate(userId, update, { new: true });
+export async function updateProfile(userId, { firstName, lastName }) {
+  return User.findByIdAndUpdate(userId, { firstName, lastName }, { new: true });
+}
+
+export async function updateAvatar(userId, file) {
+  const user = await User.findById(userId);
+  if (!user) return null;
+
+  const { url } = await uploadImage(file.buffer, { folder: "avatars" });
+
+  if (user.avatarUrl) {
+    const oldPublicId = extractPublicId(user.avatarUrl);
+    if (oldPublicId) deleteImage(oldPublicId).catch(() => {});
+  }
+
+  user.avatarUrl = url;
+  await user.save();
+  return user;
 }
 
 export async function changePassword(userId, { currentPassword, newPassword }) {

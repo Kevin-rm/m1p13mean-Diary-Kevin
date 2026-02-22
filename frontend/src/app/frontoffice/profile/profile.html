@@ -1,6 +1,30 @@
 <div class="flex flex-col gap-6 pt-4">
   <div class="flex items-center gap-4">
-    <p-avatar [label]="authService.avatarLabel()" shape="circle" size="xlarge" />
+    <div class="relative">
+      @if (avatarPreview() || authService.avatarUrl()) {
+        <p-avatar
+          [image]="avatarPreview() || authService.avatarUrl()!"
+          shape="circle"
+          size="xlarge"
+        />
+      } @else {
+        <p-avatar [label]="authService.avatarLabel()" shape="circle" size="xlarge" />
+      }
+      <button
+        type="button"
+        class="absolute bottom-0 right-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary text-primary-contrast border-2 border-surface cursor-pointer"
+        (click)="avatarInput.click()"
+      >
+        <i class="pi pi-camera text-xs"></i>
+      </button>
+      <input
+        #avatarInput
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        class="hidden"
+        (change)="onAvatarSelected($event)"
+      />
+    </div>
     <div class="flex flex-col">
       <span class="text-2xl font-semibold">{{ authService.fullName() }}</span>
       <span class="text-muted-color">{{ authService.user()?.email }}</span>
@@ -133,4 +157,28 @@
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>
+
+  <p-dialog
+    header="Changer la photo de profil"
+    [(visible)]="cropperVisible"
+    [modal]="true"
+    [style]="{ width: '35rem' }"
+    [dt]="{ footer: { padding: '1.25rem 1.5rem' } }"
+    (onHide)="cancelCrop()"
+  >
+    <p class="p-text-secondary block mb-4">Recadrez la photo avant de l'enregistrer</p>
+    @if (cropperFile()) {
+      <image-cropper
+        [imageFile]="cropperFile()!"
+        [aspectRatio]="1"
+        [roundCropper]="true"
+        format="png"
+        (imageCropped)="onImageCropped($event)"
+      />
+    }
+    <ng-template #footer>
+      <p-button label="Annuler" severity="secondary" (onClick)="cancelCrop()" />
+      <p-button label="Confirmer" [loading]="avatarUploading()" (onClick)="confirmCrop()" />
+    </ng-template>
+  </p-dialog>
 </div>
