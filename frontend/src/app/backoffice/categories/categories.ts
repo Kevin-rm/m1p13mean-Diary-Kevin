@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { finalize } from "rxjs";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
+import { DataTable } from "@shared/data-table/data-table";
 import { Drawer } from "primeng/drawer";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
@@ -25,6 +26,7 @@ import { FormField } from "@shared/form-field";
     FormsModule,
     ReactiveFormsModule,
     TableModule,
+    DataTable,
     Drawer,
     InputText,
     Textarea,

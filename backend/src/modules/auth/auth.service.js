@@ -95,7 +95,7 @@ export async function registerShop({
             description: shopDescription,
             contactEmail,
             contactPhone,
-            createdBy: user._id,
+            owner: user._id,
           },
         ],
         { session },

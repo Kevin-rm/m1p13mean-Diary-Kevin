@@ -10,12 +10,12 @@ export async function listShops({ search, status, page, limit }) {
     filter,
     page,
     limit,
-    populate: { path: "createdBy", select: "firstName lastName email" },
+    populate: { path: "owner", select: "firstName lastName email" },
   });
 }
 
 export async function getShopById(id) {
-  return Shop.findById(id).populate("createdBy", "firstName lastName email");
+  return Shop.findById(id).populate("owner", "firstName lastName email");
 }
 
 export async function validateShop(id) {

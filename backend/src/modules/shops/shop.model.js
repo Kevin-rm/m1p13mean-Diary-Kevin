@@ -94,7 +94,7 @@ const shopSchema = createSchema({
     default: 0,
     min: 0,
   },
-  createdBy: {
+  owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,

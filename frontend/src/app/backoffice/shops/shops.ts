@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { finalize } from "rxjs";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
+import { ContactLink } from "@shared/contact-link";
+import { DataTable } from "@shared/data-table/data-table";
 import { InputText } from "primeng/inputtext";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
@@ -34,6 +36,8 @@ const STATUS_CONFIG: Record<string, { label: string; severity: "warn" | "success
   imports: [
     FormsModule,
     TableModule,
+    ContactLink,
+    DataTable,
     InputText,
     Select,
     Button,
