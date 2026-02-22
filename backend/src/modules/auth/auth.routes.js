@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { validate } from "../../utils/http/validate.js";
-import { authenticate } from "../../middlewares/authenticate.js";
+import { validate } from "#utils/http/validate.js";
+import { authenticate } from "#middlewares/authenticate.js";
 import { customerRegistrationRules, shopRegistrationRules, loginRules } from "./auth.validators.js";
 import * as authController from "./auth.controller.js";
 

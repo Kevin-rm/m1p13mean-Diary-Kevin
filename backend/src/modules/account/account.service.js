@@ -1,4 +1,4 @@
-import User from "../users/user.model.js";
+import User from "#modules/users/user.model.js";
 
 export async function updateProfile(userId, { firstName, lastName, avatarUrl }) {
   const update = { firstName, lastName };

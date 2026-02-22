@@ -1,5 +1,5 @@
-import { ok, created, unauthorized } from "../../utils/http/apiResponse.js";
-import { setAuthCookies, clearAuthCookies } from "../../utils/security/cookies.js";
+import { ok, created, unauthorized } from "#utils/http/apiResponse.js";
+import { setAuthCookies, clearAuthCookies } from "#utils/security/cookies.js";
 import * as authService from "./auth.service.js";
 
 export async function registerCustomer(req, res) {

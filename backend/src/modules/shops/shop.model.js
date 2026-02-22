@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { createSchema } from "../../utils/db/createSchema.js";
+import { createSchema } from "#utils/db/createSchema.js";
 
 export const SHOP_STATUSES = ["pending", "active", "suspended"];
 
@@ -94,7 +94,7 @@ const shopSchema = createSchema({
     default: 0,
     min: 0,
   },
-  createdBy: {
+  owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,

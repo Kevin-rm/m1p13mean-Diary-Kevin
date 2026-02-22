@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 import { Avatar } from "primeng/avatar";
 import { Menu } from "primeng/menu";
 import { MenuItem } from "primeng/api";
-import { AuthService } from "../../auth/auth.service";
+import { AuthService } from "@auth/auth.service";
 
 @Component({
   selector: "app-user-menu",

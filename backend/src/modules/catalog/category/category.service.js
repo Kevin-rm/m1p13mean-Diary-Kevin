@@ -1,6 +1,6 @@
 import Category from "./category.model.js";
-import { paginate } from "../../../utils/db/paginate.js";
-import { throwIfDuplicateKey } from "../../../utils/db/errors.js";
+import { paginate } from "#utils/db/paginate.js";
+import { throwIfDuplicateKey } from "#utils/db/errors.js";
 
 export async function listCategories({ search, isActive, page, limit }) {
   const filter = {};

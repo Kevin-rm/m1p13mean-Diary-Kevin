@@ -1,5 +1,5 @@
-import { verifyAccessToken } from "../utils/security/jwt.js";
-import { unauthorized } from "../utils/http/apiResponse.js";
+import { verifyAccessToken } from "#utils/security/jwt.js";
+import { unauthorized } from "#utils/http/apiResponse.js";
 
 export async function authenticate(req, res, next) {
   const token = req.cookies?.accessToken;

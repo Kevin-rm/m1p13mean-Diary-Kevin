@@ -1,5 +1,5 @@
 import { body, query } from "express-validator";
-import { mongoIdRules, paginationRules } from "../../../utils/validators.js";
+import { mongoIdRules, paginationRules } from "#utils/validators.js";
 
 export const listCategoriesRules = [
   query("search").optional().trim(),

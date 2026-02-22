@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { createSchema } from "../../utils/db/createSchema.js";
+import { createSchema } from "#utils/db/createSchema.js";
 
 const cartItemSchema = new mongoose.Schema(
   {

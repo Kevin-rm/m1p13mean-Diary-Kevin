@@ -1,4 +1,4 @@
-import { accessTokenConfig, refreshTokenConfig } from "../../config/auth.js";
+import { accessTokenConfig, refreshTokenConfig } from "#config/auth.js";
 
 const isProduction = process.env.NODE_ENV === "production";
 

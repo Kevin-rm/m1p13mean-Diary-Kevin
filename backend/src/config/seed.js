@@ -1,7 +1,7 @@
-import Profile from "../modules/users/profile.model.js";
-import Role from "../modules/users/role.model.js";
-import User from "../modules/users/user.model.js";
-import UserContext from "../modules/users/userContext.model.js";
+import Profile from "#modules/users/profile.model.js";
+import Role from "#modules/users/role.model.js";
+import User from "#modules/users/user.model.js";
+import UserContext from "#modules/users/userContext.model.js";
 import logger from "./logger.js";
 
 const profiles = [

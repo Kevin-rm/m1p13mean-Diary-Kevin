@@ -13,7 +13,8 @@ import { Textarea } from "primeng/textarea";
 import { Fieldset } from "primeng/fieldset";
 import { Divider } from "primeng/divider";
 import { AuthService } from "../auth.service";
-import { FormField } from "../../shared/form-field";
+import { extractErrorMessage } from "@core/utils/error";
+import { FormField } from "@shared/form-field";
 
 @Component({
   selector: "app-register",
@@ -97,9 +98,9 @@ export class Register implements OnInit {
 
     request$.subscribe({
       next: () => this.router.navigate(["/"]),
-      error: err => {
+      error: error => {
         this.loading.set(false);
-        this.errorMessage.set(err.error?.message || "An error occurred");
+        this.errorMessage.set(extractErrorMessage(error));
       },
     });
   }

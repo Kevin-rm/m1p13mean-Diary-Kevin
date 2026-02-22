@@ -1,4 +1,4 @@
-import { ok, created, notFound } from "../../../utils/http/apiResponse.js";
+import { ok, created, notFound } from "#utils/http/apiResponse.js";
 import * as categoryService from "./category.service.js";
 
 export async function listCategories(req, res) {

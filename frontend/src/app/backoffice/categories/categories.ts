@@ -1,7 +1,9 @@
 import { Component, inject, signal, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { finalize } from "rxjs";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
+import { DataTable } from "@shared/data-table/data-table";
 import { Drawer } from "primeng/drawer";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
@@ -11,10 +13,12 @@ import { Fluid } from "primeng/fluid";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { Tooltip } from "primeng/tooltip";
-import { Toast } from "../../core/utils/toast";
+import { extractErrorMessage } from "@core/utils/error";
+import { TableState } from "@core/utils/table-state";
+import { Toast } from "@core/utils/toast";
 import { CategoryService } from "./category.service";
 import { Category } from "./category.model";
-import { FormField } from "../../shared/form-field";
+import { FormField } from "@shared/form-field";
 
 @Component({
   selector: "app-admin-categories",
@@ -22,6 +26,7 @@ import { FormField } from "../../shared/form-field";
     FormsModule,
     ReactiveFormsModule,
     TableModule,
+    DataTable,
     Drawer,
     InputText,
     Textarea,
@@ -40,13 +45,9 @@ export class AdminCategories implements OnInit {
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
   private editingId: string | null = null;
-  private currentPage = 1;
-  private currentLimit = 10;
 
-  protected readonly categories = signal<Category[]>([]);
-  protected readonly totalRecords = signal(0);
-  protected readonly loading = signal(false);
-  protected readonly dialogVisible = signal(false);
+  protected readonly table = new TableState<Category>(inject(ActivatedRoute), inject(Router));
+  protected readonly drawerVisible = signal(false);
   protected readonly saving = signal(false);
   protected readonly editing = signal(false);
   protected searchValue = "";
@@ -57,27 +58,26 @@ export class AdminCategories implements OnInit {
   });
 
   ngOnInit(): void {
+    this.searchValue = this.table.readFilterParam("search");
     this.loadCategories();
   }
 
   protected loadCategories(event?: TableLazyLoadEvent): void {
-    if (event) {
-      this.currentPage = Math.floor((event.first ?? 0) / (event.rows ?? 10)) + 1;
-      this.currentLimit = event.rows ?? 10;
-    }
+    if (event) this.table.handleLazyLoad(event);
 
-    this.loading.set(true);
+    this.table.syncQueryParams({ search: this.searchValue || undefined });
+    this.table.loading.set(true);
     this.categoryService
       .list({
         search: this.searchValue || undefined,
-        page: this.currentPage,
-        limit: this.currentLimit,
+        page: this.table.page,
+        limit: this.table.limit,
       })
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(finalize(() => this.table.loading.set(false)))
       .subscribe({
         next: response => {
-          this.categories.set(response.data ?? []);
-          this.totalRecords.set((response.meta?.["total"] as number) ?? 0);
+          this.table.items.set(response.data ?? []);
+          this.table.totalRecords.set((response.meta?.["total"] as number) ?? 0);
         },
         error: () => {
           this.toast.error("Impossible de charger les catégories");
@@ -86,25 +86,25 @@ export class AdminCategories implements OnInit {
   }
 
   protected onSearch(): void {
-    this.currentPage = 1;
+    this.table.resetPage();
     this.loadCategories();
   }
 
-  protected openCreateDialog(): void {
+  protected openCreateDrawer(): void {
     this.editing.set(false);
     this.editingId = null;
     this.form.reset();
-    this.dialogVisible.set(true);
+    this.drawerVisible.set(true);
   }
 
-  protected openEditDialog(category: Category): void {
+  protected openEditDrawer(category: Category): void {
     this.editing.set(true);
     this.editingId = category.id;
     this.form.patchValue({
       name: category.name,
       description: category.description ?? "",
     });
-    this.dialogVisible.set(true);
+    this.drawerVisible.set(true);
   }
 
   protected saveCategory(): void {
@@ -120,11 +120,11 @@ export class AdminCategories implements OnInit {
     request$.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: response => {
         this.toast.success(response.message);
-        this.dialogVisible.set(false);
+        this.drawerVisible.set(false);
         this.loadCategories();
       },
-      error: response => {
-        this.toast.error(response.error?.message ?? "Une erreur est survenue");
+      error: error => {
+        this.toast.error(extractErrorMessage(error));
       },
     });
   }

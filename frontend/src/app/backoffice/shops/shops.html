@@ -1,0 +1,82 @@
+<h1 class="text-2xl font-semibold mb-4">Boutiques</h1>
+
+<div class="flex flex-col sm:flex-row gap-3 mb-4">
+  <p-iconfield>
+    <p-inputicon class="pi pi-search" />
+    <input
+      pInputText
+      id="shopSearch"
+      placeholder="Rechercher une boutique..."
+      [(ngModel)]="searchValue"
+      (input)="onSearch()"
+    />
+  </p-iconfield>
+
+  <p-select
+    inputId="shopStatusFilter"
+    [options]="statusOptions"
+    [(ngModel)]="statusFilter"
+    (onChange)="onStatusFilter()"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Filtrer par statut"
+    class="w-full sm:w-48"
+  />
+</div>
+
+<ng-template #headerTpl>
+  <tr>
+    <th pResizableColumn>Nom</th>
+    <th pResizableColumn>Propriétaire</th>
+    <th pResizableColumn>Email</th>
+    <th pResizableColumn>Téléphone</th>
+    <th pResizableColumn>Statut</th>
+    <th class="w-28">Actions</th>
+  </tr>
+</ng-template>
+
+<ng-template #bodyTpl let-shop>
+  <tr>
+    <td class="font-medium">{{ shop.name }}</td>
+    <td class="text-muted-color">{{ ownerName(shop) }}</td>
+    <td><app-contact-link type="email" [value]="shop.contactEmail" /></td>
+    <td><app-contact-link type="phone" [value]="shop.contactPhone" /></td>
+    <td>
+      <p-tag [value]="statusLabel(shop.status)" [severity]="statusSeverity(shop.status)" />
+    </td>
+    <td>
+      <div class="flex gap-1">
+        @if (shop.status === "pending") {
+          <p-button
+            icon="pi pi-check"
+            [text]="true"
+            [rounded]="true"
+            severity="success"
+            (click)="validateShop(shop)"
+            pTooltip="Valider"
+          />
+        }
+        @if (shop.status === "active") {
+          <p-button
+            icon="pi pi-ban"
+            [text]="true"
+            [rounded]="true"
+            severity="danger"
+            (click)="suspendShop(shop)"
+            pTooltip="Suspendre"
+          />
+        }
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<app-data-table
+  [state]="table"
+  [headerTpl]="headerTpl"
+  [bodyTpl]="bodyTpl"
+  [columns]="6"
+  emptyMessage="Aucune boutique trouvée"
+  [tableStyle]="{ 'min-width': '50rem' }"
+  (lazyLoad)="loadShops($event)"
+/>

@@ -1,5 +1,5 @@
-import UserContext from "../modules/users/userContext.model.js";
-import { forbidden } from "../utils/http/apiResponse.js";
+import UserContext from "#modules/users/userContext.model.js";
+import { forbidden } from "#utils/http/apiResponse.js";
 
 export function authorize(...requiredPermissions) {
   return async (req, res, next) => {

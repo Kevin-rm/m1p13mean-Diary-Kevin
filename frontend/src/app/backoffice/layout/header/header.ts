@@ -2,7 +2,7 @@ import { Component, inject, output } from "@angular/core";
 import { Router } from "@angular/router";
 import { Button } from "primeng/button";
 import { MenuItem } from "primeng/api";
-import { UserMenu } from "../../../shared/user-menu/user-menu";
+import { UserMenu } from "@shared/user-menu/user-menu";
 
 @Component({
   selector: "app-bo-header",
