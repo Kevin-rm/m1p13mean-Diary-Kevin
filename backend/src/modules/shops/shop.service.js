@@ -1,5 +1,5 @@
 import Shop from "./shop.model.js";
-import { paginate } from "../../utils/db/paginate.js";
+import { paginate } from "#utils/db/paginate.js";
 
 export async function listShops({ search, status, page, limit }) {
   const filter = {};

@@ -1,5 +1,5 @@
 import { body } from "express-validator";
-import { emailRules, nameRules, passwordRules } from "../../utils/validators.js";
+import { emailRules, nameRules, passwordRules } from "#utils/validators.js";
 
 const registrationRules = [...nameRules, emailRules(), passwordRules()];
 

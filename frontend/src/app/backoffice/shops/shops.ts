@@ -1,4 +1,5 @@
-import { Component, inject, signal, OnInit } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { finalize } from "rxjs";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
@@ -9,7 +10,9 @@ import { Tag } from "primeng/tag";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { Tooltip } from "primeng/tooltip";
-import { Toast } from "../../core/utils/toast";
+import { extractErrorMessage } from "@core/utils/error";
+import { TableState } from "@core/utils/table-state";
+import { Toast } from "@core/utils/toast";
 import { ShopService } from "./shop.service";
 import { Shop } from "./shop.model";
 
@@ -44,39 +47,38 @@ const STATUS_CONFIG: Record<string, { label: string; severity: "warn" | "success
 export class AdminShops implements OnInit {
   private readonly shopService = inject(ShopService);
   private readonly toast = inject(Toast);
-  private currentPage = 1;
-  private currentLimit = 10;
 
-  protected readonly shops = signal<Shop[]>([]);
-  protected readonly totalRecords = signal(0);
-  protected readonly loading = signal(false);
+  protected readonly table = new TableState<Shop>(inject(ActivatedRoute), inject(Router));
   protected readonly statusOptions = STATUS_OPTIONS;
   protected searchValue = "";
   protected statusFilter = "";
 
   ngOnInit(): void {
+    this.searchValue = this.table.readFilterParam("search");
+    this.statusFilter = this.table.readFilterParam("status");
     this.loadShops();
   }
 
   protected loadShops(event?: TableLazyLoadEvent): void {
-    if (event) {
-      this.currentPage = Math.floor((event.first ?? 0) / (event.rows ?? 10)) + 1;
-      this.currentLimit = event.rows ?? 10;
-    }
+    if (event) this.table.handleLazyLoad(event);
 
-    this.loading.set(true);
+    this.table.syncQueryParams({
+      search: this.searchValue || undefined,
+      status: this.statusFilter || undefined,
+    });
+    this.table.loading.set(true);
     this.shopService
       .list({
         search: this.searchValue || undefined,
         status: this.statusFilter || undefined,
-        page: this.currentPage,
-        limit: this.currentLimit,
+        page: this.table.page,
+        limit: this.table.limit,
       })
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(finalize(() => this.table.loading.set(false)))
       .subscribe({
         next: response => {
-          this.shops.set(response.data ?? []);
-          this.totalRecords.set((response.meta?.["total"] as number) ?? 0);
+          this.table.items.set(response.data ?? []);
+          this.table.totalRecords.set((response.meta?.["total"] as number) ?? 0);
         },
         error: () => {
           this.toast.error("Impossible de charger les boutiques");
@@ -85,12 +87,12 @@ export class AdminShops implements OnInit {
   }
 
   protected onSearch(): void {
-    this.currentPage = 1;
+    this.table.resetPage();
     this.loadShops();
   }
 
   protected onStatusFilter(): void {
-    this.currentPage = 1;
+    this.table.resetPage();
     this.loadShops();
   }
 
@@ -113,8 +115,8 @@ export class AdminShops implements OnInit {
         this.toast.success(response.message);
         this.loadShops();
       },
-      error: response => {
-        this.toast.error(response.error?.message ?? "Impossible de valider la boutique");
+      error: error => {
+        this.toast.error(extractErrorMessage(error, "Impossible de valider la boutique"));
       },
     });
   }
@@ -125,8 +127,8 @@ export class AdminShops implements OnInit {
         this.toast.success(response.message);
         this.loadShops();
       },
-      error: response => {
-        this.toast.error(response.error?.message ?? "Impossible de suspendre la boutique");
+      error: error => {
+        this.toast.error(extractErrorMessage(error, "Impossible de suspendre la boutique"));
       },
     });
   }

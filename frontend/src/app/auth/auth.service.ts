@@ -1,8 +1,8 @@
 import { Injectable, inject, signal, computed } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, tap, map, catchError, of, share, finalize, OperatorFunction } from "rxjs";
-import { environment } from "../../environments/environment";
-import { ApiResponse } from "../core/models/api-response.model";
+import { environment } from "@env/environment";
+import { ApiResponse } from "@core/models/api-response";
 import { AuthData, User, UserContext } from "./auth.models";
 
 interface AuthState {

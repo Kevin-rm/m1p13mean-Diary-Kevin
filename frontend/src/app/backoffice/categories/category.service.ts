@@ -1,9 +1,7 @@
-import { Injectable, inject } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { environment } from "../../../environments/environment";
-import { ApiResponse } from "../../core/models/api-response.model";
-import { buildQueryParams } from "../../core/utils/http-params";
+import { ApiResponse } from "@core/models/api-response";
+import { ResourceService } from "@core/services/resource";
 import { Category } from "./category.model";
 
 export interface CategoryListParams {
@@ -14,18 +12,11 @@ export interface CategoryListParams {
 }
 
 @Injectable({ providedIn: "root" })
-export class CategoryService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/categories`;
+export class CategoryService extends ResourceService<Category> {
+  protected readonly resourcePath = "categories";
 
-  list(params: CategoryListParams = {}): Observable<ApiResponse<Category[]>> {
-    return this.http.get<ApiResponse<Category[]>>(this.baseUrl, {
-      params: buildQueryParams(params),
-    });
-  }
-
-  getById(id: string): Observable<ApiResponse<Category>> {
-    return this.http.get<ApiResponse<Category>>(`${this.baseUrl}/${id}`);
+  override list(params: CategoryListParams = {}): Observable<ApiResponse<Category[]>> {
+    return super.list(params);
   }
 
   create(data: { name: string; description?: string }): Observable<ApiResponse<Category>> {

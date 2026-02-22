@@ -7,8 +7,8 @@ import {
 } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { BehaviorSubject, throwError, filter, switchMap, take, catchError } from "rxjs";
-import { environment } from "../../../environments/environment";
-import { AuthService } from "../../auth/auth.service";
+import { environment } from "@env/environment";
+import { AuthService } from "@auth/auth.service";
 
 let isRefreshing = false;
 const refreshSubject$ = new BehaviorSubject<boolean>(false);

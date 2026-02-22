@@ -1,6 +1,6 @@
 <div class="flex items-center justify-between mb-4">
   <h1 class="text-2xl font-semibold m-0">Catégories</h1>
-  <p-button label="Nouvelle catégorie" icon="pi pi-plus" (click)="openCreateDialog()" />
+  <p-button label="Nouvelle catégorie" icon="pi pi-plus" (click)="openCreateDrawer()" />
 </div>
 
 <div class="mb-4">
@@ -16,22 +16,25 @@
 </div>
 
 <p-table
-  [value]="categories()"
+  [value]="table.items()"
   [lazy]="true"
   [paginator]="true"
-  [rows]="10"
-  [totalRecords]="totalRecords()"
-  [loading]="loading()"
+  [rows]="table.rows()"
+  [first]="table.first()"
+  [totalRecords]="table.totalRecords()"
+  [loading]="table.loading()"
   (onLazyLoad)="loadCategories($event)"
   [rowsPerPageOptions]="[10, 25, 50]"
   [showCurrentPageReport]="true"
   currentPageReportTemplate="{first} - {last} sur {totalRecords}"
+  [resizableColumns]="true"
+  [showGridlines]="true"
 >
   <ng-template #header>
     <tr>
-      <th>Nom</th>
-      <th>Description</th>
-      <th>Statut</th>
+      <th pResizableColumn>Nom</th>
+      <th pResizableColumn>Description</th>
+      <th pResizableColumn>Statut</th>
       <th class="w-28">Actions</th>
     </tr>
   </ng-template>
@@ -53,7 +56,7 @@
             [text]="true"
             [rounded]="true"
             severity="info"
-            (click)="openEditDialog(category)"
+            (click)="openEditDrawer(category)"
             pTooltip="Modifier"
           />
           <p-button
@@ -78,13 +81,18 @@
 
 <p-drawer
   [header]="editing() ? 'Modifier la catégorie' : 'Nouvelle catégorie'"
-  [(visible)]="dialogVisible"
+  [(visible)]="drawerVisible"
   [modal]="true"
   position="right"
   styleClass="!w-full md:!w-80 lg:!w-[30rem]"
 >
   <p-fluid>
-    <form [formGroup]="form" (ngSubmit)="saveCategory()" class="flex flex-col gap-4">
+    <form
+      id="categoryForm"
+      [formGroup]="form"
+      (ngSubmit)="saveCategory()"
+      class="flex flex-col gap-4 pt-4"
+    >
       <app-form-field
         inputId="categoryName"
         label="Nom"
@@ -106,21 +114,26 @@
           rows="3"
         ></textarea>
       </app-form-field>
-
-      <div class="flex justify-end gap-2 pt-2">
-        <p-button
-          label="Annuler"
-          severity="secondary"
-          [text]="true"
-          (click)="dialogVisible.set(false)"
-        />
-        <p-button
-          [label]="saving() ? 'Enregistrement...' : 'Enregistrer'"
-          type="submit"
-          [disabled]="form.invalid || saving()"
-          [loading]="saving()"
-        />
-      </div>
     </form>
   </p-fluid>
+
+  <ng-template #footer>
+    <div class="flex items-center justify-end gap-4">
+      <p-button
+        label="Annuler"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        (click)="drawerVisible.set(false)"
+      />
+      <p-button
+        [label]="saving() ? 'Enregistrement...' : 'Enregistrer'"
+        icon="pi pi-check"
+        form="categoryForm"
+        type="submit"
+        [disabled]="form.invalid || saving()"
+        [loading]="saving()"
+      />
+    </div>
+  </ng-template>
 </p-drawer>

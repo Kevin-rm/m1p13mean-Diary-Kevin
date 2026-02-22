@@ -23,24 +23,27 @@
 </div>
 
 <p-table
-  [value]="shops()"
+  [value]="table.items()"
   [lazy]="true"
   [paginator]="true"
-  [rows]="10"
-  [totalRecords]="totalRecords()"
-  [loading]="loading()"
+  [rows]="table.rows()"
+  [first]="table.first()"
+  [totalRecords]="table.totalRecords()"
+  [loading]="table.loading()"
   (onLazyLoad)="loadShops($event)"
   [rowsPerPageOptions]="[10, 25, 50]"
   [showCurrentPageReport]="true"
   currentPageReportTemplate="{first} - {last} sur {totalRecords}"
   [tableStyle]="{ 'min-width': '50rem' }"
+  [resizableColumns]="true"
+  [showGridlines]="true"
 >
   <ng-template #header>
     <tr>
-      <th>Nom</th>
-      <th>Propriétaire</th>
-      <th>Email contact</th>
-      <th>Statut</th>
+      <th pResizableColumn>Nom</th>
+      <th pResizableColumn>Propriétaire</th>
+      <th pResizableColumn>Email contact</th>
+      <th pResizableColumn>Statut</th>
       <th class="w-28">Actions</th>
     </tr>
   </ng-template>

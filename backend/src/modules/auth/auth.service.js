@@ -1,17 +1,17 @@
-import User from "../users/user.model.js";
-import Profile from "../users/profile.model.js";
-import Role from "../users/role.model.js";
-import UserContext from "../users/userContext.model.js";
-import Shop from "../shops/shop.model.js";
+import User from "#modules/users/user.model.js";
+import Profile from "#modules/users/profile.model.js";
+import Role from "#modules/users/role.model.js";
+import UserContext from "#modules/users/userContext.model.js";
+import Shop from "#modules/shops/shop.model.js";
 import RefreshToken from "./refreshToken.model.js";
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from "../../utils/security/jwt.js";
-import { throwIfDuplicateKey } from "../../utils/db/errors.js";
-import { refreshTokenConfig } from "../../config/auth.js";
-import { withTransaction } from "../../utils/db/withTransaction.js";
+} from "#utils/security/jwt.js";
+import { throwIfDuplicateKey } from "#utils/db/errors.js";
+import { refreshTokenConfig } from "#config/auth.js";
+import { withTransaction } from "#utils/db/withTransaction.js";
 
 async function generateTokens(user, context, profileCode, session = null) {
   const tokenPayload = {

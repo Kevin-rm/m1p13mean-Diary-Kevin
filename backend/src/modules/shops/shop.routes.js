@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { validate } from "../../utils/http/validate.js";
-import { authenticate } from "../../middlewares/authenticate.js";
-import { authorize } from "../../middlewares/authorize.js";
+import { validate } from "#utils/http/validate.js";
+import { authenticate } from "#middlewares/authenticate.js";
+import { authorize } from "#middlewares/authorize.js";
 import {
   listShopsRules,
   getShopRules,

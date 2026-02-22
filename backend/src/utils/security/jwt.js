@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
-import { accessTokenConfig, refreshTokenConfig } from "../../config/auth.js";
+import { accessTokenConfig, refreshTokenConfig } from "#config/auth.js";
 import { MS_PER_SECOND } from "../constants.js";
 
 function sign(payload, config) {

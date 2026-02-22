@@ -1,4 +1,4 @@
-import { ok, badRequest, unauthorized } from "../../utils/http/apiResponse.js";
+import { ok, badRequest, unauthorized } from "#utils/http/apiResponse.js";
 import * as accountService from "./account.service.js";
 
 export async function updateProfile(req, res) {

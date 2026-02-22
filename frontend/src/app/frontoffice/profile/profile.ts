@@ -8,12 +8,13 @@ import { InputText } from "primeng/inputtext";
 import { Password } from "primeng/password";
 import { Button } from "primeng/button";
 import { Fluid } from "primeng/fluid";
-import { environment } from "../../../environments/environment";
-import { ApiResponse } from "../../core/models/api-response.model";
-import { AuthService } from "../../auth/auth.service";
-import { User } from "../../auth/auth.models";
-import { Toast } from "../../core/utils/toast";
-import { FormField } from "../../shared/form-field";
+import { environment } from "@env/environment";
+import { ApiResponse } from "@core/models/api-response";
+import { extractErrorMessage } from "@core/utils/error";
+import { AuthService } from "@auth/auth.service";
+import { User } from "@auth/auth.models";
+import { Toast } from "@core/utils/toast";
+import { FormField } from "@shared/form-field";
 
 @Component({
   selector: "app-profile",
@@ -78,8 +79,8 @@ export class Profile implements OnInit {
           this.profileForm.markAsPristine();
           this.authService.checkAuthState().subscribe();
         },
-        error: err => {
-          this.toast.error(err.error?.message || "Une erreur est survenue");
+        error: error => {
+          this.toast.error(extractErrorMessage(error));
         },
       });
   }
@@ -97,8 +98,8 @@ export class Profile implements OnInit {
           this.toast.success("Mot de passe modifié");
           this.passwordForm.reset();
         },
-        error: err => {
-          this.toast.error(err.error?.message || "Une erreur est survenue");
+        error: error => {
+          this.toast.error(extractErrorMessage(error));
         },
       });
   }

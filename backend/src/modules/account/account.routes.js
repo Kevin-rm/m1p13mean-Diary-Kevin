@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { validate } from "../../utils/http/validate.js";
-import { authenticate } from "../../middlewares/authenticate.js";
+import { validate } from "#utils/http/validate.js";
+import { authenticate } from "#middlewares/authenticate.js";
 import { updateProfileRules, changePasswordRules } from "./account.validators.js";
 import * as accountController from "./account.controller.js";
 

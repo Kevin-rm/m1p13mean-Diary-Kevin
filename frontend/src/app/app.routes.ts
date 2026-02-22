@@ -1,10 +1,10 @@
 import { Routes } from "@angular/router";
-import { guestGuard } from "./auth/guards/guest.guard";
-import { authGuard } from "./auth/guards/auth.guard";
-import { backofficeRedirectGuard } from "./auth/guards/backoffice-redirect.guard";
-import { profileGuard } from "./auth/guards/profile.guard";
-import { permissionGuard } from "./auth/guards/permission.guard";
-import { FrontOffice } from "./frontoffice/layout/front-office";
+import { guestGuard } from "@auth/guards/guest.guard";
+import { authGuard } from "@auth/guards/auth.guard";
+import { backofficeRedirectGuard } from "@auth/guards/backoffice-redirect.guard";
+import { profileGuard } from "@auth/guards/profile.guard";
+import { permissionGuard } from "@auth/guards/permission.guard";
+import { FrontOffice } from "@frontoffice/layout/front-office";
 
 export const routes: Routes = [
   {
@@ -13,41 +13,41 @@ export const routes: Routes = [
     children: [
       {
         path: "",
-        loadComponent: () => import("./frontoffice/landing/landing").then(m => m.Landing),
+        loadComponent: () => import("@frontoffice/landing/landing").then(m => m.Landing),
       },
       {
         path: "login",
         canActivate: [guestGuard],
-        loadComponent: () => import("./auth/login/login").then(m => m.Login),
+        loadComponent: () => import("@auth/login/login").then(m => m.Login),
       },
       {
         path: "register",
         canActivate: [guestGuard],
-        loadComponent: () => import("./auth/register/register").then(m => m.Register),
+        loadComponent: () => import("@auth/register/register").then(m => m.Register),
       },
       {
         path: "shops",
-        loadComponent: () => import("./frontoffice/shops/shops").then(m => m.Shops),
+        loadComponent: () => import("@frontoffice/shops/shops").then(m => m.Shops),
       },
       {
         path: "products",
-        loadComponent: () => import("./frontoffice/products/products").then(m => m.Products),
+        loadComponent: () => import("@frontoffice/products/products").then(m => m.Products),
       },
       {
         path: "categories",
-        loadComponent: () => import("./frontoffice/categories/categories").then(m => m.Categories),
+        loadComponent: () => import("@frontoffice/categories/categories").then(m => m.Categories),
       },
       {
         path: "profile",
         canActivate: [authGuard],
-        loadComponent: () => import("./frontoffice/profile/profile").then(m => m.Profile),
+        loadComponent: () => import("@frontoffice/profile/profile").then(m => m.Profile),
       },
     ],
   },
   {
     path: "backoffice",
     canActivate: [authGuard],
-    loadComponent: () => import("./backoffice/layout/back-office").then(m => m.BackOffice),
+    loadComponent: () => import("@backoffice/layout/back-office").then(m => m.BackOffice),
     children: [
       {
         path: "",
@@ -67,13 +67,13 @@ export const routes: Routes = [
           {
             path: "shops",
             canActivate: [permissionGuard("shops:validate")],
-            loadComponent: () => import("./backoffice/shops/shops").then(m => m.AdminShops),
+            loadComponent: () => import("@backoffice/shops/shops").then(m => m.AdminShops),
           },
           {
             path: "categories",
             canActivate: [permissionGuard("categories:write")],
             loadComponent: () =>
-              import("./backoffice/categories/categories").then(m => m.AdminCategories),
+              import("@backoffice/categories/categories").then(m => m.AdminCategories),
           },
         ],
       },

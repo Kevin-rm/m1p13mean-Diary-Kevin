@@ -1,4 +1,4 @@
-import { ok, notFound, badRequest } from "../../utils/http/apiResponse.js";
+import { ok, notFound, badRequest } from "#utils/http/apiResponse.js";
 import * as shopService from "./shop.service.js";
 
 export async function listShops(req, res) {

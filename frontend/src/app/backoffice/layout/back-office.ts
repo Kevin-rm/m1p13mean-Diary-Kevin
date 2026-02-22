@@ -2,12 +2,13 @@ import { Component, signal } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { Drawer } from "primeng/drawer";
 import { Sidebar } from "./sidebar/sidebar";
+import { SidebarNav } from "./sidebar/sidebar-nav";
 import { BoHeader } from "./header/header";
-import { Footer } from "../../shared/footer/footer";
+import { Footer } from "@shared/footer/footer";
 
 @Component({
   selector: "app-back-office",
-  imports: [RouterOutlet, Drawer, Sidebar, BoHeader, Footer],
+  imports: [RouterOutlet, Drawer, Sidebar, SidebarNav, BoHeader, Footer],
   templateUrl: "./back-office.html",
 })
 export class BackOffice {

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { createSchema } from "../../utils/db/createSchema.js";
+import { createSchema } from "#utils/db/createSchema.js";
 
 export const NOTIFICATION_TYPES = [
   "order_status_changed",

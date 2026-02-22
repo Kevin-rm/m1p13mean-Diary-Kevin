@@ -1,4 +1,4 @@
-import { MS_PER_SECOND } from "../utils/constants.js";
+import { MS_PER_SECOND } from "#utils/constants.js";
 
 const encoder = new TextEncoder();
 

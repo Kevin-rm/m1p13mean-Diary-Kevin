@@ -1,0 +1,23 @@
+import { inject } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { environment } from "@env/environment";
+import { ApiResponse } from "../models/api-response";
+import { buildQueryParams } from "../utils/http-params";
+
+export abstract class ResourceService<T> {
+  protected readonly http = inject(HttpClient);
+  protected abstract readonly resourcePath: string;
+
+  protected get baseUrl(): string {
+    return `${environment.apiUrl}/${this.resourcePath}`;
+  }
+
+  list<P extends object>(params: P = {} as P): Observable<ApiResponse<T[]>> {
+    return this.http.get<ApiResponse<T[]>>(this.baseUrl, { params: buildQueryParams(params) });
+  }
+
+  getById(id: string): Observable<ApiResponse<T>> {
+    return this.http.get<ApiResponse<T>>(`${this.baseUrl}/${id}`);
+  }
+}

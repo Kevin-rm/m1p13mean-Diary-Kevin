@@ -1,5 +1,5 @@
 import { body } from "express-validator";
-import { nameRules, passwordRules } from "../../utils/validators.js";
+import { nameRules, passwordRules } from "#utils/validators.js";
 
 export const updateProfileRules = [
   ...nameRules,

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { createSchema } from "../../utils/db/createSchema.js";
+import { createSchema } from "#utils/db/createSchema.js";
 
 export const ACTIVITY_LOG_ACTIONS = ["create", "update", "delete"];
 

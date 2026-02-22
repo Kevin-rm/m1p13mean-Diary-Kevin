@@ -13,9 +13,9 @@ import Aura from "@primeuix/themes/aura";
 import { firstValueFrom } from "rxjs";
 
 import { routes } from "./app.routes";
-import { credentialsInterceptor } from "./core/interceptors/credentials.interceptor";
-import { authInterceptor } from "./core/interceptors/auth.interceptor";
-import { AuthService } from "./auth/auth.service";
+import { credentialsInterceptor } from "@core/interceptors/credentials-interceptor";
+import { authInterceptor } from "@core/interceptors/auth-interceptor";
+import { AuthService } from "@auth/auth.service";
 
 export const appConfig: ApplicationConfig = {
   providers: [

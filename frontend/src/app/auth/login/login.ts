@@ -8,7 +8,8 @@ import { Button } from "primeng/button";
 import { Fluid } from "primeng/fluid";
 import { Message } from "primeng/message";
 import { AuthService } from "../auth.service";
-import { FormField } from "../../shared/form-field";
+import { extractErrorMessage } from "@core/utils/error";
+import { FormField } from "@shared/form-field";
 
 @Component({
   selector: "app-login",
@@ -46,9 +47,9 @@ export class Login {
 
     this.authService.login(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(["/"]),
-      error: err => {
+      error: error => {
         this.loading.set(false);
-        this.errorMessage.set(err.error?.message || "An error occurred");
+        this.errorMessage.set(extractErrorMessage(error));
       },
     });
   }
