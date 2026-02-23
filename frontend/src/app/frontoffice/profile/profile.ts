@@ -8,6 +8,8 @@ import { InputText } from "primeng/inputtext";
 import { Password } from "primeng/password";
 import { Button } from "primeng/button";
 import { Fluid } from "primeng/fluid";
+import { Dialog } from "primeng/dialog";
+import { ImageCropperComponent, ImageCroppedEvent } from "ngx-image-cropper";
 import { environment } from "@env/environment";
 import { ApiResponse } from "@core/models/api-response";
 import { extractErrorMessage } from "@core/utils/error";
@@ -30,6 +32,8 @@ import { FormField } from "@shared/form-field";
     Password,
     Button,
     Fluid,
+    Dialog,
+    ImageCropperComponent,
     FormField,
   ],
   templateUrl: "./profile.html",
@@ -39,11 +43,15 @@ export class Profile implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly toast = inject(Toast);
   private readonly accountUrl = `${environment.apiUrl}/account`;
+  private croppedBlob: Blob | null = null;
 
   protected readonly authService = inject(AuthService);
-
   protected readonly profileLoading = signal(false);
   protected readonly passwordLoading = signal(false);
+  protected readonly avatarPreview = signal<string | null>(null);
+  protected readonly avatarUploading = signal(false);
+  protected readonly cropperVisible = signal(false);
+  protected readonly cropperFile = signal<File | null>(null);
 
   protected readonly profileForm = this.fb.nonNullable.group({
     firstName: ["", Validators.required],
@@ -60,6 +68,56 @@ export class Profile implements OnInit {
     if (user) {
       this.profileForm.patchValue({ firstName: user.firstName, lastName: user.lastName });
     }
+  }
+
+  protected onAvatarSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.cropperFile.set(file);
+    this.cropperVisible.set(true);
+    input.value = "";
+  }
+
+  protected onImageCropped(event: ImageCroppedEvent): void {
+    this.croppedBlob = event.blob ?? null;
+  }
+
+  protected confirmCrop(): void {
+    if (!this.croppedBlob) return;
+
+    const blob = this.croppedBlob;
+    this.avatarPreview.set(URL.createObjectURL(blob));
+    this.avatarUploading.set(true);
+
+    const formData = new FormData();
+    formData.append("avatar", blob, "avatar.png");
+
+    this.http
+      .patch<ApiResponse<{ user: User }>>(`${this.accountUrl}/avatar`, formData)
+      .pipe(finalize(() => this.avatarUploading.set(false)))
+      .subscribe({
+        next: () => {
+          this.toast.success("Photo de profil mise à jour");
+          this.avatarPreview.set(null);
+          this.authService.checkAuthState().subscribe();
+        },
+        error: error => {
+          this.avatarPreview.set(null);
+          this.toast.error(extractErrorMessage(error));
+        },
+      });
+
+    this.cropperVisible.set(false);
+    this.cropperFile.set(null);
+    this.croppedBlob = null;
+  }
+
+  protected cancelCrop(): void {
+    this.cropperVisible.set(false);
+    this.cropperFile.set(null);
+    this.croppedBlob = null;
   }
 
   protected onProfileSubmit(): void {
