@@ -19,6 +19,10 @@ export class ShopService extends ResourceService<Shop> {
     return super.list(params);
   }
 
+  getByOwnerEmail(email: string | undefined): Observable<ApiResponse<Shop>> {
+    return this.http.get<ApiResponse<Shop>>(`${this.baseUrl}/owner/${email}`, {});
+  }
+
   validate(id: string): Observable<ApiResponse<Shop>> {
     return this.http.patch<ApiResponse<Shop>>(`${this.baseUrl}/${id}/validate`, {});
   }

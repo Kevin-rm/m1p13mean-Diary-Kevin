@@ -12,6 +12,12 @@ export async function getShop(req, res) {
   return ok(res, shop);
 }
 
+export async function getShopOwner(req, res) {
+  const shop = await shopService.getShopByOwnerEmail(req.params.email);
+  if (!shop) return notFound(res, "Shop not found");
+  return ok(res, shop);
+}
+
 export async function validateShop(req, res) {
   const result = await shopService.validateShop(req.params.id);
   if (result.error === "not_found") return notFound(res, "Shop not found");

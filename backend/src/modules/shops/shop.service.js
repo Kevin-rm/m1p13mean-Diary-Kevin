@@ -1,4 +1,5 @@
 import Shop from "./shop.model.js";
+import User from "#modules/users/user.model.js";
 import { paginate } from "#utils/db/paginate.js";
 
 export async function listShops({ search, status, page, limit }) {
@@ -16,6 +17,15 @@ export async function listShops({ search, status, page, limit }) {
 
 export async function getShopById(id) {
   return Shop.findById(id).populate("owner", "firstName lastName email");
+}
+
+export async function getShopByOwnerEmail(email) {
+  const user = await User.findOne({ email: email.toLowerCase().trim() });
+  if (!user) {
+    return null;
+  }
+  const shop = await Shop.findOne({ owner: user._id });
+  return shop;
 }
 
 export async function validateShop(id) {

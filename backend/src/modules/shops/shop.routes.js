@@ -14,9 +14,11 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get("/", authorize("shops:validate"), validate(listShopsRules), shopController.listShops);
+router.get("/", validate(listShopsRules), shopController.listShops);
 
-router.get("/:id", authorize("shops:validate"), validate(getShopRules), shopController.getShop);
+router.get("/:id", validate(getShopRules), shopController.getShop);
+
+router.get("/owner/:email", authorize("shop:settings"), shopController.getShopOwner);
 
 router.patch(
   "/:id/validate",

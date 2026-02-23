@@ -31,6 +31,7 @@ export class Shops {
   loadShops() {
     this.shopService.list({ status: "active", page: 1, limit: 20 }).subscribe({
       next: res => {
+        console.log(res.data);
         this.shops.set(res.data ?? []);
         this.loading.set(false);
       },
