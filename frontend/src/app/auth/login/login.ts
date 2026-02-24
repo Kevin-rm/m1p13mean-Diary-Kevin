@@ -46,7 +46,7 @@ export class Login {
     this.errorMessage.set("");
 
     this.authService.login(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigate(["/"]),
+      next: () => this.router.navigate(["/backoffice"]),
       error: error => {
         this.loading.set(false);
         this.errorMessage.set(extractErrorMessage(error));

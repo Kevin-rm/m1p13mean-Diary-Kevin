@@ -2,6 +2,7 @@ import { Router } from "express";
 import { validate } from "#utils/http/validate.js";
 import { authenticate } from "#middlewares/authenticate.js";
 import { authorize } from "#middlewares/authorize.js";
+import { singleImage, handleMulterError } from "#utils/upload/multer.js";
 import {
   listShopsRules,
   getShopRules,
@@ -14,9 +15,19 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get("/", authorize("shops:validate"), validate(listShopsRules), shopController.listShops);
+router.get("/", validate(listShopsRules), shopController.listShops);
 
-router.get("/:id", authorize("shops:validate"), validate(getShopRules), shopController.getShop);
+router.get("/:id", validate(getShopRules), shopController.getShop);
+
+router.get("/owner/:email", authorize("shop:settings"), shopController.getShopOwner);
+
+router.post(
+  "/:id/image",
+  authorize("shop:settings"),
+  singleImage("shopImage"),
+  handleMulterError,
+  shopController.addShopImage,
+);
 
 router.patch(
   "/:id/validate",

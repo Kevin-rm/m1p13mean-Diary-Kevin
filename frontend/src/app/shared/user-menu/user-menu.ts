@@ -2,7 +2,7 @@ import { Component, inject, input, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
 import { Avatar } from "primeng/avatar";
 import { Menu } from "primeng/menu";
-import { MenuItem } from "primeng/api";
+import { ConfirmationService, MenuItem } from "primeng/api";
 import { AuthService } from "@auth/auth.service";
 
 @Component({
@@ -12,6 +12,7 @@ import { AuthService } from "@auth/auth.service";
 })
 export class UserMenu {
   private readonly router = inject(Router);
+  private readonly confirmationService = inject(ConfirmationService);
 
   protected readonly authService = inject(AuthService);
 
@@ -27,7 +28,7 @@ export class UserMenu {
         label: "Se déconnecter",
         icon: "pi pi-sign-out",
         styleClass: "text-red-500",
-        command: () => this.logout(),
+        command: () => this.confirmLogout(),
       },
     ];
   }
@@ -36,9 +37,17 @@ export class UserMenu {
     this.userMenu.toggle(event);
   }
 
-  private logout(): void {
-    this.authService.logout().subscribe(() => {
-      this.router.navigate(["/login"]);
+  private confirmLogout(): void {
+    this.confirmationService.confirm({
+      message: "Voulez-vous vraiment vous déconnecter ?",
+      header: "Déconnexion",
+      acceptButtonProps: { label: "Se déconnecter", severity: "danger" },
+      rejectButtonProps: { label: "Annuler", severity: "secondary", outlined: true },
+      accept: () => {
+        this.authService.logout().subscribe(() => {
+          this.router.navigate(["/login"]);
+        });
+      },
     });
   }
 }
