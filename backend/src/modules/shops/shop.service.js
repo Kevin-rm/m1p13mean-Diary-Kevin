@@ -1,6 +1,7 @@
 import Shop from "./shop.model.js";
 import User from "#modules/users/user.model.js";
 import { paginate } from "#utils/db/paginate.js";
+import { uploadImage } from "#utils/upload/cloudinary.js";
 
 export async function listShops({ search, status, page, limit }) {
   const filter = {};
@@ -25,6 +26,17 @@ export async function getShopByOwnerEmail(email) {
     return null;
   }
   const shop = await Shop.findOne({ owner: user._id });
+  return shop;
+}
+
+export async function addShopImage(idShop, file) {
+  const shop = await Shop.findById(idShop);
+  if (!shop) return null;
+
+  const { url } = await uploadImage(file.buffer, { folder: "img-shop" });
+  shop.images.push(url);
+
+  await shop.save();
   return shop;
 }
 

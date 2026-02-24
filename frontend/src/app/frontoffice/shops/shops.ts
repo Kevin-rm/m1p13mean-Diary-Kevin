@@ -9,6 +9,7 @@ import { Shop } from "./shop.model";
   selector: "app-shops",
   standalone: true,
   templateUrl: "./shops.html",
+  styleUrls: ["./shop.css"],
   imports: [CommonModule, FontAwesomeModule],
 })
 export class Shops {

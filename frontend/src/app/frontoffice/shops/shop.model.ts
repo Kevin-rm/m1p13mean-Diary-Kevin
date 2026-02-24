@@ -1,7 +1,7 @@
 export interface Shop {
   id: string;
   name: string;
-  image: string[];
+  images?: string[];
   description: string;
   contactEmail?: string;
   contactPhone?: string;
