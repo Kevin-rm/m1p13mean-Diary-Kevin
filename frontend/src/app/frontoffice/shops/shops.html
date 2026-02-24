@@ -23,7 +23,7 @@
           class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition overflow-hidden flex flex-col"
         >
           <div
-            class="relative w-full h-56 overflow-x-auto flex snap-x snap-mandatory scroll-smooth"
+            class="relative w-full h-56 overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory scroll-smooth scrollbar-hide cursor-grab active:cursor-grabbing"
           >
             @if (shop.images && shop.images.length > 0) {
               @for (img of shop.images; track img) {
