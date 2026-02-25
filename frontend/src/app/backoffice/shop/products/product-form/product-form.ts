@@ -1,11 +1,12 @@
 import { Component, inject, signal, OnInit } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { finalize } from "rxjs";
 import { Button } from "primeng/button";
 import { Fluid } from "primeng/fluid";
 import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
+import { PageHeader } from "@backoffice/layout/page-header";
 import { CategoryService } from "@backoffice/admin/categories/category.service";
 import { Category } from "@backoffice/admin/categories/category.model";
 import { ProductFormFields } from "../product-form-fields/product-form-fields";
@@ -13,7 +14,7 @@ import { ProductService } from "../product.service";
 
 @Component({
   selector: "app-shop-product-form",
-  imports: [ReactiveFormsModule, RouterLink, Button, Fluid, ProductFormFields],
+  imports: [ReactiveFormsModule, Button, Fluid, PageHeader, ProductFormFields],
   templateUrl: "./product-form.html",
 })
 export class ShopProductForm implements OnInit {

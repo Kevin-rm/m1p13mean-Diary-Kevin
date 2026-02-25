@@ -4,7 +4,7 @@ import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
 import { InputNumber } from "primeng/inputnumber";
 import { Select } from "primeng/select";
-import { FormField } from "@shared/form-field";
+import { FormField } from "@shared/components/form-field";
 import { Category } from "@backoffice/admin/categories/category.model";
 
 @Component({

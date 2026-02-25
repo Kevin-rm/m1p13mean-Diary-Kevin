@@ -1,15 +1,16 @@
 import { Component, inject, signal, OnInit } from "@angular/core";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { CurrencyPipe, DatePipe } from "@angular/common";
 import { finalize } from "rxjs";
 import { Button } from "primeng/button";
-import { ActiveTag } from "@shared/active-tag";
+import { ActiveTag } from "@shared/components/active-tag";
 import { Fluid } from "primeng/fluid";
 import { ConfirmDialog } from "primeng/confirmdialog";
 import { ConfirmationService } from "primeng/api";
 import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
+import { PageHeader } from "@backoffice/layout/page-header";
 import { CategoryService } from "@backoffice/admin/categories/category.service";
 import { Category } from "@backoffice/admin/categories/category.model";
 import { ProductFormFields } from "../product-form-fields/product-form-fields";
@@ -20,13 +21,13 @@ import { Product } from "../product.model";
   selector: "app-shop-product-record",
   imports: [
     ReactiveFormsModule,
-    RouterLink,
     CurrencyPipe,
     DatePipe,
     Button,
     ActiveTag,
     Fluid,
     ConfirmDialog,
+    PageHeader,
     ProductFormFields,
   ],
   providers: [ConfirmationService],

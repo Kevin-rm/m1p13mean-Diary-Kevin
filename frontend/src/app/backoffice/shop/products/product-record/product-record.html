@@ -1,15 +1,6 @@
 <p-confirmDialog />
 
-<div class="flex items-center gap-3 mb-6">
-  <p-button
-    icon="pi pi-arrow-left"
-    [text]="true"
-    [rounded]="true"
-    severity="secondary"
-    routerLink="/backoffice/shop/products"
-  />
-  <h1 class="text-2xl font-semibold m-0">Détail du produit</h1>
-</div>
+<app-page-header title="Détail du produit" [back]="true" />
 
 @if (loading()) {
   <div class="flex justify-center py-12">

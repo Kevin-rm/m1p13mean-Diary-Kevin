@@ -3,20 +3,22 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { CurrencyPipe } from "@angular/common";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
-import { DataTable } from "@shared/data-table/data-table";
+import { DataTable } from "@shared/components/data-table/data-table";
 import { InputText } from "primeng/inputtext";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
-import { ActiveTag } from "@shared/active-tag";
+import { ActiveTag } from "@shared/components/active-tag";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { Tooltip } from "primeng/tooltip";
+import { PageHeader } from "@backoffice/layout/page-header";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
 import { CategoryService } from "@backoffice/admin/categories/category.service";
 import { Category } from "@backoffice/admin/categories/category.model";
 import { ProductService } from "../product.service";
+import { NoValuePipe } from "@shared/pipes/no-value";
 import { Product } from "../product.model";
 
 const STATUS_OPTIONS = [
@@ -39,6 +41,8 @@ const STATUS_OPTIONS = [
     IconField,
     InputIcon,
     Tooltip,
+    PageHeader,
+    NoValuePipe,
   ],
   templateUrl: "./product-list.html",
 })

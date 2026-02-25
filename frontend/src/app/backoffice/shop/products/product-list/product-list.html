@@ -1,7 +1,6 @@
-<div class="flex items-center justify-between mb-4">
-  <h1 class="text-2xl font-semibold m-0">Produits</h1>
+<app-page-header title="Produits">
   <p-button label="Nouveau produit" icon="pi pi-plus" (click)="navigateToNew()" />
-</div>
+</app-page-header>
 
 <div class="flex flex-col sm:flex-row gap-3 mb-4">
   <p-iconfield>
@@ -66,7 +65,7 @@
       }
     </td>
     <td class="font-medium">{{ product.name }}</td>
-    <td class="text-muted-color">{{ product.category?.name || "—" }}</td>
+    <td class="text-muted-color">{{ product.category?.name | noValue }}</td>
     <td>{{ product.price | currency: "MGA" : "symbol" : "1.0-0" }}</td>
     <td>{{ product.stock }}</td>
     <td>

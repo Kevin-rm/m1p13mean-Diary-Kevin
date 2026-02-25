@@ -9,7 +9,7 @@ import { Fluid } from "primeng/fluid";
 import { Message } from "primeng/message";
 import { AuthService } from "../auth.service";
 import { extractErrorMessage } from "@core/utils/error";
-import { FormField } from "@shared/form-field";
+import { FormField } from "@shared/components/form-field";
 
 @Component({
   selector: "app-login",

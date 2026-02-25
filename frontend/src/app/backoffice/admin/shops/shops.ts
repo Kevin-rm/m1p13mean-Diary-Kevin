@@ -2,8 +2,8 @@ import { Component, inject, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
-import { ContactLink } from "@shared/contact-link";
-import { DataTable } from "@shared/data-table/data-table";
+import { ContactLink } from "@shared/components/contact-link";
+import { DataTable } from "@shared/components/data-table/data-table";
 import { InputText } from "primeng/inputtext";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
@@ -11,6 +11,8 @@ import { Tag } from "primeng/tag";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { Tooltip } from "primeng/tooltip";
+import { PageHeader } from "@backoffice/layout/page-header";
+import { NO_VALUE } from "@shared/pipes/no-value";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
@@ -44,6 +46,7 @@ const STATUS_CONFIG: Record<string, { label: string; severity: "warn" | "success
     IconField,
     InputIcon,
     Tooltip,
+    PageHeader,
   ],
   templateUrl: "./shops.html",
 })
@@ -96,7 +99,7 @@ export class AdminShops implements OnInit {
   }
 
   protected ownerName(shop: Shop): string {
-    if (!shop.owner) return "—";
+    if (!shop.owner) return NO_VALUE;
     return `${shop.owner.firstName} ${shop.owner.lastName}`;
   }
 

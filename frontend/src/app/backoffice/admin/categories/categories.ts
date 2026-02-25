@@ -3,22 +3,24 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { finalize } from "rxjs";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
-import { DataTable } from "@shared/data-table/data-table";
+import { DataTable } from "@shared/components/data-table/data-table";
 import { Drawer } from "primeng/drawer";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
 import { Button } from "primeng/button";
-import { ActiveTag } from "@shared/active-tag";
+import { ActiveTag } from "@shared/components/active-tag";
 import { Fluid } from "primeng/fluid";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { Tooltip } from "primeng/tooltip";
+import { PageHeader } from "@backoffice/layout/page-header";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
 import { CategoryService } from "./category.service";
 import { Category } from "./category.model";
-import { FormField } from "@shared/form-field";
+import { FormField } from "@shared/components/form-field";
+import { NoValuePipe } from "@shared/pipes/no-value";
 
 @Component({
   selector: "app-admin-categories",
@@ -36,7 +38,9 @@ import { FormField } from "@shared/form-field";
     IconField,
     InputIcon,
     Tooltip,
+    PageHeader,
     FormField,
+    NoValuePipe,
   ],
   templateUrl: "./categories.html",
 })
