@@ -27,16 +27,16 @@ export async function createProduct(
   { name, description, price, stock, category, shop },
   imageFiles,
 ) {
-  let images = [];
-  if (imageFiles?.length) {
-    const results = await uploadImages(
-      imageFiles.map(f => f.buffer),
-      { folder: "products" },
-    );
-    images = results.map(r => r.url);
-  }
-
   try {
+    let images = [];
+    if (imageFiles?.length) {
+      const results = await uploadImages(
+        imageFiles.map(f => f.buffer),
+        { folder: "products" },
+      );
+      images = results.map(r => r.url);
+    }
+
     const product = await Product.create({
       name,
       description,

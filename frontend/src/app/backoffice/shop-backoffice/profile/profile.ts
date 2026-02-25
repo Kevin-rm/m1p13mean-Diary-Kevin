@@ -1,8 +1,8 @@
 import { Component, effect, inject, signal, ElementRef, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ShopService } from "@backoffice/shops/shop.service";
+import { ShopService } from "@backoffice/admin/shops/shop.service";
 import { AuthService } from "@auth/auth.service";
-import { Shop } from "@backoffice/shops/shop.model";
+import { Shop } from "@backoffice/admin/shops/shop.model";
 
 @Component({
   selector: "app-profile",

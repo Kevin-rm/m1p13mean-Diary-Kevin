@@ -36,7 +36,7 @@
       [copyable]="true"
     >
       <p-inputnumber
-        [id]="idPrefix() + 'Price'"
+        [inputId]="idPrefix() + 'Price'"
         formControlName="price"
         suffix=" Ar"
         [minFractionDigits]="0"
@@ -53,7 +53,7 @@
       [readonly]="readonly()"
     >
       <p-inputnumber
-        [id]="idPrefix() + 'Stock'"
+        [inputId]="idPrefix() + 'Stock'"
         formControlName="stock"
         [min]="0"
         [showButtons]="true"
@@ -71,7 +71,7 @@
   >
     <p-select
       [inputId]="idPrefix() + 'Category'"
-      [options]="categories"
+      [options]="categories()"
       formControlName="category"
       optionLabel="name"
       optionValue="id"

@@ -1,5 +1,7 @@
-import { Component, inject, input, OnInit } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { map } from "rxjs";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
 import { InputNumber } from "primeng/inputnumber";
@@ -24,7 +26,7 @@ import { CategoryService } from "@backoffice/admin/categories/category.service";
   ],
   templateUrl: "./product-form-fields.html",
 })
-export class ProductFormFields implements OnInit {
+export class ProductFormFields {
   private readonly categoryService = inject(CategoryService);
 
   form = input.required<FormGroup>();
@@ -32,19 +34,14 @@ export class ProductFormFields implements OnInit {
   readonly = input(false);
   categoryNameHint = input("");
 
-  protected categories: SelectOption[] = [];
-
-  ngOnInit(): void {
-    this.categoryService.listForSelect().subscribe({
-      next: response => {
-        this.categories = response.data ?? [];
-      },
-    });
-  }
+  protected readonly categories = toSignal(
+    this.categoryService.listForSelect().pipe(map(r => r.data ?? [])),
+    { initialValue: [] as SelectOption[] },
+  );
 
   protected get categoryName(): string {
     const id = this.form().controls["category"].value;
-    return this.categories.find(c => c.id === id)?.name ?? this.categoryNameHint();
+    return this.categories().find(c => c.id === id)?.name ?? this.categoryNameHint();
   }
 
   static createForm(fb: FormBuilder) {

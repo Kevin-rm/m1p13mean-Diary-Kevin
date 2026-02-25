@@ -1,32 +1,24 @@
-import { Component, effect, inject, signal } from "@angular/core";
+import { Component, inject, signal, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { FontAwesomeModule, FaIconLibrary } from "@fortawesome/angular-fontawesome";
-import { faShop } from "@fortawesome/free-solid-svg-icons";
 import { ShopService } from "./shop.service";
 import { Shop } from "./shop.model";
 
 @Component({
   selector: "app-shops",
-  standalone: true,
   templateUrl: "./shops.html",
   styleUrls: ["./shop.css"],
-  imports: [CommonModule, FontAwesomeModule],
+  imports: [CommonModule],
 })
-export class Shops {
-  private shopService = inject(ShopService);
+export class Shops implements OnInit {
+  private readonly shopService = inject(ShopService);
 
   shops = signal<Shop[]>([]);
   loading = signal(true);
 
   readonly defaultImage = "https://placehold.co/600x400/EEE/31343C?text=No+Image";
 
-  private library = inject(FaIconLibrary);
-
-  constructor() {
-    this.library.addIcons(faShop);
-    effect(() => {
-      this.loadShops();
-    });
+  ngOnInit(): void {
+    this.loadShops();
   }
 
   loadShops() {

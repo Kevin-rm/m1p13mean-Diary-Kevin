@@ -1,4 +1,6 @@
 import { Component, inject, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { AriaryPipe } from "@shared/pipes/ariary";
@@ -51,7 +53,17 @@ export class ShopProductList implements OnInit {
 
   protected readonly table = new TableState<Product>(inject(ActivatedRoute), this.router);
   protected readonly statusOptions = STATUS_OPTIONS;
-  protected categories: { label: string; value: string }[] = [];
+  protected readonly categories = toSignal(
+    this.categoryService
+      .listForSelect()
+      .pipe(
+        map(r => [
+          { label: "Toutes", value: "" },
+          ...(r.data ?? []).map((c: SelectOption) => ({ label: c.name, value: c.id })),
+        ]),
+      ),
+    { initialValue: [] as { label: string; value: string }[] },
+  );
   protected categoryFilter = "";
   protected statusFilter = "";
 
@@ -59,7 +71,6 @@ export class ShopProductList implements OnInit {
     this.breadcrumb.set([{ label: "Produits" }]);
     this.categoryFilter = this.table.readFilterParam("category");
     this.statusFilter = this.table.readFilterParam("isActive");
-    this.loadCategories();
     this.loadProducts();
   }
 
@@ -101,17 +112,6 @@ export class ShopProductList implements OnInit {
       },
       error: error => {
         this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
-      },
-    });
-  }
-
-  private loadCategories(): void {
-    this.categoryService.listForSelect().subscribe({
-      next: response => {
-        this.categories = [
-          { label: "Toutes", value: "" },
-          ...(response.data ?? []).map((c: SelectOption) => ({ label: c.name, value: c.id })),
-        ];
       },
     });
   }

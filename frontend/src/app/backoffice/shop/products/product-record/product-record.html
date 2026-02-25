@@ -42,14 +42,14 @@
         <app-product-form-fields
           [form]="form"
           idPrefix="edit"
-          [categoryNameHint]="p.category?.name ?? ''"
+          [categoryNameHint]="p.category.name"
         />
       </form>
     } @else {
       <app-product-form-fields
         [form]="form"
         [readonly]="true"
-        [categoryNameHint]="p.category?.name ?? ''"
+        [categoryNameHint]="p.category.name"
       />
     }
   }

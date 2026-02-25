@@ -1,4 +1,5 @@
-import { Component, input } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
+import { Toast } from "@core/utils/toast";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
 import { InputGroup } from "primeng/inputgroup";
@@ -15,20 +16,20 @@ import { NO_VALUE } from "@shared/pipes/no-value";
       <p-floatlabel variant="on">
         <textarea
           pTextarea
-          [id]="label()"
+          [id]="inputId()"
           [value]="displayValue"
           readonly
           variant="filled"
           rows="3"
           [fluid]="true"
         ></textarea>
-        <label [for]="label()">{{ label() }}</label>
+        <label [for]="inputId()">{{ label() }}</label>
       </p-floatlabel>
     } @else {
       <p-inputgroup>
         <p-floatlabel variant="on">
-          <input pInputText [id]="label()" [value]="displayValue" readonly variant="filled" />
-          <label [for]="label()">{{ label() }}</label>
+          <input pInputText [id]="inputId()" [value]="displayValue" readonly variant="filled" />
+          <label [for]="inputId()">{{ label() }}</label>
         </p-floatlabel>
         @if (copyable() && value()) {
           <p-inputgroup-addon>
@@ -40,6 +41,9 @@ import { NO_VALUE } from "@shared/pipes/no-value";
   `,
 })
 export class ReadonlyField {
+  private readonly toast = inject(Toast);
+
+  inputId = input.required<string>();
   label = input.required<string>();
   value = input<string | number | null>();
   copyable = input(false);
@@ -53,7 +57,7 @@ export class ReadonlyField {
   protected copy(): void {
     const val = this.value();
     if (val != null) {
-      navigator.clipboard.writeText(String(val));
+      navigator.clipboard.writeText(String(val)).then(() => this.toast.info("Copié"));
     }
   }
 }

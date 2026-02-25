@@ -9,6 +9,7 @@ import { ReadonlyField } from "./readonly-field";
   template: `
     @if (readonly()) {
       <app-readonly-field
+        [inputId]="inputId()"
         [label]="label()"
         [value]="displayValue() ?? control().value"
         [copyable]="copyable()"
