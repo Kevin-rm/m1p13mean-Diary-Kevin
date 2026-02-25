@@ -17,28 +17,9 @@
 
 <p-card header="Informations du produit" subheader="Renseignez les détails du produit">
   <form id="productForm" [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5">
-    <app-product-form-fields [form]="form" [categories]="categories" />
+    <app-product-form-fields [form]="form" />
 
-    <p-fileupload
-      #fileUpload
-      mode="advanced"
-      [customUpload]="true"
-      [multiple]="true"
-      accept="image/jpeg,image/png,image/webp"
-      [maxFileSize]="5000000"
-      [fileLimit]="5"
-      [previewWidth]="80"
-      [showUploadButton]="false"
-      [showCancelButton]="false"
-      chooseLabel="Sélectionner des images"
-      chooseIcon="none"
-    >
-      <ng-template #empty>
-        <p class="text-muted-color m-0">
-          Glissez-déposez des images ici ou cliquez pour sélectionner (max 5)
-        </p>
-      </ng-template>
-    </p-fileupload>
+    <app-image-upload #fileUpload />
   </form>
 </p-card>
 

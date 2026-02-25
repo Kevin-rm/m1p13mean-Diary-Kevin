@@ -7,6 +7,11 @@ export async function listCategories(req, res) {
   return ok(res, result.data, undefined, result.meta);
 }
 
+export async function selectCategories(_req, res) {
+  const categories = await categoryService.selectCategories();
+  return ok(res, categories);
+}
+
 export async function getCategory(req, res) {
   const category = await categoryService.getCategoryById(req.params.id);
   return okOrNotFound(res, category, { entityName: "Category" });

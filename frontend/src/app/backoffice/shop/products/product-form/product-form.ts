@@ -1,17 +1,15 @@
 import { Component, inject, signal, ViewChild, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { ReactiveFormsModule, FormBuilder } from "@angular/forms";
 import { NgTemplateOutlet } from "@angular/common";
 import { finalize } from "rxjs";
 import { Button } from "primeng/button";
 import { Card } from "primeng/card";
-import { FileUpload } from "primeng/fileupload";
+import { ImageUpload } from "@shared/components/image-upload";
 import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/layout/page-header";
-import { CategoryService } from "@backoffice/admin/categories/category.service";
-import { Category } from "@backoffice/admin/categories/category.model";
 import { ProductFormFields } from "../product-form-fields/product-form-fields";
 import { ProductService } from "../product.service";
 
@@ -22,7 +20,7 @@ import { ProductService } from "../product.service";
     NgTemplateOutlet,
     Button,
     Card,
-    FileUpload,
+    ImageUpload,
     PageHeader,
     ProductFormFields,
   ],
@@ -30,35 +28,22 @@ import { ProductService } from "../product.service";
 })
 export class ShopProductForm implements OnInit {
   private readonly productService = inject(ProductService);
-  private readonly categoryService = inject(CategoryService);
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
 
-  @ViewChild("fileUpload") private fileUpload!: FileUpload;
+  @ViewChild("fileUpload") private fileUpload!: ImageUpload;
 
   protected readonly saving = signal(false);
-  protected categories: Category[] = [];
 
-  protected readonly form = this.fb.nonNullable.group({
-    name: ["", Validators.required],
-    description: [""],
-    price: [0, [Validators.required, Validators.min(0)]],
-    stock: [0, Validators.min(0)],
-    category: ["", Validators.required],
-  });
+  protected readonly form = ProductFormFields.createForm(this.fb);
 
   ngOnInit(): void {
     this.breadcrumb.set([
       { label: "Produits", routerLink: "/backoffice/shop/products" },
       { label: "Nouveau" },
     ]);
-    this.categoryService.list({ isActive: true, limit: 100 }).subscribe({
-      next: response => {
-        this.categories = response.data ?? [];
-      },
-    });
   }
 
   protected resetForm(): void {

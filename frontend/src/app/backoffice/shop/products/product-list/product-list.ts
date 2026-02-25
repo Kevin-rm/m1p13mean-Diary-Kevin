@@ -13,8 +13,8 @@ import { PageHeader } from "@backoffice/layout/page-header";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
+import { SelectOption } from "@core/models/select-option";
 import { CategoryService } from "@backoffice/admin/categories/category.service";
-import { Category } from "@backoffice/admin/categories/category.model";
 import { ProductService } from "../product.service";
 import { NoValuePipe } from "@shared/pipes/no-value";
 import { Product } from "../product.model";
@@ -106,11 +106,11 @@ export class ShopProductList implements OnInit {
   }
 
   private loadCategories(): void {
-    this.categoryService.list({ isActive: true, limit: 100 }).subscribe({
+    this.categoryService.listForSelect().subscribe({
       next: response => {
         this.categories = [
           { label: "Toutes", value: "" },
-          ...(response.data ?? []).map((c: Category) => ({ label: c.name, value: c.id })),
+          ...(response.data ?? []).map((c: SelectOption) => ({ label: c.name, value: c.id })),
         ];
       },
     });

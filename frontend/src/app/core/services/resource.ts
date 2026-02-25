@@ -3,6 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "@env/environment";
 import { ApiResponse } from "../models/api-response";
+import { SelectOption } from "../models/select-option";
 import { buildQueryParams } from "../utils/http-params";
 
 export interface ListParams {
@@ -21,6 +22,10 @@ export abstract class ResourceService<T> {
 
   list<P extends ListParams>(params: P = {} as P): Observable<ApiResponse<T[]>> {
     return this.http.get<ApiResponse<T[]>>(this.baseUrl, { params: buildQueryParams(params) });
+  }
+
+  listForSelect(): Observable<ApiResponse<SelectOption[]>> {
+    return this.http.get<ApiResponse<SelectOption[]>>(`${this.baseUrl}/select`);
   }
 
   getById(id: string): Observable<ApiResponse<T>> {

@@ -14,6 +14,7 @@ import * as categoryController from "./category.controller.js";
 const router = Router();
 
 router.get("/", validate(listCategoriesRules), categoryController.listCategories);
+router.get("/select", categoryController.selectCategories);
 router.get("/:id", validate(getCategoryRules), categoryController.getCategory);
 
 router.post(

@@ -12,6 +12,10 @@ export async function listCategories({ search, isActive, page, limit }) {
   return paginate(Category, { filter, page, limit });
 }
 
+export async function selectCategories() {
+  return Category.find({ isActive: true }).select("name").sort("name");
+}
+
 export async function getCategoryById(id) {
   return Category.findById(id);
 }

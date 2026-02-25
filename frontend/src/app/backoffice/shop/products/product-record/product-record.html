@@ -36,18 +36,24 @@
     }
   </div>
 
-  <!-- Default tab: Informations -->
   @if (product(); as p) {
     @if (editing()) {
       <form id="editProductForm" [formGroup]="form" (ngSubmit)="saveProduct()">
-        <app-product-form-fields [form]="form" [categories]="categories" idPrefix="edit" />
+        <app-product-form-fields
+          [form]="form"
+          idPrefix="edit"
+          [categoryNameHint]="p.category?.name ?? ''"
+        />
       </form>
     } @else {
-      <app-product-form-fields [form]="form" [categories]="categories" [readonly]="true" />
+      <app-product-form-fields
+        [form]="form"
+        [readonly]="true"
+        [categoryNameHint]="p.category?.name ?? ''"
+      />
     }
   }
 
-  <!-- Tab: Images -->
   <ng-template recordTab="Images">
     @if (product(); as p) {
       @if (p.images.length) {
@@ -79,34 +85,7 @@
       }
 
       <div class="mt-6">
-        <p-fileupload
-          #imageUpload
-          mode="advanced"
-          [customUpload]="true"
-          [multiple]="true"
-          accept="image/jpeg,image/png,image/webp"
-          [maxFileSize]="5000000"
-          [fileLimit]="5"
-          [previewWidth]="80"
-          [showUploadButton]="false"
-          [showCancelButton]="false"
-          chooseLabel="Sélectionner des images"
-          chooseIcon="none"
-        >
-          <ng-template #empty>
-            <p class="text-muted-color m-0">
-              Glissez-déposez des images ici ou cliquez pour sélectionner
-            </p>
-          </ng-template>
-        </p-fileupload>
-        <div class="flex justify-end mt-3">
-          <p-button
-            label="Ajouter"
-            (click)="uploadImages()"
-            [loading]="uploading()"
-            [disabled]="uploading()"
-          />
-        </div>
+        <app-image-upload #imageUpload [showUploadButton]="true" (upload)="uploadImages($event)" />
       </div>
     }
   </ng-template>
