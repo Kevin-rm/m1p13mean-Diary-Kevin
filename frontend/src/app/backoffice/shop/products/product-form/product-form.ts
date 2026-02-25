@@ -6,8 +6,8 @@ import { Button } from "primeng/button";
 import { Fluid } from "primeng/fluid";
 import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
-import { CategoryService } from "@backoffice/categories/category.service";
-import { Category } from "@backoffice/categories/category.model";
+import { CategoryService } from "@backoffice/admin/categories/category.service";
+import { Category } from "@backoffice/admin/categories/category.model";
 import { ProductFormFields } from "../product-form-fields/product-form-fields";
 import { ProductService } from "../product.service";
 

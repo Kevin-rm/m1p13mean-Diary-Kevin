@@ -14,8 +14,8 @@ import { Tooltip } from "primeng/tooltip";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
-import { CategoryService } from "@backoffice/categories/category.service";
-import { Category } from "@backoffice/categories/category.model";
+import { CategoryService } from "@backoffice/admin/categories/category.service";
+import { Category } from "@backoffice/admin/categories/category.model";
 import { ProductService } from "../product.service";
 import { Product } from "../product.model";
 

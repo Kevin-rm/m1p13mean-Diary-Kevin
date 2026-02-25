@@ -1,17 +1,54 @@
 <nav class="flex flex-col gap-1 flex-1">
-  @for (item of items(); track item.routerLink) {
-    <a
-      [routerLink]="item.routerLink"
-      routerLinkActive="bg-primary/10 text-primary"
-      pRipple
-      class="flex items-center gap-3 px-3 py-2 rounded-md no-underline text-color hover:bg-surface-100 transition-colors"
-      [class.justify-center]="collapsed()"
-      [title]="collapsed() ? item.label : ''"
-    >
-      <i [class]="item.icon"></i>
-      @if (!collapsed()) {
-        <span>{{ item.label }}</span>
-      }
-    </a>
+  @for (item of items(); track item.label) {
+    @if (item.children) {
+      <div>
+        <button
+          pRipple
+          class="flex items-center gap-3 px-3 py-2 rounded-md w-full text-color hover:bg-surface-100 transition-colors cursor-pointer"
+          [class.justify-center]="collapsed()"
+          [title]="collapsed() ? item.label : ''"
+          (click)="toggle(item)"
+        >
+          <i [class]="item.icon"></i>
+          @if (!collapsed()) {
+            <span class="flex-1 text-left">{{ item.label }}</span>
+            <i
+              class="pi pi-chevron-down text-xs transition-transform"
+              [class.rotate-180]="isExpanded(item)"
+            ></i>
+          }
+        </button>
+        @if (isExpanded(item) && !collapsed()) {
+          <div class="flex flex-col gap-1 ml-4 mt-1">
+            @for (child of item.children; track child.routerLink) {
+              <a
+                [routerLink]="child.routerLink"
+                routerLinkActive="bg-primary/10 text-primary"
+                [routerLinkActiveOptions]="{ exact: true }"
+                pRipple
+                class="flex items-center gap-3 px-3 py-2 rounded-md no-underline text-color hover:bg-surface-100 transition-colors"
+              >
+                <i [class]="child.icon"></i>
+                <span>{{ child.label }}</span>
+              </a>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <a
+        [routerLink]="item.routerLink"
+        routerLinkActive="bg-primary/10 text-primary"
+        pRipple
+        class="flex items-center gap-3 px-3 py-2 rounded-md no-underline text-color hover:bg-surface-100 transition-colors"
+        [class.justify-center]="collapsed()"
+        [title]="collapsed() ? item.label : ''"
+      >
+        <i [class]="item.icon"></i>
+        @if (!collapsed()) {
+          <span>{{ item.label }}</span>
+        }
+      </a>
+    }
   }
 </nav>

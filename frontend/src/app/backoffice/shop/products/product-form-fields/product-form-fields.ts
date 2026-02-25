@@ -5,7 +5,7 @@ import { Textarea } from "primeng/textarea";
 import { InputNumber } from "primeng/inputnumber";
 import { Select } from "primeng/select";
 import { FormField } from "@shared/form-field";
-import { Category } from "@backoffice/categories/category.model";
+import { Category } from "@backoffice/admin/categories/category.model";
 
 @Component({
   selector: "app-product-form-fields",

@@ -67,13 +67,13 @@ export const routes: Routes = [
           {
             path: "shops",
             canActivate: [permissionGuard("shops:validate")],
-            loadComponent: () => import("@backoffice/shops/shops").then(m => m.AdminShops),
+            loadComponent: () => import("@backoffice/admin/shops/shops").then(m => m.AdminShops),
           },
           {
             path: "categories",
             canActivate: [permissionGuard("categories:write")],
             loadComponent: () =>
-              import("@backoffice/categories/categories").then(m => m.AdminCategories),
+              import("@backoffice/admin/categories/categories").then(m => m.AdminCategories),
           },
         ],
       },
@@ -90,19 +90,23 @@ export const routes: Routes = [
             path: "products",
             canActivate: [permissionGuard("products:read")],
             loadComponent: () =>
-              import("@backoffice/products/product-list/product-list").then(m => m.ShopProductList),
+              import("@backoffice/shop/products/product-list/product-list").then(
+                m => m.ShopProductList,
+              ),
           },
           {
             path: "products/new",
             canActivate: [permissionGuard("products:write")],
             loadComponent: () =>
-              import("@backoffice/products/product-form/product-form").then(m => m.ShopProductForm),
+              import("@backoffice/shop/products/product-form/product-form").then(
+                m => m.ShopProductForm,
+              ),
           },
           {
             path: "products/:id",
             canActivate: [permissionGuard("products:read")],
             loadComponent: () =>
-              import("@backoffice/products/product-record/product-record").then(
+              import("@backoffice/shop/products/product-record/product-record").then(
                 m => m.ShopProductRecord,
               ),
           },
