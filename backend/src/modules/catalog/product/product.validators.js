@@ -1,8 +1,17 @@
 import { body, query } from "express-validator";
-import { mongoIdRules, isActiveRule, paginationRules } from "#utils/validators.js";
+import {
+  mongoIdRules,
+  searchRule,
+  isActiveRule,
+  paginationRules,
+  resourceNameRules,
+  descriptionRule,
+} from "#utils/validators.js";
+
+const productName = resourceNameRules("Product name");
 
 export const listProductsRules = [
-  query("search").optional().trim(),
+  searchRule,
   query("category").optional().isMongoId().withMessage("Invalid category"),
   isActiveRule,
   ...paginationRules,
@@ -11,8 +20,8 @@ export const listProductsRules = [
 export const getProductRules = [mongoIdRules()];
 
 export const createProductRules = [
-  body("name").trim().notEmpty().withMessage("Product name is required"),
-  body("description").optional().trim(),
+  productName.required,
+  descriptionRule,
   body("price")
     .notEmpty()
     .withMessage("Price is required")
@@ -33,8 +42,8 @@ export const createProductRules = [
 
 export const updateProductRules = [
   mongoIdRules(),
-  body("name").optional().trim().notEmpty().withMessage("Product name cannot be empty"),
-  body("description").optional().trim(),
+  productName.optional,
+  descriptionRule,
   body("price")
     .optional()
     .isFloat({ min: 0 })

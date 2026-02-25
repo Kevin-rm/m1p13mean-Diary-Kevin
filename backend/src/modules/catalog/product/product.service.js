@@ -2,6 +2,7 @@ import Product from "./product.model.js";
 import { paginate } from "#utils/db/paginate.js";
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
 import { pickDefined } from "#utils/objects.js";
+import { toggleActiveStatus } from "#utils/db/toggleActive.js";
 import { uploadImages, deleteImage, extractPublicId } from "#utils/upload/cloudinary.js";
 
 export async function listProducts({ shop, search, category, isActive, page, limit }) {
@@ -65,12 +66,11 @@ export async function updateProduct(id, shop, data) {
 }
 
 export async function toggleActive(id, shop) {
-  const product = await Product.findOne({ _id: id, shop });
-  if (!product) return null;
-
-  product.isActive = !product.isActive;
-  await product.save();
-  return product.populate("category", "name");
+  return toggleActiveStatus(
+    Product,
+    { _id: id, shop },
+    { populate: { path: "category", select: "name" } },
+  );
 }
 
 export async function removeImage(id, shop, imageUrl) {

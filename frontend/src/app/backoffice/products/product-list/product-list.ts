@@ -7,7 +7,7 @@ import { DataTable } from "@shared/data-table/data-table";
 import { InputText } from "primeng/inputtext";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
-import { Tag } from "primeng/tag";
+import { ActiveTag } from "@shared/active-tag";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { Tooltip } from "primeng/tooltip";
@@ -35,7 +35,7 @@ const STATUS_OPTIONS = [
     InputText,
     Select,
     Button,
-    Tag,
+    ActiveTag,
     IconField,
     InputIcon,
     Tooltip,

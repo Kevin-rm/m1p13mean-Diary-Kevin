@@ -8,7 +8,7 @@ import { Drawer } from "primeng/drawer";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
 import { Button } from "primeng/button";
-import { Tag } from "primeng/tag";
+import { ActiveTag } from "@shared/active-tag";
 import { Fluid } from "primeng/fluid";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
@@ -31,7 +31,7 @@ import { FormField } from "@shared/form-field";
     InputText,
     Textarea,
     Button,
-    Tag,
+    ActiveTag,
     Fluid,
     IconField,
     InputIcon,

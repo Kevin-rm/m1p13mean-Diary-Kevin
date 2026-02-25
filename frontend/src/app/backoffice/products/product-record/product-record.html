@@ -54,10 +54,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div class="flex items-center gap-3">
           <h2 class="text-xl font-semibold m-0">{{ p.name }}</h2>
-          <p-tag
-            [value]="p.isActive ? 'Actif' : 'Inactif'"
-            [severity]="p.isActive ? 'success' : 'danger'"
-          />
+          <app-active-tag [isActive]="p.isActive" />
         </div>
         <div class="flex gap-2">
           <p-button

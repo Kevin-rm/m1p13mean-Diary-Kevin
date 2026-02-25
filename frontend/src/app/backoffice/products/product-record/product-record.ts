@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { CurrencyPipe, DatePipe } from "@angular/common";
 import { finalize } from "rxjs";
 import { Button } from "primeng/button";
-import { Tag } from "primeng/tag";
+import { ActiveTag } from "@shared/active-tag";
 import { Fluid } from "primeng/fluid";
 import { ConfirmDialog } from "primeng/confirmdialog";
 import { ConfirmationService } from "primeng/api";
@@ -24,7 +24,7 @@ import { Product } from "../product.model";
     CurrencyPipe,
     DatePipe,
     Button,
-    Tag,
+    ActiveTag,
     Fluid,
     ConfirmDialog,
     ProductFormFields,

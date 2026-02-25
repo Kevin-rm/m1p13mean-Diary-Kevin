@@ -30,10 +30,7 @@
     <td class="font-medium">{{ category.name }}</td>
     <td class="text-muted-color">{{ category.description || "—" }}</td>
     <td>
-      <p-tag
-        [value]="category.isActive ? 'Actif' : 'Inactif'"
-        [severity]="category.isActive ? 'success' : 'danger'"
-      />
+      <app-active-tag [isActive]="category.isActive" />
     </td>
     <td>
       <div class="flex justify-end gap-1">

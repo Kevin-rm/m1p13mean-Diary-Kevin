@@ -70,10 +70,7 @@
     <td>{{ product.price | currency: "MGA" : "symbol" : "1.0-0" }}</td>
     <td>{{ product.stock }}</td>
     <td>
-      <p-tag
-        [value]="product.isActive ? 'Actif' : 'Inactif'"
-        [severity]="product.isActive ? 'success' : 'danger'"
-      />
+      <app-active-tag [isActive]="product.isActive" />
     </td>
     <td>
       <div class="flex justify-end gap-1">
