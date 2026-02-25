@@ -4,13 +4,11 @@ import { FormsModule } from "@angular/forms";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
 import { ContactLink } from "@shared/components/contact-link";
 import { DataTable } from "@shared/components/data-table/data-table";
-import { InputText } from "primeng/inputtext";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
 import { Tag } from "primeng/tag";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
 import { Tooltip } from "primeng/tooltip";
+import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/layout/page-header";
 import { NO_VALUE } from "@shared/pipes/no-value";
 import { extractErrorMessage } from "@core/utils/error";
@@ -39,12 +37,9 @@ const STATUS_CONFIG: Record<string, { label: string; severity: "warn" | "success
     TableModule,
     ContactLink,
     DataTable,
-    InputText,
     Select,
     Button,
     Tag,
-    IconField,
-    InputIcon,
     Tooltip,
     PageHeader,
   ],
@@ -52,22 +47,22 @@ const STATUS_CONFIG: Record<string, { label: string; severity: "warn" | "success
 })
 export class AdminShops implements OnInit {
   private readonly shopService = inject(ShopService);
+  private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
 
   protected readonly table = new TableState<Shop>(inject(ActivatedRoute), inject(Router));
   protected readonly statusOptions = STATUS_OPTIONS;
-  protected searchValue = "";
   protected statusFilter = "";
 
   ngOnInit(): void {
-    this.searchValue = this.table.readFilterParam("search");
+    this.breadcrumb.set([{ label: "Boutiques" }]);
     this.statusFilter = this.table.readFilterParam("status");
     this.loadShops();
   }
 
   protected loadShops(event?: TableLazyLoadEvent): void {
     const filters = {
-      search: this.searchValue || undefined,
+      search: this.table.search() || undefined,
       status: this.statusFilter || undefined,
     };
     this.table.load(
@@ -78,11 +73,6 @@ export class AdminShops implements OnInit {
         onError: () => this.toast.error("Impossible de charger les boutiques"),
       },
     );
-  }
-
-  protected onSearch(): void {
-    this.table.resetPage();
-    this.loadShops();
   }
 
   protected onStatusFilter(): void {

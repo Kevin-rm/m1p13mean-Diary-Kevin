@@ -1,16 +1,14 @@
 import { Component, inject, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { FormsModule } from "@angular/forms";
-import { CurrencyPipe } from "@angular/common";
+import { AriaryPipe } from "@shared/pipes/ariary";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
 import { DataTable } from "@shared/components/data-table/data-table";
-import { InputText } from "primeng/inputtext";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
 import { ActiveTag } from "@shared/components/active-tag";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
 import { Tooltip } from "primeng/tooltip";
+import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/layout/page-header";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
@@ -31,16 +29,14 @@ const STATUS_OPTIONS = [
   selector: "app-shop-product-list",
   imports: [
     FormsModule,
-    CurrencyPipe,
+    AriaryPipe,
     TableModule,
     DataTable,
-    InputText,
     Select,
     Button,
     ActiveTag,
-    IconField,
-    InputIcon,
     Tooltip,
+    RouterLink,
     PageHeader,
     NoValuePipe,
   ],
@@ -49,18 +45,18 @@ const STATUS_OPTIONS = [
 export class ShopProductList implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly categoryService = inject(CategoryService);
+  private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly router = inject(Router);
 
   protected readonly table = new TableState<Product>(inject(ActivatedRoute), this.router);
   protected readonly statusOptions = STATUS_OPTIONS;
   protected categories: { label: string; value: string }[] = [];
-  protected searchValue = "";
   protected categoryFilter = "";
   protected statusFilter = "";
 
   ngOnInit(): void {
-    this.searchValue = this.table.readFilterParam("search");
+    this.breadcrumb.set([{ label: "Produits" }]);
     this.categoryFilter = this.table.readFilterParam("category");
     this.statusFilter = this.table.readFilterParam("isActive");
     this.loadCategories();
@@ -69,7 +65,7 @@ export class ShopProductList implements OnInit {
 
   protected loadProducts(event?: TableLazyLoadEvent): void {
     const queryParams = {
-      search: this.searchValue || undefined,
+      search: this.table.search() || undefined,
       category: this.categoryFilter || undefined,
       isActive: this.statusFilter || undefined,
     };
@@ -88,11 +84,6 @@ export class ShopProductList implements OnInit {
     );
   }
 
-  protected onSearch(): void {
-    this.table.resetPage();
-    this.loadProducts();
-  }
-
   protected onFilter(): void {
     this.table.resetPage();
     this.loadProducts();
@@ -100,10 +91,6 @@ export class ShopProductList implements OnInit {
 
   protected navigateToNew(): void {
     this.router.navigate(["/backoffice/shop/products/new"]);
-  }
-
-  protected navigateToProduct(product: Product): void {
-    this.router.navigate(["/backoffice/shop/products", product.id]);
   }
 
   protected toggleActive(product: Product): void {

@@ -2,19 +2,6 @@
   <p-button label="Nouvelle catégorie" icon="pi pi-plus" (click)="openCreateDrawer()" />
 </app-page-header>
 
-<div class="mb-4">
-  <p-iconfield>
-    <p-inputicon class="pi pi-search" />
-    <input
-      pInputText
-      id="categorySearch"
-      placeholder="Rechercher une catégorie..."
-      [(ngModel)]="searchValue"
-      (input)="onSearch()"
-    />
-  </p-iconfield>
-</div>
-
 <ng-template #headerTpl>
   <tr>
     <th pResizableColumn>Nom</th>
@@ -59,7 +46,9 @@
   [headerTpl]="headerTpl"
   [bodyTpl]="bodyTpl"
   [columns]="4"
+  searchPlaceholder="Rechercher une catégorie..."
   emptyMessage="Aucune catégorie trouvée"
+  (searchChange)="loadCategories()"
   (lazyLoad)="loadCategories($event)"
 />
 

@@ -24,7 +24,7 @@
               <a
                 [routerLink]="child.routerLink"
                 routerLinkActive="bg-primary/10 text-primary"
-                [routerLinkActiveOptions]="{ exact: true }"
+                [routerLinkActiveOptions]="linkActiveOptions"
                 pRipple
                 class="flex items-center gap-3 px-3 py-2 rounded-md no-underline text-color hover:bg-surface-100 transition-colors"
               >
@@ -39,6 +39,7 @@
       <a
         [routerLink]="item.routerLink"
         routerLinkActive="bg-primary/10 text-primary"
+        [routerLinkActiveOptions]="linkActiveOptions"
         pRipple
         class="flex items-center gap-3 px-3 py-2 rounded-md no-underline text-color hover:bg-surface-100 transition-colors"
         [class.justify-center]="collapsed()"

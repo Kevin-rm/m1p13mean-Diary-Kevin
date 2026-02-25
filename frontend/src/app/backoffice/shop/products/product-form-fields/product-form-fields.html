@@ -1,9 +1,11 @@
-<div [formGroup]="form()" class="flex flex-col gap-5">
+<p-fluid [formGroup]="form()" class="flex flex-col gap-5">
   <app-form-field
     [inputId]="idPrefix() + 'Name'"
     label="Nom"
     [control]="form().controls['name']"
     [errors]="{ required: 'Le nom est requis' }"
+    [readonly]="readonly()"
+    [copyable]="true"
   >
     <input pInputText [id]="idPrefix() + 'Name'" formControlName="name" />
   </app-form-field>
@@ -12,6 +14,8 @@
     [inputId]="idPrefix() + 'Description'"
     label="Description"
     [control]="form().controls['description']"
+    [readonly]="readonly()"
+    [multiline]="true"
   >
     <textarea
       pTextarea
@@ -27,15 +31,17 @@
       label="Prix"
       [control]="form().controls['price']"
       [errors]="{ required: 'Le prix est requis', min: 'Le prix doit être positif' }"
+      [readonly]="readonly()"
+      [displayValue]="form().controls['price'].value | ariary"
+      [copyable]="true"
     >
       <p-inputnumber
         [id]="idPrefix() + 'Price'"
         formControlName="price"
-        mode="currency"
-        currency="MGA"
-        locale="fr-FR"
+        suffix=" Ar"
         [minFractionDigits]="0"
         [maxFractionDigits]="0"
+        [min]="0"
       />
     </app-form-field>
 
@@ -44,6 +50,7 @@
       label="Stock"
       [control]="form().controls['stock']"
       [errors]="{ min: 'Le stock doit être positif' }"
+      [readonly]="readonly()"
     >
       <p-inputnumber
         [id]="idPrefix() + 'Stock'"
@@ -59,6 +66,8 @@
     label="Catégorie"
     [control]="form().controls['category']"
     [errors]="{ required: 'La catégorie est requise' }"
+    [readonly]="readonly()"
+    [displayValue]="categoryName"
   >
     <p-select
       [inputId]="idPrefix() + 'Category'"
@@ -66,7 +75,6 @@
       formControlName="category"
       optionLabel="name"
       optionValue="id"
-      placeholder="Sélectionner une catégorie"
     />
   </app-form-field>
-</div>
+</p-fluid>

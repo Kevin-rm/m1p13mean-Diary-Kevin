@@ -1,3 +1,17 @@
+<div class="flex flex-col sm:flex-row gap-3 mb-4">
+  <p-iconfield>
+    <p-inputicon class="pi pi-search" />
+    <input
+      pInputText
+      [placeholder]="searchPlaceholder()"
+      [ngModel]="state().search()"
+      (ngModelChange)="state().search.set($event)"
+      (input)="onSearch()"
+    />
+  </p-iconfield>
+  <ng-content select="[filters]" />
+</div>
+
 <p-table
   [value]="state().items()"
   [lazy]="true"

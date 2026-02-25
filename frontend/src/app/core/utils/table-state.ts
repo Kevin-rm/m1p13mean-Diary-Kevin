@@ -10,6 +10,7 @@ export class TableState<T> {
   readonly loading = signal(false);
   readonly first = signal(0);
   readonly rows = signal(10);
+  readonly search = signal("");
   page = 1;
   limit = 10;
 
@@ -22,6 +23,7 @@ export class TableState<T> {
     this.limit = +(params["limit"] ?? 10);
     this.first.set((this.page - 1) * this.limit);
     this.rows.set(this.limit);
+    this.search.set(params["search"] ?? "");
   }
 
   readFilterParam(key: string): string {

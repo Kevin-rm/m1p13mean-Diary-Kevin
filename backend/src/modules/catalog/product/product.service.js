@@ -73,6 +73,19 @@ export async function toggleActive(id, shop) {
   );
 }
 
+export async function addImages(id, shop, imageFiles) {
+  const product = await Product.findOne({ _id: id, shop });
+  if (!product) return err("not_found");
+
+  const results = await uploadImages(
+    imageFiles.map(f => f.buffer),
+    { folder: "products" },
+  );
+  product.images.push(...results.map(r => r.url));
+  await product.save();
+  return success(await product.populate("category", "name"));
+}
+
 export async function removeImage(id, shop, imageUrl) {
   const product = await Product.findOne({ _id: id, shop });
   if (!product) return err("not_found");

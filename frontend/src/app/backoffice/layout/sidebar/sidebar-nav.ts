@@ -27,6 +27,13 @@ export class SidebarNav {
     return match?.[1] ?? "";
   });
 
+  protected readonly linkActiveOptions = {
+    paths: "exact" as const,
+    queryParams: "ignored" as const,
+    matrixParams: "ignored" as const,
+    fragment: "ignored" as const,
+  };
+
   protected readonly items = computed(() => SIDEBAR_ITEMS[this.activeSection()] ?? []);
 
   collapsed = input(false);

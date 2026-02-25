@@ -54,6 +54,15 @@ router.patch(
   productController.toggleActive,
 );
 
+router.post(
+  "/:id/images",
+  authorize("products:write"),
+  multipleImages("images", 5),
+  handleMulterError,
+  validate(removeImageRules),
+  productController.addImages,
+);
+
 router.delete(
   "/:id/images",
   authorize("products:write"),

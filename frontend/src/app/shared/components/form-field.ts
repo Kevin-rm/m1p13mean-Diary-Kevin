@@ -1,20 +1,30 @@
 import { Component, input } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
 import { FloatLabel } from "primeng/floatlabel";
+import { ReadonlyField } from "./readonly-field";
 
 @Component({
   selector: "app-form-field",
-  imports: [FloatLabel],
+  imports: [FloatLabel, ReadonlyField],
   template: `
-    <div>
-      <p-floatlabel variant="on">
-        <ng-content />
-        <label [for]="inputId()">{{ label() }}</label>
-      </p-floatlabel>
-      @for (error of visibleErrors; track error.key) {
-        <small class="text-red-500">{{ error.message }}</small>
-      }
-    </div>
+    @if (readonly()) {
+      <app-readonly-field
+        [label]="label()"
+        [value]="displayValue() ?? control().value"
+        [copyable]="copyable()"
+        [multiline]="multiline()"
+      />
+    } @else {
+      <div>
+        <p-floatlabel variant="on">
+          <ng-content />
+          <label [for]="inputId()">{{ label() }}</label>
+        </p-floatlabel>
+        @for (error of visibleErrors; track error.key) {
+          <small class="text-red-500">{{ error.message }}</small>
+        }
+      </div>
+    }
   `,
 })
 export class FormField {
@@ -22,6 +32,10 @@ export class FormField {
   label = input.required<string>();
   control = input.required<AbstractControl>();
   errors = input<Record<string, string>>({});
+  readonly = input(false);
+  displayValue = input<string | number | null>();
+  copyable = input(false);
+  multiline = input(false);
 
   protected get visibleErrors() {
     const ctrl = this.control();

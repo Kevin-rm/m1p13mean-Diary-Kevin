@@ -1,16 +1,16 @@
-import { Component, inject, signal, OnInit } from "@angular/core";
+import { Component, inject, signal, ViewChild, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
-import { CurrencyPipe, DatePipe } from "@angular/common";
 import { finalize } from "rxjs";
 import { Button } from "primeng/button";
-import { ActiveTag } from "@shared/components/active-tag";
-import { Fluid } from "primeng/fluid";
 import { ConfirmDialog } from "primeng/confirmdialog";
 import { ConfirmationService } from "primeng/api";
+import { Image } from "primeng/image";
+import { FileUpload } from "primeng/fileupload";
 import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
-import { PageHeader } from "@backoffice/layout/page-header";
+import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
+import { RecordPage, RecordPageTab } from "@backoffice/layout/record-page";
 import { CategoryService } from "@backoffice/admin/categories/category.service";
 import { Category } from "@backoffice/admin/categories/category.model";
 import { ProductFormFields } from "../product-form-fields/product-form-fields";
@@ -21,13 +21,12 @@ import { Product } from "../product.model";
   selector: "app-shop-product-record",
   imports: [
     ReactiveFormsModule,
-    CurrencyPipe,
-    DatePipe,
     Button,
-    ActiveTag,
-    Fluid,
     ConfirmDialog,
-    PageHeader,
+    Image,
+    FileUpload,
+    RecordPage,
+    RecordPageTab,
     ProductFormFields,
   ],
   providers: [ConfirmationService],
@@ -37,15 +36,19 @@ export class ShopProductRecord implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly categoryService = inject(CategoryService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
+  @ViewChild("imageUpload") private imageUpload!: FileUpload;
+
   protected readonly product = signal<Product | null>(null);
   protected readonly loading = signal(true);
   protected readonly editing = signal(false);
   protected readonly saving = signal(false);
+  protected readonly uploading = signal(false);
   protected categories: Category[] = [];
 
   protected readonly form = this.fb.nonNullable.group({
@@ -61,6 +64,10 @@ export class ShopProductRecord implements OnInit {
   }
 
   ngOnInit(): void {
+    this.breadcrumb.set([
+      { label: "Produits", routerLink: "/backoffice/shop/products" },
+      { label: "Détail" },
+    ]);
     this.loadProduct();
     this.categoryService.list({ isActive: true, limit: 100 }).subscribe({
       next: response => {
@@ -70,22 +77,12 @@ export class ShopProductRecord implements OnInit {
   }
 
   protected startEditing(): void {
-    const p = this.product();
-    if (!p) return;
-
-    this.form.patchValue({
-      name: p.name,
-      description: p.description ?? "",
-      price: p.price,
-      stock: p.stock,
-      category: p.category?.id ?? "",
-    });
     this.editing.set(true);
   }
 
   protected cancelEditing(): void {
+    this.patchForm();
     this.editing.set(false);
-    this.form.reset();
   }
 
   protected saveProduct(): void {
@@ -101,6 +98,7 @@ export class ShopProductRecord implements OnInit {
         next: response => {
           this.toast.success(response.message);
           this.product.set(response.data ?? null);
+          this.patchForm();
           this.editing.set(false);
         },
         error: error => {
@@ -121,6 +119,26 @@ export class ShopProductRecord implements OnInit {
     });
   }
 
+  protected uploadImages(): void {
+    const files = this.imageUpload?.files;
+    if (!files?.length) return;
+
+    this.uploading.set(true);
+    this.productService
+      .addImages(this.productId, files)
+      .pipe(finalize(() => this.uploading.set(false)))
+      .subscribe({
+        next: response => {
+          this.toast.success(response.message);
+          this.product.set(response.data ?? null);
+          this.imageUpload.clear();
+        },
+        error: error => {
+          this.toast.error(extractErrorMessage(error, "Impossible d'ajouter les images"));
+        },
+      });
+  }
+
   protected confirmRemoveImage(imageUrl: string): void {
     this.confirmationService.confirm({
       message: "Voulez-vous vraiment supprimer cette image ?",
@@ -130,6 +148,19 @@ export class ShopProductRecord implements OnInit {
       rejectLabel: "Annuler",
       acceptButtonStyleClass: "p-button-danger",
       accept: () => this.removeImage(imageUrl),
+    });
+  }
+
+  private patchForm(): void {
+    const p = this.product();
+    if (!p) return;
+
+    this.form.patchValue({
+      name: p.name,
+      description: p.description ?? "",
+      price: p.price,
+      stock: p.stock,
+      category: p.category?.id ?? "",
     });
   }
 
@@ -153,6 +184,7 @@ export class ShopProductRecord implements OnInit {
       .subscribe({
         next: response => {
           this.product.set(response.data ?? null);
+          this.patchForm();
         },
         error: () => {
           this.toast.error("Produit introuvable");

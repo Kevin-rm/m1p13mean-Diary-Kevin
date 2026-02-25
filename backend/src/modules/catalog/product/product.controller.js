@@ -36,6 +36,14 @@ export async function toggleActive(req, res) {
   });
 }
 
+export async function addImages(req, res) {
+  if (!req.files?.length) return badRequest(res, "At least one image is required");
+
+  const result = await productService.addImages(req.params.id, req.context.shop, req.files);
+  if (result.error === "not_found") return notFound(res, "Product not found");
+  return ok(res, result.data, "Images added");
+}
+
 export async function removeImage(req, res) {
   const { imageUrl } = req.body;
   if (!imageUrl) return badRequest(res, "imageUrl is required");
