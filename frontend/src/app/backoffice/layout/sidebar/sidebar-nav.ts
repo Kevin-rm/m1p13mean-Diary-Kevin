@@ -41,6 +41,7 @@ export class SidebarNav {
   constructor() {
     effect(() => {
       const url = this.currentUrl();
+      this.expandedItems.clear();
       for (const item of this.items()) {
         if (item.children?.some(c => url.startsWith(c.routerLink!))) {
           this.expandedItems.add(item.label);
