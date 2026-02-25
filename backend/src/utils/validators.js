@@ -24,6 +24,12 @@ export const passwordRules = (field = "password") =>
 export const mongoIdRules = (paramName = "id") =>
   param(paramName).isMongoId().withMessage(`Invalid ${paramName}`);
 
+export const isActiveRule = query("isActive")
+  .optional()
+  .isBoolean()
+  .withMessage("isActive must be a boolean")
+  .toBoolean();
+
 export const paginationRules = [
   query("page").optional().isInt({ min: 1 }).withMessage("Page must be a positive integer").toInt(),
   query("limit")

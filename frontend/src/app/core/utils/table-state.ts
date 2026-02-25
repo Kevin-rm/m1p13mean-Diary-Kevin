@@ -1,6 +1,8 @@
 import { signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { Observable, finalize } from "rxjs";
 import { TableLazyLoadEvent } from "primeng/table";
+import { ApiResponse } from "@core/models/api-response";
 
 export class TableState<T> {
   readonly items = signal<T[]>([]);
@@ -42,5 +44,26 @@ export class TableState<T> {
       limit: this.limit !== 10 ? this.limit : undefined,
     };
     this.router.navigate([], { queryParams, queryParamsHandling: "replace", replaceUrl: true });
+  }
+
+  load(
+    source$: Observable<ApiResponse<T[]>>,
+    options: {
+      event?: TableLazyLoadEvent;
+      queryParams?: Record<string, string | number | undefined>;
+      onError?: () => void;
+    } = {},
+  ): void {
+    if (options.event) this.handleLazyLoad(options.event);
+    if (options.queryParams) this.syncQueryParams(options.queryParams);
+
+    this.loading.set(true);
+    source$.pipe(finalize(() => this.loading.set(false))).subscribe({
+      next: response => {
+        this.items.set(response.data ?? []);
+        this.totalRecords.set((response.meta?.["total"] as number) ?? 0);
+      },
+      error: options.onError,
+    });
   }
 }

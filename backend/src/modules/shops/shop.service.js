@@ -18,22 +18,20 @@ export async function getShopById(id) {
   return Shop.findById(id).populate("owner", "firstName lastName email");
 }
 
-export async function validateShop(id) {
+async function transitionStatus(id, fromStatus, toStatus) {
   const shop = await Shop.findById(id);
   if (!shop) return { error: "not_found" };
-  if (shop.status !== "pending") return { error: "invalid_status" };
+  if (shop.status !== fromStatus) return { error: "invalid_status" };
 
-  shop.status = "active";
+  shop.status = toStatus;
   await shop.save();
   return { data: shop };
 }
 
-export async function suspendShop(id) {
-  const shop = await Shop.findById(id);
-  if (!shop) return { error: "not_found" };
-  if (shop.status !== "active") return { error: "invalid_status" };
+export async function validateShop(id) {
+  return transitionStatus(id, "pending", "active");
+}
 
-  shop.status = "suspended";
-  await shop.save();
-  return { data: shop };
+export async function suspendShop(id) {
+  return transitionStatus(id, "active", "suspended");
 }

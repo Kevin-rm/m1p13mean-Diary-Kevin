@@ -20,4 +20,12 @@ export abstract class ResourceService<T> {
   getById(id: string): Observable<ApiResponse<T>> {
     return this.http.get<ApiResponse<T>>(`${this.baseUrl}/${id}`);
   }
+
+  update(id: string, data: object): Observable<ApiResponse<T>> {
+    return this.http.patch<ApiResponse<T>>(`${this.baseUrl}/${id}`, data);
+  }
+
+  toggleActive(id: string): Observable<ApiResponse<T>> {
+    return this.http.patch<ApiResponse<T>>(`${this.baseUrl}/${id}/toggle-active`, {});
+  }
 }

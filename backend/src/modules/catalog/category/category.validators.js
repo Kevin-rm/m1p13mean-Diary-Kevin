@@ -1,9 +1,9 @@
 import { body, query } from "express-validator";
-import { mongoIdRules, paginationRules } from "#utils/validators.js";
+import { mongoIdRules, isActiveRule, paginationRules } from "#utils/validators.js";
 
 export const listCategoriesRules = [
   query("search").optional().trim(),
-  query("isActive").optional().isBoolean().withMessage("isActive must be a boolean").toBoolean(),
+  isActiveRule,
   ...paginationRules,
 ];
 

@@ -1,7 +1,6 @@
 import { Component, inject, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
-import { finalize } from "rxjs";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
 import { ContactLink } from "@shared/contact-link";
 import { DataTable } from "@shared/data-table/data-table";
@@ -64,30 +63,18 @@ export class AdminShops implements OnInit {
   }
 
   protected loadShops(event?: TableLazyLoadEvent): void {
-    if (event) this.table.handleLazyLoad(event);
-
-    this.table.syncQueryParams({
+    const filters = {
       search: this.searchValue || undefined,
       status: this.statusFilter || undefined,
-    });
-    this.table.loading.set(true);
-    this.shopService
-      .list({
-        search: this.searchValue || undefined,
-        status: this.statusFilter || undefined,
-        page: this.table.page,
-        limit: this.table.limit,
-      })
-      .pipe(finalize(() => this.table.loading.set(false)))
-      .subscribe({
-        next: response => {
-          this.table.items.set(response.data ?? []);
-          this.table.totalRecords.set((response.meta?.["total"] as number) ?? 0);
-        },
-        error: () => {
-          this.toast.error("Impossible de charger les boutiques");
-        },
-      });
+    };
+    this.table.load(
+      this.shopService.list({ ...filters, page: this.table.page, limit: this.table.limit }),
+      {
+        event,
+        queryParams: filters,
+        onError: () => this.toast.error("Impossible de charger les boutiques"),
+      },
+    );
   }
 
   protected onSearch(): void {

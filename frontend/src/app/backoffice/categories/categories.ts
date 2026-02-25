@@ -63,26 +63,15 @@ export class AdminCategories implements OnInit {
   }
 
   protected loadCategories(event?: TableLazyLoadEvent): void {
-    if (event) this.table.handleLazyLoad(event);
-
-    this.table.syncQueryParams({ search: this.searchValue || undefined });
-    this.table.loading.set(true);
-    this.categoryService
-      .list({
-        search: this.searchValue || undefined,
-        page: this.table.page,
-        limit: this.table.limit,
-      })
-      .pipe(finalize(() => this.table.loading.set(false)))
-      .subscribe({
-        next: response => {
-          this.table.items.set(response.data ?? []);
-          this.table.totalRecords.set((response.meta?.["total"] as number) ?? 0);
-        },
-        error: () => {
-          this.toast.error("Impossible de charger les catégories");
-        },
-      });
+    const filters = { search: this.searchValue || undefined };
+    this.table.load(
+      this.categoryService.list({ ...filters, page: this.table.page, limit: this.table.limit }),
+      {
+        event,
+        queryParams: filters,
+        onError: () => this.toast.error("Impossible de charger les catégories"),
+      },
+    );
   }
 
   protected onSearch(): void {

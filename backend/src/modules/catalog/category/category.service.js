@@ -1,6 +1,7 @@
 import Category from "./category.model.js";
 import { paginate } from "#utils/db/paginate.js";
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
+import { pickDefined } from "#utils/objects.js";
 
 export async function listCategories({ search, isActive, page, limit }) {
   const filter = {};
@@ -23,9 +24,7 @@ export async function createCategory({ name, description }) {
 }
 
 export async function updateCategory(id, data) {
-  const update = {};
-  if (data.name !== undefined) update.name = data.name;
-  if (data.description !== undefined) update.description = data.description;
+  const update = pickDefined(data, ["name", "description"]);
 
   try {
     return await Category.findByIdAndUpdate(id, update, { new: true, runValidators: true });
