@@ -1,4 +1,5 @@
-import { ok, created, notFound, badRequest } from "#utils/http/apiResponse.js";
+import { ok, created, okOrNotFound, notFound, badRequest } from "#utils/http/apiResponse.js";
+import { activeLabel } from "#utils/objects.js";
 import * as productService from "./product.service.js";
 
 export async function listProducts(req, res) {
@@ -11,8 +12,7 @@ export async function listProducts(req, res) {
 
 export async function getProduct(req, res) {
   const product = await productService.getProductById(req.params.id, req.context.shop);
-  if (!product) return notFound(res, "Product not found");
-  return ok(res, product);
+  return okOrNotFound(res, product, { entityName: "Product" });
 }
 
 export async function createProduct(req, res) {
@@ -25,15 +25,15 @@ export async function createProduct(req, res) {
 
 export async function updateProduct(req, res) {
   const product = await productService.updateProduct(req.params.id, req.context.shop, req.body);
-  if (!product) return notFound(res, "Product not found");
-  return ok(res, product, "Product updated");
+  return okOrNotFound(res, product, { message: "Product updated", entityName: "Product" });
 }
 
 export async function toggleActive(req, res) {
   const product = await productService.toggleActive(req.params.id, req.context.shop);
-  if (!product) return notFound(res, "Product not found");
-  const status = product.isActive ? "activated" : "deactivated";
-  return ok(res, product, `Product ${status}`);
+  return okOrNotFound(res, product, {
+    message: `Product ${activeLabel(product?.isActive)}`,
+    entityName: "Product",
+  });
 }
 
 export async function removeImage(req, res) {

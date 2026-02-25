@@ -1,4 +1,4 @@
-import { ok, notFound, badRequest } from "#utils/http/apiResponse.js";
+import { ok, okOrNotFound, notFound, badRequest } from "#utils/http/apiResponse.js";
 import * as shopService from "./shop.service.js";
 
 export async function listShops(req, res) {
@@ -8,8 +8,7 @@ export async function listShops(req, res) {
 
 export async function getShop(req, res) {
   const shop = await shopService.getShopById(req.params.id);
-  if (!shop) return notFound(res, "Shop not found");
-  return ok(res, shop);
+  return okOrNotFound(res, shop, { entityName: "Shop" });
 }
 
 export async function validateShop(req, res) {

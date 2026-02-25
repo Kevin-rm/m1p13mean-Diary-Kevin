@@ -1,7 +1,7 @@
 import Product from "./product.model.js";
 import { paginate } from "#utils/db/paginate.js";
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
-import { pickDefined } from "#utils/objects.js";
+import { pickDefined, err, success } from "#utils/objects.js";
 import { toggleActiveStatus } from "#utils/db/toggleActive.js";
 import { uploadImages, deleteImage, extractPublicId } from "#utils/upload/cloudinary.js";
 
@@ -75,15 +75,15 @@ export async function toggleActive(id, shop) {
 
 export async function removeImage(id, shop, imageUrl) {
   const product = await Product.findOne({ _id: id, shop });
-  if (!product) return { error: "not_found" };
+  if (!product) return err("not_found");
 
   const imageIndex = product.images.indexOf(imageUrl);
-  if (imageIndex === -1) return { error: "image_not_found" };
+  if (imageIndex === -1) return err("image_not_found");
 
   const publicId = extractPublicId(imageUrl);
   if (publicId) await deleteImage(publicId);
 
   product.images.splice(imageIndex, 1);
   await product.save();
-  return { data: await product.populate("category", "name") };
+  return success(await product.populate("category", "name"));
 }

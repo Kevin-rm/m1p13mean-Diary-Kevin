@@ -1,5 +1,6 @@
 import Shop from "./shop.model.js";
 import { paginate } from "#utils/db/paginate.js";
+import { err, success } from "#utils/objects.js";
 
 export async function listShops({ search, status, page, limit }) {
   const filter = {};
@@ -20,12 +21,12 @@ export async function getShopById(id) {
 
 async function transitionStatus(id, fromStatus, toStatus) {
   const shop = await Shop.findById(id);
-  if (!shop) return { error: "not_found" };
-  if (shop.status !== fromStatus) return { error: "invalid_status" };
+  if (!shop) return err("not_found");
+  if (shop.status !== fromStatus) return err("invalid_status");
 
   shop.status = toStatus;
   await shop.save();
-  return { data: shop };
+  return success(shop);
 }
 
 export async function validateShop(id) {

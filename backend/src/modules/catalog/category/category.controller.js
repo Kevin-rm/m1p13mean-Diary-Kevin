@@ -1,4 +1,5 @@
-import { ok, created, notFound } from "#utils/http/apiResponse.js";
+import { ok, created, okOrNotFound } from "#utils/http/apiResponse.js";
+import { activeLabel } from "#utils/objects.js";
 import * as categoryService from "./category.service.js";
 
 export async function listCategories(req, res) {
@@ -8,8 +9,7 @@ export async function listCategories(req, res) {
 
 export async function getCategory(req, res) {
   const category = await categoryService.getCategoryById(req.params.id);
-  if (!category) return notFound(res, "Category not found");
-  return ok(res, category);
+  return okOrNotFound(res, category, { entityName: "Category" });
 }
 
 export async function createCategory(req, res) {
@@ -19,13 +19,13 @@ export async function createCategory(req, res) {
 
 export async function updateCategory(req, res) {
   const category = await categoryService.updateCategory(req.params.id, req.body);
-  if (!category) return notFound(res, "Category not found");
-  return ok(res, category, "Category updated");
+  return okOrNotFound(res, category, { message: "Category updated", entityName: "Category" });
 }
 
 export async function toggleActive(req, res) {
   const category = await categoryService.toggleActive(req.params.id);
-  if (!category) return notFound(res, "Category not found");
-  const status = category.isActive ? "activated" : "deactivated";
-  return ok(res, category, `Category ${status}`);
+  return okOrNotFound(res, category, {
+    message: `Category ${activeLabel(category?.isActive)}`,
+    entityName: "Category",
+  });
 }
