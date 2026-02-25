@@ -80,7 +80,33 @@ export const routes: Routes = [
       {
         path: "shop",
         canActivate: [profileGuard("shop")],
-        children: [],
+        children: [
+          {
+            path: "",
+            redirectTo: "products",
+            pathMatch: "full",
+          },
+          {
+            path: "products",
+            canActivate: [permissionGuard("products:read")],
+            loadComponent: () =>
+              import("@backoffice/products/product-list/product-list").then(m => m.ShopProductList),
+          },
+          {
+            path: "products/new",
+            canActivate: [permissionGuard("products:write")],
+            loadComponent: () =>
+              import("@backoffice/products/product-form/product-form").then(m => m.ShopProductForm),
+          },
+          {
+            path: "products/:id",
+            canActivate: [permissionGuard("products:read")],
+            loadComponent: () =>
+              import("@backoffice/products/product-record/product-record").then(
+                m => m.ShopProductRecord,
+              ),
+          },
+        ],
       },
     ],
   },

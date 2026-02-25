@@ -9,5 +9,5 @@ export const BACKOFFICE_SIDEBAR_ITEMS: Record<string, SidebarItem[]> = {
     { label: "Boutiques", icon: "pi pi-shop", routerLink: "/backoffice/admin/shops" },
     { label: "Catégories", icon: "pi pi-tags", routerLink: "/backoffice/admin/categories" },
   ],
-  shop: [],
+  shop: [{ label: "Produits", icon: "pi pi-box", routerLink: "/backoffice/shop/products" }],
 };

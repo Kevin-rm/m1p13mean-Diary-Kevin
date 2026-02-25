@@ -7,6 +7,7 @@ import authRoutes from "./modules/auth/auth.routes.js";
 import accountRoutes from "./modules/account/account.routes.js";
 import categoryRoutes from "./modules/catalog/category/category.routes.js";
 import shopRoutes from "./modules/shops/shop.routes.js";
+import productRoutes from "./modules/catalog/product/product.routes.js";
 import { notFound } from "./utils/http/apiResponse.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { MS_PER_MINUTE } from "./utils/constants.js";
@@ -34,6 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/account", accountRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/shops", shopRoutes);
+app.use("/api/products", productRoutes);
 
 app.use((_req, res) => notFound(res, "Route not found"));
 app.use(errorHandler);
