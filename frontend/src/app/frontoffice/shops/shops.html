@@ -1,5 +1,76 @@
-<div class="flex flex-col items-center justify-center gap-4 mt-16">
-  <i class="pi pi-shop text-6xl text-muted-color"></i>
-  <h1 class="text-2xl font-semibold">Boutiques</h1>
-  <p class="text-muted-color">Bientôt disponible</p>
+<div class="max-w-7xl mx-auto px-4 py-10">
+  <h1 class="text-3xl font-bold mb-8 text-center flex items-center gap-2">
+    <fa-icon [icon]="['fas', 'shop']" class="text-gray-700"></fa-icon>
+    Boutiques
+  </h1>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center py-20">
+      <div
+        class="w-12 h-12 border-4 border-gray-300 border-t-black rounded-full animate-spin"
+      ></div>
+    </div>
+  }
+
+  @if (!loading() && shops().length === 0) {
+    <div class="text-center text-gray-500 py-20">Aucune boutique disponible</div>
+  }
+
+  @if (!loading() && shops().length > 0) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (shop of shops(); track shop.id) {
+        <div
+          class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition overflow-hidden flex flex-col"
+        >
+          <div
+            class="relative w-full h-56 overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory scroll-smooth scrollbar-hide cursor-grab active:cursor-grabbing"
+          >
+            @if (shop.images && shop.images.length > 0) {
+              @for (img of shop.images; track img) {
+                <img
+                  [src]="img"
+                  class="w-full h-56 object-cover flex-shrink-0 snap-center"
+                  loading="lazy"
+                />
+              }
+            } @else {
+              <img [src]="defaultImage" class="w-full h-56 object-cover flex-shrink-0" />
+            }
+          </div>
+
+          <div class="p-6 flex flex-col gap-3 flex-1">
+            <h2 class="text-xl font-semibold">
+              {{ shop.name }}
+            </h2>
+
+            <p class="text-gray-600 text-sm line-clamp-2">
+              {{ shop.description }}
+            </p>
+
+            @if (shop.owner) {
+              <div class="text-sm text-gray-500">
+                <strong>Propriétaire :</strong>
+                {{ shop.owner.firstName }} {{ shop.owner.lastName }}
+              </div>
+            }
+
+            <div class="text-sm text-gray-500 flex flex-col gap-1 mt-auto">
+              @if (shop.contactEmail) {
+                <p>
+                  <i class="pi pi-envelope text-gray-400"></i>
+                  <span class="ml-4">{{ shop.contactEmail }}</span>
+                </p>
+              }
+              @if (shop.contactPhone) {
+                <p>
+                  <i class="pi pi-phone text-gray-400"></i>
+                  <span class="ml-4">{{ shop.contactPhone }}</span>
+                </p>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
 </div>

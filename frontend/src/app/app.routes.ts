@@ -83,8 +83,20 @@ export const routes: Routes = [
         children: [
           {
             path: "",
-            redirectTo: "products",
+            redirectTo: "dashboard",
             pathMatch: "full",
+          },
+          {
+            path: "dashboard",
+            canActivate: [permissionGuard("shop:settings")],
+            loadComponent: () =>
+              import("@backoffice/shop-backoffice/dashboard/dashboard").then(m => m.ShopDashboard),
+          },
+          {
+            path: "profile",
+            canActivate: [permissionGuard("shop:settings")],
+            loadComponent: () =>
+              import("@backoffice/shop-backoffice/profile/profile").then(m => m.ShopProfile),
           },
           {
             path: "products",

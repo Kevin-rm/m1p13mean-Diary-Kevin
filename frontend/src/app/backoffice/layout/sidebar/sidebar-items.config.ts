@@ -11,6 +11,8 @@ export const SIDEBAR_ITEMS: Record<string, SidebarItem[]> = {
     { label: "Catégories", icon: "pi pi-tags", routerLink: "/backoffice/admin/categories" },
   ],
   shop: [
+    { label: "Tableau de Bord", icon: "pi pi-chart-bar", routerLink: "/backoffice/shop/" },
+    { label: "Profile", icon: "pi pi-user", routerLink: "/backoffice/shop/profile" },
     {
       label: "Produits",
       icon: "pi pi-box",

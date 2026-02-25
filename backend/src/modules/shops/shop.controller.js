@@ -1,4 +1,4 @@
-import { ok, okOrNotFound, notFound, badRequest } from "#utils/http/apiResponse.js";
+import { ok, okOrNotFound, notFound, badRequest, unauthorized } from "#utils/http/apiResponse.js";
 import * as shopService from "./shop.service.js";
 
 export async function listShops(req, res) {
@@ -9,6 +9,19 @@ export async function listShops(req, res) {
 export async function getShop(req, res) {
   const shop = await shopService.getShopById(req.params.id);
   return okOrNotFound(res, shop, { entityName: "Shop" });
+}
+
+export async function getShopOwner(req, res) {
+  const shop = await shopService.getShopByOwnerEmail(req.params.email);
+  if (!shop) return notFound(res, "Shop not found");
+  return ok(res, shop);
+}
+
+export async function addShopImage(req, res) {
+  if (!req.file) return badRequest(res, "No file provided");
+  const shop = await shopService.addShopImage(req.params.id, req.file);
+  if (!shop) return unauthorized(res, "Shop not found");
+  return ok(res, { shop }, "Shop updated");
 }
 
 export async function validateShop(req, res) {
