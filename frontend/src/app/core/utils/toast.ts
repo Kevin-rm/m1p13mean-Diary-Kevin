@@ -13,6 +13,10 @@ export class Toast {
     this.show({ severity: "success", summary: "Succès", detail });
   }
 
+  info(detail: string): void {
+    this.show({ severity: "info", summary: "Info", detail });
+  }
+
   error(detail: string): void {
     this.show({ severity: "error", summary: "Erreur", detail });
   }

@@ -1,0 +1,94 @@
+<app-page-header title="Produits">
+  <p-button label="Nouveau produit" icon="pi pi-plus" (click)="navigateToNew()" />
+</app-page-header>
+
+<ng-template #headerTpl>
+  <tr>
+    <th pResizableColumn class="w-16">Image</th>
+    <th pResizableColumn>Nom</th>
+    <th pResizableColumn>Catégorie</th>
+    <th pResizableColumn>Prix</th>
+    <th pResizableColumn>Stock</th>
+    <th pResizableColumn>Statut</th>
+    <th class="w-28">Actions</th>
+  </tr>
+</ng-template>
+
+<ng-template #bodyTpl let-product>
+  <tr>
+    <td>
+      @if (product.images?.length) {
+        <img
+          [src]="product.images[0]"
+          [alt]="product.name"
+          class="w-10 h-10 rounded object-cover"
+        />
+      } @else {
+        <div class="w-10 h-10 rounded bg-surface-200 flex items-center justify-center">
+          <i class="pi pi-image text-muted-color"></i>
+        </div>
+      }
+    </td>
+    <td class="font-medium">
+      <a
+        [routerLink]="['/backoffice/shop/products', product.id]"
+        class="text-primary no-underline hover:underline"
+      >
+        {{ product.name }}
+      </a>
+    </td>
+    <td class="text-muted-color">{{ product.category?.name | noValue }}</td>
+    <td>{{ product.price | ariary }}</td>
+    <td>{{ product.stock }}</td>
+    <td>
+      <app-active-tag [isActive]="product.isActive" />
+    </td>
+    <td>
+      <div class="flex justify-end gap-1">
+        <p-button
+          [icon]="product.isActive ? 'pi pi-eye-slash' : 'pi pi-check-circle'"
+          [text]="true"
+          [rounded]="true"
+          [severity]="product.isActive ? 'warn' : 'success'"
+          (click)="toggleActive(product)"
+          [pTooltip]="product.isActive ? 'Désactiver' : 'Activer'"
+        />
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<app-data-table
+  [state]="table"
+  [headerTpl]="headerTpl"
+  [bodyTpl]="bodyTpl"
+  [columns]="7"
+  searchPlaceholder="Rechercher un produit..."
+  emptyMessage="Aucun produit trouvé"
+  [tableStyle]="{ 'min-width': '50rem' }"
+  (searchChange)="loadProducts()"
+  (lazyLoad)="loadProducts($event)"
+>
+  <p-select
+    filters
+    inputId="productCategoryFilter"
+    [options]="categories()"
+    [(ngModel)]="categoryFilter"
+    (onChange)="onFilter()"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Catégorie"
+    class="w-full sm:w-48"
+  />
+  <p-select
+    filters
+    inputId="productStatusFilter"
+    [options]="statusOptions"
+    [(ngModel)]="statusFilter"
+    (onChange)="onFilter()"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Statut"
+    class="w-full sm:w-40"
+  />
+</app-data-table>

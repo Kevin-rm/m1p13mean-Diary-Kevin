@@ -1,20 +1,6 @@
-<div class="flex items-center justify-between mb-4">
-  <h1 class="text-2xl font-semibold m-0">Catégories</h1>
+<app-page-header title="Catégories">
   <p-button label="Nouvelle catégorie" icon="pi pi-plus" (click)="openCreateDrawer()" />
-</div>
-
-<div class="mb-4">
-  <p-iconfield>
-    <p-inputicon class="pi pi-search" />
-    <input
-      pInputText
-      id="categorySearch"
-      placeholder="Rechercher une catégorie..."
-      [(ngModel)]="searchValue"
-      (input)="onSearch()"
-    />
-  </p-iconfield>
-</div>
+</app-page-header>
 
 <ng-template #headerTpl>
   <tr>
@@ -28,12 +14,9 @@
 <ng-template #bodyTpl let-category>
   <tr>
     <td class="font-medium">{{ category.name }}</td>
-    <td class="text-muted-color">{{ category.description || "—" }}</td>
+    <td class="text-muted-color">{{ category.description | noValue }}</td>
     <td>
-      <p-tag
-        [value]="category.isActive ? 'Actif' : 'Inactif'"
-        [severity]="category.isActive ? 'success' : 'danger'"
-      />
+      <app-active-tag [isActive]="category.isActive" />
     </td>
     <td>
       <div class="flex justify-end gap-1">
@@ -63,7 +46,9 @@
   [headerTpl]="headerTpl"
   [bodyTpl]="bodyTpl"
   [columns]="4"
+  searchPlaceholder="Rechercher une catégorie..."
   emptyMessage="Aucune catégorie trouvée"
+  (searchChange)="loadCategories()"
   (lazyLoad)="loadCategories($event)"
 />
 

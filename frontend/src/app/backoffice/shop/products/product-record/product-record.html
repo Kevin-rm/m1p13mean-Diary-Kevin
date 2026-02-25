@@ -1,0 +1,92 @@
+<p-confirmDialog />
+
+<app-record-page title="Détail du produit" [loading]="loading()">
+  <div actions class="flex gap-2">
+    @if (product(); as p) {
+      @if (editing()) {
+        <p-button
+          label="Annuler"
+          severity="secondary"
+          [outlined]="true"
+          (click)="cancelEditing()"
+        />
+        <p-button
+          [label]="saving() ? 'Enregistrement...' : 'Enregistrer'"
+          form="editProductForm"
+          type="submit"
+          [disabled]="form.invalid || saving()"
+          [loading]="saving()"
+        />
+      } @else {
+        <p-button
+          label="Modifier"
+          icon="pi pi-pencil"
+          severity="info"
+          [outlined]="true"
+          (click)="startEditing()"
+        />
+        <p-button
+          [label]="p.isActive ? 'Désactiver' : 'Activer'"
+          [icon]="p.isActive ? 'pi pi-eye-slash' : 'pi pi-check-circle'"
+          [severity]="p.isActive ? 'warn' : 'success'"
+          [outlined]="true"
+          (click)="toggleActive()"
+        />
+      }
+    }
+  </div>
+
+  @if (product(); as p) {
+    @if (editing()) {
+      <form id="editProductForm" [formGroup]="form" (ngSubmit)="saveProduct()">
+        <app-product-form-fields
+          [form]="form"
+          idPrefix="edit"
+          [categoryNameHint]="p.category.name"
+        />
+      </form>
+    } @else {
+      <app-product-form-fields
+        [form]="form"
+        [readonly]="true"
+        [categoryNameHint]="p.category.name"
+      />
+    }
+  }
+
+  <ng-template recordTab="Images">
+    @if (product(); as p) {
+      @if (p.images.length) {
+        <div class="flex flex-wrap gap-4">
+          @for (image of p.images; track image) {
+            <div class="relative group">
+              <p-image
+                [src]="image"
+                [alt]="p.name"
+                width="128"
+                [preview]="true"
+                imageClass="rounded-lg object-cover border border-surface-200"
+                [imageStyle]="{ width: '128px', height: '128px' }"
+              />
+              <p-button
+                icon="pi pi-trash"
+                [rounded]="true"
+                severity="danger"
+                size="small"
+                (click)="confirmRemoveImage(image)"
+                class="!absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                styleClass="!w-7 !h-7"
+              />
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-muted-color">Aucune image</p>
+      }
+
+      <div class="mt-6">
+        <app-image-upload #imageUpload [showUploadButton]="true" (upload)="uploadImages($event)" />
+      </div>
+    }
+  </ng-template>
+</app-record-page>

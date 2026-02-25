@@ -1,29 +1,29 @@
 import { Component, inject, signal, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { finalize } from "rxjs";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
-import { DataTable } from "@shared/data-table/data-table";
+import { DataTable } from "@shared/components/data-table/data-table";
 import { Drawer } from "primeng/drawer";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
 import { Button } from "primeng/button";
-import { Tag } from "primeng/tag";
+import { ActiveTag } from "@shared/components/active-tag";
 import { Fluid } from "primeng/fluid";
-import { IconField } from "primeng/iconfield";
-import { InputIcon } from "primeng/inputicon";
 import { Tooltip } from "primeng/tooltip";
+import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
+import { PageHeader } from "@backoffice/layout/page-header";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
 import { CategoryService } from "./category.service";
 import { Category } from "./category.model";
-import { FormField } from "@shared/form-field";
+import { FormField } from "@shared/components/form-field";
+import { NoValuePipe } from "@shared/pipes/no-value";
 
 @Component({
   selector: "app-admin-categories",
   imports: [
-    FormsModule,
     ReactiveFormsModule,
     TableModule,
     DataTable,
@@ -31,17 +31,18 @@ import { FormField } from "@shared/form-field";
     InputText,
     Textarea,
     Button,
-    Tag,
+    ActiveTag,
     Fluid,
-    IconField,
-    InputIcon,
     Tooltip,
+    PageHeader,
     FormField,
+    NoValuePipe,
   ],
   templateUrl: "./categories.html",
 })
 export class AdminCategories implements OnInit {
   private readonly categoryService = inject(CategoryService);
+  private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
   private editingId: string | null = null;
@@ -50,44 +51,26 @@ export class AdminCategories implements OnInit {
   protected readonly drawerVisible = signal(false);
   protected readonly saving = signal(false);
   protected readonly editing = signal(false);
-  protected searchValue = "";
-
   protected readonly form = this.fb.nonNullable.group({
     name: ["", Validators.required],
     description: [""],
   });
 
   ngOnInit(): void {
-    this.searchValue = this.table.readFilterParam("search");
+    this.breadcrumb.set([{ label: "Catégories" }]);
     this.loadCategories();
   }
 
   protected loadCategories(event?: TableLazyLoadEvent): void {
-    if (event) this.table.handleLazyLoad(event);
-
-    this.table.syncQueryParams({ search: this.searchValue || undefined });
-    this.table.loading.set(true);
-    this.categoryService
-      .list({
-        search: this.searchValue || undefined,
-        page: this.table.page,
-        limit: this.table.limit,
-      })
-      .pipe(finalize(() => this.table.loading.set(false)))
-      .subscribe({
-        next: response => {
-          this.table.items.set(response.data ?? []);
-          this.table.totalRecords.set((response.meta?.["total"] as number) ?? 0);
-        },
-        error: () => {
-          this.toast.error("Impossible de charger les catégories");
-        },
-      });
-  }
-
-  protected onSearch(): void {
-    this.table.resetPage();
-    this.loadCategories();
+    const filters = { search: this.table.search() || undefined };
+    this.table.load(
+      this.categoryService.list({ ...filters, page: this.table.page, limit: this.table.limit }),
+      {
+        event,
+        queryParams: filters,
+        onError: () => this.toast.error("Impossible de charger les catégories"),
+      },
+    );
   }
 
   protected openCreateDrawer(): void {

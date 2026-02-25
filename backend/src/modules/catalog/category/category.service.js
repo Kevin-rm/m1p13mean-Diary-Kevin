@@ -1,6 +1,8 @@
 import Category from "./category.model.js";
 import { paginate } from "#utils/db/paginate.js";
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
+import { pickDefined } from "#utils/objects.js";
+import { toggleActiveStatus } from "#utils/db/toggleActive.js";
 
 export async function listCategories({ search, isActive, page, limit }) {
   const filter = {};
@@ -8,6 +10,10 @@ export async function listCategories({ search, isActive, page, limit }) {
   if (isActive !== undefined) filter.isActive = isActive;
 
   return paginate(Category, { filter, page, limit });
+}
+
+export async function selectCategories() {
+  return Category.find({ isActive: true }).select("name").sort("name");
 }
 
 export async function getCategoryById(id) {
@@ -23,9 +29,7 @@ export async function createCategory({ name, description }) {
 }
 
 export async function updateCategory(id, data) {
-  const update = {};
-  if (data.name !== undefined) update.name = data.name;
-  if (data.description !== undefined) update.description = data.description;
+  const update = pickDefined(data, ["name", "description"]);
 
   try {
     return await Category.findByIdAndUpdate(id, update, { new: true, runValidators: true });
@@ -35,10 +39,5 @@ export async function updateCategory(id, data) {
 }
 
 export async function toggleActive(id) {
-  const category = await Category.findById(id);
-  if (!category) return null;
-
-  category.isActive = !category.isActive;
-  await category.save();
-  return category;
+  return toggleActiveStatus(Category, id);
 }

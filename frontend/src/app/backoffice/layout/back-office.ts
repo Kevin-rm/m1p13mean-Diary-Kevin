@@ -4,7 +4,7 @@ import { Drawer } from "primeng/drawer";
 import { Sidebar } from "./sidebar/sidebar";
 import { SidebarNav } from "./sidebar/sidebar-nav";
 import { BoHeader } from "./header/header";
-import { Footer } from "@shared/footer/footer";
+import { Footer } from "@shared/components/footer/footer";
 
 @Component({
   selector: "app-back-office",

@@ -1,9 +1,9 @@
-import { Component, computed, inject, input } from "@angular/core";
+import { Component, computed, effect, inject, input } from "@angular/core";
 import { Router, NavigationEnd, RouterLink, RouterLinkActive } from "@angular/router";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { filter, map } from "rxjs";
 import { Ripple } from "primeng/ripple";
-import { BACKOFFICE_SIDEBAR_ITEMS } from "./sidebar-items.config";
+import { SIDEBAR_ITEMS, SidebarItem } from "./sidebar-items.config";
 
 @Component({
   selector: "app-sidebar-nav",
@@ -12,6 +12,7 @@ import { BACKOFFICE_SIDEBAR_ITEMS } from "./sidebar-items.config";
 })
 export class SidebarNav {
   private readonly router = inject(Router);
+  private readonly expandedItems = new Set<string>();
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -26,7 +27,38 @@ export class SidebarNav {
     return match?.[1] ?? "";
   });
 
-  protected readonly items = computed(() => BACKOFFICE_SIDEBAR_ITEMS[this.activeSection()] ?? []);
+  protected readonly linkActiveOptions = {
+    paths: "exact" as const,
+    queryParams: "ignored" as const,
+    matrixParams: "ignored" as const,
+    fragment: "ignored" as const,
+  };
+
+  protected readonly items = computed(() => SIDEBAR_ITEMS[this.activeSection()] ?? []);
 
   collapsed = input(false);
+
+  constructor() {
+    effect(() => {
+      const url = this.currentUrl();
+      this.expandedItems.clear();
+      for (const item of this.items()) {
+        if (item.children?.some(c => url.startsWith(c.routerLink!))) {
+          this.expandedItems.add(item.label);
+        }
+      }
+    });
+  }
+
+  protected toggle(item: SidebarItem): void {
+    if (this.expandedItems.has(item.label)) {
+      this.expandedItems.delete(item.label);
+    } else {
+      this.expandedItems.add(item.label);
+    }
+  }
+
+  protected isExpanded(item: SidebarItem): boolean {
+    return this.expandedItems.has(item.label);
+  }
 }

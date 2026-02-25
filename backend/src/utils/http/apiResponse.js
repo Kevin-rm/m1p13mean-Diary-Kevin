@@ -28,3 +28,7 @@ export const notFound = (res, message = "Resource not found", error) =>
   apiResponse(res, 404, { message, error });
 export const internal = (res, message = "Internal server error", error) =>
   apiResponse(res, 500, { message, error });
+
+// Helpers
+export const okOrNotFound = (res, data, { message, entityName = "Resource", meta } = {}) =>
+  data ? ok(res, data, message, meta) : notFound(res, `${entityName} not found`);

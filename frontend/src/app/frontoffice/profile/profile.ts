@@ -16,7 +16,7 @@ import { extractErrorMessage } from "@core/utils/error";
 import { AuthService } from "@auth/auth.service";
 import { User } from "@auth/auth.models";
 import { Toast } from "@core/utils/toast";
-import { FormField } from "@shared/form-field";
+import { FormField } from "@shared/components/form-field";
 
 @Component({
   selector: "app-profile",

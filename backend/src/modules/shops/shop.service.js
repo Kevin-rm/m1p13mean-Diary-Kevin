@@ -1,6 +1,7 @@
 import Shop from "./shop.model.js";
 import User from "#modules/users/user.model.js";
 import { paginate } from "#utils/db/paginate.js";
+import { err, success } from "#utils/objects.js";
 import { uploadImage } from "#utils/upload/cloudinary.js";
 
 export async function listShops({ search, status, page, limit }) {
@@ -22,11 +23,8 @@ export async function getShopById(id) {
 
 export async function getShopByOwnerEmail(email) {
   const user = await User.findOne({ email: email.toLowerCase().trim() });
-  if (!user) {
-    return null;
-  }
-  const shop = await Shop.findOne({ owner: user._id });
-  return shop;
+  if (!user) return null;
+  return Shop.findOne({ owner: user._id });
 }
 
 export async function addShopImage(idShop, file) {
@@ -40,22 +38,20 @@ export async function addShopImage(idShop, file) {
   return shop;
 }
 
-export async function validateShop(id) {
+async function transitionStatus(id, fromStatus, toStatus) {
   const shop = await Shop.findById(id);
-  if (!shop) return { error: "not_found" };
-  if (shop.status !== "pending") return { error: "invalid_status" };
+  if (!shop) return err("not_found");
+  if (shop.status !== fromStatus) return err("invalid_status");
 
-  shop.status = "active";
+  shop.status = toStatus;
   await shop.save();
-  return { data: shop };
+  return success(shop);
+}
+
+export async function validateShop(id) {
+  return transitionStatus(id, "pending", "active");
 }
 
 export async function suspendShop(id) {
-  const shop = await Shop.findById(id);
-  if (!shop) return { error: "not_found" };
-  if (shop.status !== "active") return { error: "invalid_status" };
-
-  shop.status = "suspended";
-  await shop.save();
-  return { data: shop };
+  return transitionStatus(id, "active", "suspended");
 }

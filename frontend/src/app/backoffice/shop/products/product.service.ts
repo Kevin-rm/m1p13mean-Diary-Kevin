@@ -1,0 +1,24 @@
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+import { ApiResponse } from "@core/models/api-response";
+import { ActivatableResourceService } from "@core/services/resource";
+import { Product } from "./product.model";
+
+@Injectable({ providedIn: "root" })
+export class ProductService extends ActivatableResourceService<Product> {
+  protected readonly resourcePath = "products";
+
+  addImages(id: string, files: File[]): Observable<ApiResponse<Product>> {
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append("images", file);
+    }
+    return this.http.post<ApiResponse<Product>>(`${this.baseUrl}/${id}/images`, formData);
+  }
+
+  removeImage(id: string, imageUrl: string): Observable<ApiResponse<Product>> {
+    return this.http.delete<ApiResponse<Product>>(`${this.baseUrl}/${id}/images`, {
+      body: { imageUrl },
+    });
+  }
+}

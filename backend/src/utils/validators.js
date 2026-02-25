@@ -1,5 +1,6 @@
 import { body, param, query } from "express-validator";
 
+// Auth
 export const emailRules = (field = "email") =>
   body(field)
     .trim()
@@ -21,8 +22,14 @@ export const passwordRules = (field = "password") =>
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters");
 
-export const mongoIdRules = (paramName = "id") =>
-  param(paramName).isMongoId().withMessage(`Invalid ${paramName}`);
+// List queries
+export const searchRule = query("search").optional().trim();
+
+export const isActiveRule = query("isActive")
+  .optional()
+  .isBoolean()
+  .withMessage("isActive must be a boolean")
+  .toBoolean();
 
 export const paginationRules = [
   query("page").optional().isInt({ min: 1 }).withMessage("Page must be a positive integer").toInt(),
@@ -32,3 +39,17 @@ export const paginationRules = [
     .withMessage("Limit must be between 1 and 100")
     .toInt(),
 ];
+
+// Common
+export const mongoIdRules = (paramName = "id") =>
+  param(paramName).isMongoId().withMessage(`Invalid ${paramName}`);
+
+export const resourceNameRules = label => {
+  const base = chain => chain.trim().notEmpty();
+  return {
+    required: base(body("name")).withMessage(`${label} is required`),
+    optional: base(body("name").optional()).withMessage(`${label} cannot be empty`),
+  };
+};
+
+export const descriptionRule = body("description").optional().trim();

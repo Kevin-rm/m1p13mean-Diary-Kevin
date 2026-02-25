@@ -1,0 +1,28 @@
+<ng-template #formActions>
+  <p-button label="Réinitialiser" severity="secondary" [outlined]="true" (click)="resetForm()" />
+  <p-button
+    [label]="saving() ? 'Enregistrement...' : 'Créer le produit'"
+    form="productForm"
+    type="submit"
+    [disabled]="form.invalid || saving()"
+    [loading]="saving()"
+  />
+</ng-template>
+
+<app-page-header title="Nouveau produit" [back]="true">
+  <div class="flex gap-2">
+    <ng-container *ngTemplateOutlet="formActions" />
+  </div>
+</app-page-header>
+
+<p-card header="Informations du produit" subheader="Renseignez les détails du produit">
+  <form id="productForm" [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5">
+    <app-product-form-fields [form]="form" />
+
+    <app-image-upload #fileUpload />
+  </form>
+</p-card>
+
+<div class="flex justify-end gap-3 mt-4">
+  <ng-container *ngTemplateOutlet="formActions" />
+</div>

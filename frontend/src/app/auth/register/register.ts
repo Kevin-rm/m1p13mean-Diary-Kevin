@@ -14,7 +14,7 @@ import { Fieldset } from "primeng/fieldset";
 import { Divider } from "primeng/divider";
 import { AuthService } from "../auth.service";
 import { extractErrorMessage } from "@core/utils/error";
-import { FormField } from "@shared/form-field";
+import { FormField } from "@shared/components/form-field";
 
 @Component({
   selector: "app-register",

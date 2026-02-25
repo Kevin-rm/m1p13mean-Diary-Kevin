@@ -1,28 +1,4 @@
-<h1 class="text-2xl font-semibold mb-4">Boutiques</h1>
-
-<div class="flex flex-col sm:flex-row gap-3 mb-4">
-  <p-iconfield>
-    <p-inputicon class="pi pi-search" />
-    <input
-      pInputText
-      id="shopSearch"
-      placeholder="Rechercher une boutique..."
-      [(ngModel)]="searchValue"
-      (input)="onSearch()"
-    />
-  </p-iconfield>
-
-  <p-select
-    inputId="shopStatusFilter"
-    [options]="statusOptions"
-    [(ngModel)]="statusFilter"
-    (onChange)="onStatusFilter()"
-    optionLabel="label"
-    optionValue="value"
-    placeholder="Filtrer par statut"
-    class="w-full sm:w-48"
-  />
-</div>
+<app-page-header title="Boutiques" />
 
 <ng-template #headerTpl>
   <tr>
@@ -76,7 +52,21 @@
   [headerTpl]="headerTpl"
   [bodyTpl]="bodyTpl"
   [columns]="6"
+  searchPlaceholder="Rechercher une boutique..."
   emptyMessage="Aucune boutique trouvée"
   [tableStyle]="{ 'min-width': '50rem' }"
+  (searchChange)="loadShops()"
   (lazyLoad)="loadShops($event)"
-/>
+>
+  <p-select
+    filters
+    inputId="shopStatusFilter"
+    [options]="statusOptions"
+    [(ngModel)]="statusFilter"
+    (onChange)="onStatusFilter()"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Filtrer par statut"
+    class="w-full sm:w-48"
+  />
+</app-data-table>
