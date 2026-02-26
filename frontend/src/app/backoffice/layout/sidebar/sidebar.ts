@@ -1,6 +1,7 @@
-import { Component, input } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { NgClass } from "@angular/common";
 import { RouterLink } from "@angular/router";
+import { BackofficeNavigation } from "../backoffice-navigation.service";
 import { SidebarNav } from "./sidebar-nav";
 
 @Component({
@@ -9,5 +10,6 @@ import { SidebarNav } from "./sidebar-nav";
   templateUrl: "./sidebar.html",
 })
 export class Sidebar {
+  protected readonly nav = inject(BackofficeNavigation);
   collapsed = input(false);
 }

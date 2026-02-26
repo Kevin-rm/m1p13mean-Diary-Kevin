@@ -1,8 +1,7 @@
 import { Component, computed, effect, inject, input } from "@angular/core";
-import { Router, NavigationEnd, RouterLink, RouterLinkActive } from "@angular/router";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { filter, map } from "rxjs";
+import { RouterLink, RouterLinkActive } from "@angular/router";
 import { Ripple } from "primeng/ripple";
+import { BackofficeNavigation } from "../backoffice-navigation.service";
 import { SIDEBAR_ITEMS, SidebarItem } from "./sidebar-items.config";
 
 @Component({
@@ -11,21 +10,8 @@ import { SIDEBAR_ITEMS, SidebarItem } from "./sidebar-items.config";
   templateUrl: "./sidebar-nav.html",
 })
 export class SidebarNav {
-  private readonly router = inject(Router);
+  private readonly nav = inject(BackofficeNavigation);
   private readonly expandedItems = new Set<string>();
-
-  private readonly currentUrl = toSignal(
-    this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      map(e => e.urlAfterRedirects),
-    ),
-    { initialValue: this.router.url },
-  );
-
-  private readonly activeSection = computed(() => {
-    const match = this.currentUrl().match(/^\/backoffice\/(\w+)/);
-    return match?.[1] ?? "";
-  });
 
   protected readonly linkActiveOptions = {
     paths: "exact" as const,
@@ -34,17 +20,19 @@ export class SidebarNav {
     fragment: "ignored" as const,
   };
 
-  protected readonly items = computed(() => SIDEBAR_ITEMS[this.activeSection()] ?? []);
+  protected readonly sections = computed(() => SIDEBAR_ITEMS[this.nav.activeSection()] ?? []);
 
   collapsed = input(false);
 
   constructor() {
     effect(() => {
-      const url = this.currentUrl();
+      const url = this.nav.currentUrl();
       this.expandedItems.clear();
-      for (const item of this.items()) {
-        if (item.children?.some(c => url.startsWith(c.routerLink!))) {
-          this.expandedItems.add(item.label);
+      for (const section of this.sections()) {
+        for (const item of section.items) {
+          if (item.children?.some(c => url.startsWith(c.routerLink!))) {
+            this.expandedItems.add(item.label);
+          }
         }
       }
     });

@@ -6,6 +6,7 @@ import { singleImage, handleMulterError } from "#utils/upload/multer.js";
 import {
   listShopsRules,
   getShopRules,
+  updateMyShopRules,
   validateShopRules,
   suspendShopRules,
 } from "./shop.validators.js";
@@ -16,11 +17,29 @@ const router = Router();
 router.use(authenticate);
 
 router.get("/", validate(listShopsRules), shopController.listShops);
+router.get("/me", authorize("shop:settings"), shopController.getMyShop);
+router.patch(
+  "/me",
+  authorize("shop:settings"),
+  validate(updateMyShopRules),
+  shopController.updateMyShop,
+);
+router.post(
+  "/me/logo",
+  authorize("shop:settings"),
+  singleImage("logo"),
+  handleMulterError,
+  shopController.setMyShopLogo,
+);
+router.post(
+  "/me/image",
+  authorize("shop:settings"),
+  singleImage("shopImage"),
+  handleMulterError,
+  shopController.addMyShopImage,
+);
 
 router.get("/:id", validate(getShopRules), shopController.getShop);
-
-router.get("/owner/:email", authorize("shop:settings"), shopController.getShopOwner);
-
 router.post(
   "/:id/image",
   authorize("shop:settings"),

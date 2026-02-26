@@ -18,7 +18,7 @@ import { FileUpload } from "primeng/fileupload";
       [showCancelButton]="showCancelButton()"
       [chooseLabel]="chooseLabel()"
       [chooseIcon]="chooseIcon()"
-      uploadLabel="Envoyer"
+      uploadLabel="Importer"
       cancelLabel="Annuler"
       (uploadHandler)="onUpload()"
     >

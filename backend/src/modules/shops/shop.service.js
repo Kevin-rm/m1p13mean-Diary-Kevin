@@ -1,5 +1,4 @@
 import Shop from "./shop.model.js";
-import User from "#modules/users/user.model.js";
 import { paginate } from "#utils/db/paginate.js";
 import { err, success } from "#utils/objects.js";
 import { uploadImage } from "#utils/upload/cloudinary.js";
@@ -21,10 +20,25 @@ export async function getShopById(id) {
   return Shop.findById(id).populate("owner", "firstName lastName email");
 }
 
-export async function getShopByOwnerEmail(email) {
-  const user = await User.findOne({ email: email.toLowerCase().trim() });
-  if (!user) return null;
-  return Shop.findOne({ owner: user._id });
+const UPDATABLE_FIELDS = ["description", "contactEmail", "contactPhone", "schedule"];
+
+export async function updateShop(id, data) {
+  const update = {};
+  for (const key of UPDATABLE_FIELDS) {
+    if (data[key] !== undefined) update[key] = data[key];
+  }
+  return Shop.findByIdAndUpdate(id, update, { new: true, runValidators: true });
+}
+
+export async function setShopLogo(id, file) {
+  const shop = await Shop.findById(id);
+  if (!shop) return null;
+
+  const { url } = await uploadImage(file.buffer, { folder: "shop-logos" });
+  shop.logoUrl = url;
+
+  await shop.save();
+  return shop;
 }
 
 export async function addShopImage(idShop, file) {

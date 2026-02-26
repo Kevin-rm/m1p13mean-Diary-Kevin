@@ -5,20 +5,54 @@ export interface SidebarItem {
   children?: SidebarItem[];
 }
 
-export const SIDEBAR_ITEMS: Record<string, SidebarItem[]> = {
+export interface SidebarSection {
+  title?: string;
+  items: SidebarItem[];
+}
+
+export const SIDEBAR_ITEMS: Record<string, SidebarSection[]> = {
   admin: [
-    { label: "Boutiques", icon: "pi pi-shop", routerLink: "/backoffice/admin/shops" },
-    { label: "Catégories", icon: "pi pi-tags", routerLink: "/backoffice/admin/categories" },
+    {
+      items: [
+        { label: "Boutiques", icon: "pi pi-shop", routerLink: "/backoffice/admin/shops" },
+        { label: "Catégories", icon: "pi pi-tags", routerLink: "/backoffice/admin/categories" },
+      ],
+    },
   ],
   shop: [
-    { label: "Tableau de Bord", icon: "pi pi-chart-bar", routerLink: "/backoffice/shop/" },
-    { label: "Profile", icon: "pi pi-user", routerLink: "/backoffice/shop/profile" },
     {
-      label: "Produits",
-      icon: "pi pi-box",
-      children: [
-        { label: "Liste", icon: "pi pi-list", routerLink: "/backoffice/shop/products" },
-        { label: "Nouveau", icon: "pi pi-plus", routerLink: "/backoffice/shop/products/new" },
+      title: "Général",
+      items: [
+        { label: "Tableau de bord", icon: "pi pi-chart-bar", routerLink: "/backoffice/shop/" },
+        { label: "Ma boutique", icon: "pi pi-shop", routerLink: "/backoffice/shop/my-shop" },
+        { label: "Membres", icon: "pi pi-users", routerLink: "/backoffice/shop/members" },
+      ],
+    },
+    {
+      title: "Gestion",
+      items: [
+        {
+          label: "Produits",
+          icon: "pi pi-box",
+          children: [
+            { label: "Liste", icon: "pi pi-list", routerLink: "/backoffice/shop/products" },
+            { label: "Nouveau", icon: "pi pi-plus", routerLink: "/backoffice/shop/products/new" },
+          ],
+        },
+        { label: "Inventaire", icon: "pi pi-warehouse", routerLink: "/backoffice/shop/inventory" },
+      ],
+    },
+    {
+      title: "Ventes",
+      items: [
+        {
+          label: "Commandes",
+          icon: "pi pi-shopping-cart",
+          children: [
+            { label: "Liste", icon: "pi pi-list", routerLink: "/backoffice/shop/orders" },
+            { label: "Nouvelle", icon: "pi pi-plus", routerLink: "/backoffice/shop/orders/new" },
+          ],
+        },
       ],
     },
   ],

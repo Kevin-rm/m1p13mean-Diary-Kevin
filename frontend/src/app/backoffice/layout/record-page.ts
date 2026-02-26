@@ -33,6 +33,26 @@ export class RecordPageTab {
         <i class="pi pi-spin pi-spinner text-muted-color" style="font-size: 2rem"></i>
       </div>
     } @else {
+      @if (showImage()) {
+        <div class="mb-6">
+          <div class="relative group inline-block">
+            @if (image()) {
+              <img
+                [src]="image()"
+                [alt]="title()"
+                class="size-28 rounded-2xl object-cover border border-surface shadow-sm"
+              />
+            } @else {
+              <div
+                class="size-28 rounded-2xl bg-surface-100 flex items-center justify-center border border-surface"
+              >
+                <i class="pi pi-image text-4xl text-muted-color"></i>
+              </div>
+            }
+            <ng-content select="[image-action]" />
+          </div>
+        </div>
+      }
       <p-tabs [value]="activeTab()">
         <p-tablist>
           <p-tab [value]="defaultTabLabel()" (click)="onTabClick(defaultTabLabel())">{{
@@ -67,6 +87,8 @@ export class RecordPage {
   title = input.required<string>();
   loading = input(false);
   defaultTabLabel = input("Informations");
+  showImage = input(false);
+  image = input("");
 
   protected onTabClick(label: string): void {
     this.activeTab.set(label);

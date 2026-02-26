@@ -1,4 +1,4 @@
-import { ok, okOrNotFound, notFound, badRequest, unauthorized } from "#utils/http/apiResponse.js";
+import { ok, okOrNotFound, notFound, badRequest } from "#utils/http/apiResponse.js";
 import * as shopService from "./shop.service.js";
 
 export async function listShops(req, res) {
@@ -11,16 +11,34 @@ export async function getShop(req, res) {
   return okOrNotFound(res, shop, { entityName: "Shop" });
 }
 
-export async function getShopOwner(req, res) {
-  const shop = await shopService.getShopByOwnerEmail(req.params.email);
+export async function getMyShop(req, res) {
+  const shop = await shopService.getShopById(req.context.shop);
+  return okOrNotFound(res, shop, { entityName: "Shop" });
+}
+
+export async function updateMyShop(req, res) {
+  const shop = await shopService.updateShop(req.context.shop, req.body);
+  return okOrNotFound(res, shop, { entityName: "Shop", successMessage: "Boutique mise à jour" });
+}
+
+export async function setMyShopLogo(req, res) {
+  if (!req.file) return badRequest(res, "No file provided");
+  const shop = await shopService.setShopLogo(req.context.shop, req.file);
   if (!shop) return notFound(res, "Shop not found");
-  return ok(res, shop);
+  return ok(res, shop, "Logo mis à jour");
+}
+
+export async function addMyShopImage(req, res) {
+  if (!req.file) return badRequest(res, "No file provided");
+  const shop = await shopService.addShopImage(req.context.shop, req.file);
+  if (!shop) return notFound(res, "Shop not found");
+  return ok(res, { shop }, "Shop updated");
 }
 
 export async function addShopImage(req, res) {
   if (!req.file) return badRequest(res, "No file provided");
   const shop = await shopService.addShopImage(req.params.id, req.file);
-  if (!shop) return unauthorized(res, "Shop not found");
+  if (!shop) return notFound(res, "Shop not found");
   return ok(res, { shop }, "Shop updated");
 }
 

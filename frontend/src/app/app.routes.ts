@@ -81,22 +81,22 @@ export const routes: Routes = [
         path: "shop",
         canActivate: [profileGuard("shop")],
         children: [
-          {
-            path: "",
-            redirectTo: "dashboard",
-            pathMatch: "full",
-          },
+          { path: "", redirectTo: "dashboard", pathMatch: "full" },
           {
             path: "dashboard",
             canActivate: [permissionGuard("shop:settings")],
             loadComponent: () =>
-              import("@backoffice/shop-backoffice/dashboard/dashboard").then(m => m.ShopDashboard),
+              import("@backoffice/shop/dashboard/dashboard").then(m => m.ShopDashboard),
           },
           {
-            path: "profile",
+            path: "my-shop",
             canActivate: [permissionGuard("shop:settings")],
+            loadComponent: () => import("@backoffice/shop/my-shop/my-shop").then(m => m.MyShop),
+          },
+          {
+            path: "members",
             loadComponent: () =>
-              import("@backoffice/shop-backoffice/profile/profile").then(m => m.ShopProfile),
+              import("@backoffice/shop/members/members").then(m => m.ShopMembers),
           },
           {
             path: "products",
@@ -121,6 +121,20 @@ export const routes: Routes = [
               import("@backoffice/shop/products/product-record/product-record").then(
                 m => m.ShopProductRecord,
               ),
+          },
+          {
+            path: "inventory",
+            loadComponent: () =>
+              import("@backoffice/shop/inventory/inventory").then(m => m.ShopInventory),
+          },
+          {
+            path: "orders",
+            loadComponent: () => import("@backoffice/shop/orders/orders").then(m => m.ShopOrders),
+          },
+          {
+            path: "orders/new",
+            loadComponent: () =>
+              import("@backoffice/shop/orders/order-form").then(m => m.ShopOrderForm),
           },
         ],
       },
