@@ -102,10 +102,9 @@
       <p-button
         [label]="saving() ? 'Enregistrement...' : 'Enregistrer'"
         icon="pi pi-check"
-        form="categoryForm"
-        type="submit"
         [disabled]="form.invalid || saving()"
         [loading]="saving()"
+        (click)="saveCategory()"
       />
     </div>
   </ng-template>
