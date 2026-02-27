@@ -2,9 +2,9 @@ import { inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "@env/environment";
-import { ApiResponse } from "../models/api-response";
-import { SelectOption } from "../models/select-option";
-import { buildQueryParams } from "../utils/http-params";
+import { ApiResponse } from "./models/api-response";
+import { SelectOption } from "./models/select-option";
+import { buildQueryParams } from "@core/utils/http-params";
 
 export interface ListParams {
   search?: string;

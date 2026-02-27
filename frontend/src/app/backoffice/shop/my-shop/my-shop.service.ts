@@ -2,8 +2,8 @@ import { inject, Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "@env/environment";
-import { ApiResponse } from "@core/models/api-response";
-import { Shop } from "@backoffice/admin/shops/shop.model";
+import { ApiResponse } from "@core/common/models/api-response";
+import { Shop } from "@core/domains/shop/shop.model";
 
 @Injectable({ providedIn: "root" })
 export class MyShopService {

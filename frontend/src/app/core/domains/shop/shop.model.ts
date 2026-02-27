@@ -1,4 +1,4 @@
-import { BaseModel } from "@core/models/base-model";
+import { BaseModel } from "@core/common/models/base-model";
 
 export interface ScheduleSlot {
   day: string;

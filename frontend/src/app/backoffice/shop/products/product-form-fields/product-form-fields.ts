@@ -9,8 +9,8 @@ import { Select } from "primeng/select";
 import { Fluid } from "primeng/fluid";
 import { FormField } from "@shared/components/form-field";
 import { AriaryPipe } from "@shared/pipes/ariary";
-import { SelectOption } from "@core/models/select-option";
-import { CategoryService } from "@core/services/category.service";
+import { SelectOption } from "@core/common/models/select-option";
+import { CategoryService } from "@core/domains/category/category.service";
 
 @Component({
   selector: "app-product-form-fields",
@@ -30,15 +30,15 @@ import { CategoryService } from "@core/services/category.service";
 export class ProductFormFields {
   private readonly categoryService = inject(CategoryService);
 
-  form = input.required<FormGroup>();
-  idPrefix = input("product");
-  readonly = input(false);
-  categoryNameHint = input("");
-
   protected readonly categories = toSignal(
     this.categoryService.listForSelect().pipe(map(r => r.data ?? [])),
     { initialValue: [] as SelectOption[] },
   );
+
+  form = input.required<FormGroup>();
+  idPrefix = input("product");
+  readonly = input(false);
+  categoryNameHint = input("");
 
   protected get categoryName(): string {
     const id = this.form().controls["category"].value;

@@ -24,8 +24,8 @@ import { PageHeader } from "@backoffice/layout/page-header";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
-import { CategoryService } from "@core/services/category.service";
-import { Category } from "@core/models/category";
+import { CategoryService } from "@core/domains/category/category.service";
+import { Category } from "@core/domains/category/category.model";
 import { FormField } from "@shared/components/form-field";
 import { NoValuePipe } from "@shared/pipes/no-value";
 

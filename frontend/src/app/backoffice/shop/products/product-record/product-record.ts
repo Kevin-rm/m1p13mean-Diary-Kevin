@@ -21,8 +21,8 @@ import { Toast } from "@core/utils/toast";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { RecordPage, RecordPageTab } from "@backoffice/layout/record-page";
 import { ProductFormFields } from "../product-form-fields/product-form-fields";
-import { ProductService } from "../product.service";
-import { Product } from "../product.model";
+import { ProductService } from "@core/domains/product/product.service";
+import { Product } from "@core/domains/product/product.model";
 
 @Component({
   selector: "app-shop-product-record",

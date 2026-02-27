@@ -8,8 +8,8 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
-import { ShopService } from "./shop.service";
-import { Shop } from "./shop.model";
+import { ShopService } from "@core/domains/shop/shop.service";
+import { Shop } from "@core/domains/shop/shop.model";
 
 @Component({
   selector: "app-shops",

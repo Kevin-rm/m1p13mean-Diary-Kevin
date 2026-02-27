@@ -3,7 +3,7 @@ import { FormsModule } from "@angular/forms";
 import { DatePicker } from "primeng/datepicker";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
-import { ScheduleSlot } from "@backoffice/admin/shops/shop.model";
+import { ScheduleSlot } from "@core/domains/shop/shop.model";
 
 const DAYS = [
   { value: "monday", label: "Lundi" },

@@ -20,7 +20,7 @@ import { Toast } from "@core/utils/toast";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/layout/page-header";
 import { ProductFormFields } from "../product-form-fields/product-form-fields";
-import { ProductService } from "../product.service";
+import { ProductService } from "@core/domains/product/product.service";
 
 @Component({
   selector: "app-shop-product-form",

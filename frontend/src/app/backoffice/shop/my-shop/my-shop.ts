@@ -19,7 +19,7 @@ import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { RecordPage, RecordPageTab } from "@backoffice/layout/record-page";
-import { Shop, ScheduleSlot } from "@backoffice/admin/shops/shop.model";
+import { Shop, ScheduleSlot } from "@core/domains/shop/shop.model";
 import { ShopFormFields } from "./shop-form-fields";
 import { ScheduleEditor } from "./schedule-editor";
 import { MyShopService } from "./my-shop.service";

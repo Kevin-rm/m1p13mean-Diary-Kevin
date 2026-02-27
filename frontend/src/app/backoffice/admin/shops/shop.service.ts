@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { ApiResponse } from "@core/models/api-response";
-import { ResourceService } from "@core/services/resource";
-import { Shop } from "./shop.model";
+import { ApiResponse } from "@core/common/models/api-response";
+import { ResourceService } from "@core/common/resource.service";
+import { Shop } from "@core/domains/shop/shop.model";
 
 @Injectable({ providedIn: "root" })
 export class AdminShopService extends ResourceService<Shop> {

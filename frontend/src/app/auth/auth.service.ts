@@ -11,7 +11,7 @@ import {
   OperatorFunction,
 } from "rxjs";
 import { environment } from "@env/environment";
-import { ApiResponse } from "@core/models/api-response";
+import { ApiResponse } from "@core/common/models/api-response";
 import { AuthData, User, UserContext } from "./auth.models";
 
 interface AuthState {

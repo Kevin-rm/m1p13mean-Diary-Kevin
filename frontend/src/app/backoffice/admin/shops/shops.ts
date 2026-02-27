@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
 import { ContactLink } from "@shared/components/contact-link";
-import { StatusTag, StatusConfig } from "@shared/components/status-tag";
+import { AppTag, TagConfig } from "@shared/components/app-tag";
 import { DataTable } from "@shared/components/data-table/data-table";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
@@ -16,7 +16,7 @@ import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
 import { AdminShopService } from "./shop.service";
-import { Shop } from "./shop.model";
+import { Shop } from "@core/domains/shop/shop.model";
 
 const STATUS_OPTIONS = [
   { label: "Tous", value: "" },
@@ -25,7 +25,7 @@ const STATUS_OPTIONS = [
   { label: "Suspendu", value: "suspended" },
 ];
 
-const SHOP_STATUS_CONFIG: Record<string, StatusConfig> = {
+const SHOP_STATUS_CONFIG: Record<string, TagConfig> = {
   pending: { label: "En attente", severity: "warn" },
   active: { label: "Actif", severity: "success" },
   suspended: { label: "Suspendu", severity: "danger" },
@@ -37,7 +37,7 @@ const SHOP_STATUS_CONFIG: Record<string, StatusConfig> = {
     FormsModule,
     TableModule,
     ContactLink,
-    StatusTag,
+    AppTag,
     DataTable,
     Select,
     Button,

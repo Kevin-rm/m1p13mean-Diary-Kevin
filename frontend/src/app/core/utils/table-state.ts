@@ -2,7 +2,7 @@ import { signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Observable, finalize } from "rxjs";
 import { TableLazyLoadEvent } from "primeng/table";
-import { ApiResponse } from "@core/models/api-response";
+import { ApiResponse } from "@core/common/models/api-response";
 
 export class TableState<T> {
   readonly items = signal<T[]>([]);

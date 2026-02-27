@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from "@angular/common/http";
-import { ApiResponse } from "../models/api-response";
+import { ApiResponse } from "../common/models/api-response";
 
 export function extractErrorMessage(
   error: HttpErrorResponse,

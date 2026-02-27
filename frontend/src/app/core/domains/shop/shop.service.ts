@@ -1,14 +1,11 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { ApiResponse } from "@core/models/api-response";
-import { ResourceService } from "@core/services/resource";
+import { ApiResponse } from "@core/common/models/api-response";
+import { ResourceService, ListParams } from "@core/common/resource.service";
 import { Shop } from "./shop.model";
 
-export interface ShopListParams {
-  search?: string;
+export interface ShopListParams extends ListParams {
   status?: string;
-  page?: number;
-  limit?: number;
 }
 
 @Injectable({ providedIn: "root" })

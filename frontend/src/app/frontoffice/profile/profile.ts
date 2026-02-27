@@ -19,7 +19,7 @@ import { Fluid } from "primeng/fluid";
 import { Dialog } from "primeng/dialog";
 import { ImageCropperComponent, ImageCroppedEvent } from "ngx-image-cropper";
 import { environment } from "@env/environment";
-import { ApiResponse } from "@core/models/api-response";
+import { ApiResponse } from "@core/common/models/api-response";
 import { extractErrorMessage } from "@core/utils/error";
 import { AuthService } from "@auth/auth.service";
 import { User } from "@auth/auth.models";

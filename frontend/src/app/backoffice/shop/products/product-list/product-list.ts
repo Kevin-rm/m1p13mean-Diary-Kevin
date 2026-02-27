@@ -16,11 +16,11 @@ import { PageHeader } from "@backoffice/layout/page-header";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
-import { SelectOption } from "@core/models/select-option";
-import { CategoryService } from "@core/services/category.service";
-import { ProductService } from "../product.service";
+import { SelectOption } from "@core/common/models/select-option";
+import { CategoryService } from "@core/domains/category/category.service";
+import { ProductService } from "@core/domains/product/product.service";
 import { NoValuePipe } from "@shared/pipes/no-value";
-import { Product } from "../product.model";
+import { Product } from "@core/domains/product/product.model";
 
 const STATUS_OPTIONS = [
   { label: "Tous", value: "" },
