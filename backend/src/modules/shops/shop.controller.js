@@ -12,25 +12,25 @@ export async function getShop(req, res) {
 }
 
 export async function getMyShop(req, res) {
-  const shop = await shopService.getShopById(req.context.shop);
+  const shop = await shopService.getShopById(req.user.shop);
   return okOrNotFound(res, shop, { entityName: "Shop" });
 }
 
 export async function updateMyShop(req, res) {
-  const shop = await shopService.updateShop(req.context.shop, req.body);
+  const shop = await shopService.updateShop(req.user.shop, req.body);
   return okOrNotFound(res, shop, { entityName: "Shop", successMessage: "Boutique mise à jour" });
 }
 
 export async function setMyShopLogo(req, res) {
   if (!req.file) return badRequest(res, "No file provided");
-  const shop = await shopService.setShopLogo(req.context.shop, req.file);
+  const shop = await shopService.setShopLogo(req.user.shop, req.file);
   if (!shop) return notFound(res, "Shop not found");
   return ok(res, shop, "Logo mis à jour");
 }
 
 export async function addMyShopImage(req, res) {
   if (!req.file) return badRequest(res, "No file provided");
-  const shop = await shopService.addShopImage(req.context.shop, req.file);
+  const shop = await shopService.addShopImage(req.user.shop, req.file);
   if (!shop) return notFound(res, "Shop not found");
   return ok(res, { shop }, "Shop updated");
 }

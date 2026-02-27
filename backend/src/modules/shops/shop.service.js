@@ -1,7 +1,8 @@
 import Shop from "./shop.model.js";
 import { paginate } from "#utils/db/paginate.js";
 import { err, success, pickDefined } from "#utils/objects.js";
-import { uploadImage, replaceDocumentImage, UPLOAD_FOLDERS } from "#utils/upload/cloudinary.js";
+import { uploadImage, replaceDocumentImage } from "#utils/upload/cloudinary.js";
+import { UPLOAD_FOLDERS } from "#utils/constants.js";
 
 export async function listShops({ search, status, page, limit }) {
   const filter = {};
@@ -31,14 +32,14 @@ export async function setShopLogo(id, file) {
   const shop = await Shop.findById(id);
   if (!shop) return null;
 
-  return replaceDocumentImage(shop, "logoUrl", file, UPLOAD_FOLDERS.SHOP_LOGOS);
+  return replaceDocumentImage(shop, "logoUrl", file, UPLOAD_FOLDERS.SHOPS);
 }
 
 export async function addShopImage(idShop, file) {
   const shop = await Shop.findById(idShop);
   if (!shop) return null;
 
-  const { url } = await uploadImage(file.buffer, { folder: UPLOAD_FOLDERS.SHOP_IMAGES });
+  const { url } = await uploadImage(file.buffer, { folder: UPLOAD_FOLDERS.SHOPS });
   shop.images.push(url);
 
   await shop.save();

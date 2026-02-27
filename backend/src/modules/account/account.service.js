@@ -1,5 +1,6 @@
 import User from "#modules/users/user.model.js";
-import { replaceDocumentImage, UPLOAD_FOLDERS } from "#utils/upload/cloudinary.js";
+import { replaceDocumentImage } from "#utils/upload/cloudinary.js";
+import { UPLOAD_FOLDERS } from "#utils/constants.js";
 
 export async function updateProfile(userId, { firstName, lastName }) {
   return User.findByIdAndUpdate(userId, { firstName, lastName }, { new: true });

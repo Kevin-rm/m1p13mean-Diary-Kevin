@@ -3,12 +3,8 @@ import { paginate } from "#utils/db/paginate.js";
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
 import { pickDefined, err, success } from "#utils/objects.js";
 import { toggleActiveStatus } from "#utils/db/toggleActive.js";
-import {
-  uploadImages,
-  deleteImage,
-  extractPublicId,
-  UPLOAD_FOLDERS,
-} from "#utils/upload/cloudinary.js";
+import { uploadImages, deleteImage, extractPublicId } from "#utils/upload/cloudinary.js";
+import { UPLOAD_FOLDERS } from "#utils/constants.js";
 
 export async function listProducts({ shop, search, category, isActive, page, limit }) {
   const filter = { shop };

@@ -3,13 +3,6 @@ import cloudinary from "#config/cloudinary.js";
 const ROOT_FOLDER = "mallhub";
 const UPLOAD_SEGMENT = "/upload/";
 
-export const UPLOAD_FOLDERS = Object.freeze({
-  AVATARS: "avatars",
-  SHOP_LOGOS: "shop-logos",
-  SHOP_IMAGES: "shop-images",
-  PRODUCTS: "products",
-});
-
 function uploadToCloudinary(buffer, options) {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
