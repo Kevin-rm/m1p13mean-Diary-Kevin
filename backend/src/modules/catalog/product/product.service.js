@@ -3,7 +3,12 @@ import { paginate } from "#utils/db/paginate.js";
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
 import { pickDefined, err, success } from "#utils/objects.js";
 import { toggleActiveStatus } from "#utils/db/toggleActive.js";
-import { uploadImages, deleteImage, extractPublicId } from "#utils/upload/cloudinary.js";
+import {
+  uploadImages,
+  deleteImage,
+  extractPublicId,
+  UPLOAD_FOLDERS,
+} from "#utils/upload/cloudinary.js";
 
 export async function listProducts({ shop, search, category, isActive, page, limit }) {
   const filter = { shop };
@@ -32,7 +37,7 @@ export async function createProduct(
     if (imageFiles?.length) {
       const results = await uploadImages(
         imageFiles.map(f => f.buffer),
-        { folder: "products" },
+        { folder: UPLOAD_FOLDERS.PRODUCTS },
       );
       images = results.map(r => r.url);
     }
@@ -79,7 +84,7 @@ export async function addImages(id, shop, imageFiles) {
 
   const results = await uploadImages(
     imageFiles.map(f => f.buffer),
-    { folder: "products" },
+    { folder: UPLOAD_FOLDERS.PRODUCTS },
   );
   product.images.push(...results.map(r => r.url));
   await product.save();

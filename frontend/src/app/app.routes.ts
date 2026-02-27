@@ -3,7 +3,6 @@ import { guestGuard } from "@auth/guards/guest.guard";
 import { authGuard } from "@auth/guards/auth.guard";
 import { backofficeRedirectGuard } from "@auth/guards/backoffice-redirect.guard";
 import { profileGuard } from "@auth/guards/profile.guard";
-import { permissionGuard } from "@auth/guards/permission.guard";
 import { FrontOffice } from "@frontoffice/layout/front-office";
 
 export const routes: Routes = [
@@ -58,85 +57,12 @@ export const routes: Routes = [
       {
         path: "admin",
         canActivate: [profileGuard("admin")],
-        children: [
-          {
-            path: "",
-            redirectTo: "shops",
-            pathMatch: "full",
-          },
-          {
-            path: "shops",
-            canActivate: [permissionGuard("shops:validate")],
-            loadComponent: () => import("@backoffice/admin/shops/shops").then(m => m.AdminShops),
-          },
-          {
-            path: "categories",
-            canActivate: [permissionGuard("categories:write")],
-            loadComponent: () =>
-              import("@backoffice/admin/categories/categories").then(m => m.AdminCategories),
-          },
-        ],
+        loadChildren: () => import("@backoffice/admin/admin.routes").then(m => m.adminRoutes),
       },
       {
         path: "shop",
         canActivate: [profileGuard("shop")],
-        children: [
-          { path: "", redirectTo: "dashboard", pathMatch: "full" },
-          {
-            path: "dashboard",
-            canActivate: [permissionGuard("shop:settings")],
-            loadComponent: () =>
-              import("@backoffice/shop/dashboard/dashboard").then(m => m.ShopDashboard),
-          },
-          {
-            path: "my-shop",
-            canActivate: [permissionGuard("shop:settings")],
-            loadComponent: () => import("@backoffice/shop/my-shop/my-shop").then(m => m.MyShop),
-          },
-          {
-            path: "members",
-            loadComponent: () =>
-              import("@backoffice/shop/members/members").then(m => m.ShopMembers),
-          },
-          {
-            path: "products",
-            canActivate: [permissionGuard("products:read")],
-            loadComponent: () =>
-              import("@backoffice/shop/products/product-list/product-list").then(
-                m => m.ShopProductList,
-              ),
-          },
-          {
-            path: "products/new",
-            canActivate: [permissionGuard("products:write")],
-            loadComponent: () =>
-              import("@backoffice/shop/products/product-form/product-form").then(
-                m => m.ShopProductForm,
-              ),
-          },
-          {
-            path: "products/:id",
-            canActivate: [permissionGuard("products:read")],
-            loadComponent: () =>
-              import("@backoffice/shop/products/product-record/product-record").then(
-                m => m.ShopProductRecord,
-              ),
-          },
-          {
-            path: "inventory",
-            loadComponent: () =>
-              import("@backoffice/shop/inventory/inventory").then(m => m.ShopInventory),
-          },
-          {
-            path: "orders",
-            loadComponent: () => import("@backoffice/shop/orders/orders").then(m => m.ShopOrders),
-          },
-          {
-            path: "orders/new",
-            loadComponent: () =>
-              import("@backoffice/shop/orders/order-form").then(m => m.ShopOrderForm),
-          },
-        ],
+        loadChildren: () => import("@backoffice/shop/shop.routes").then(m => m.shopRoutes),
       },
     ],
   },

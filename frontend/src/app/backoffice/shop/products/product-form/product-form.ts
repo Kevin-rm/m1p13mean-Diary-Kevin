@@ -1,4 +1,13 @@
-import { Component, inject, signal, ViewChild, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  ViewChild,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder } from "@angular/forms";
 import { NgTemplateOutlet } from "@angular/common";
@@ -25,6 +34,7 @@ import { ProductService } from "../product.service";
     ProductFormFields,
   ],
   templateUrl: "./product-form.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShopProductForm implements OnInit {
   private readonly productService = inject(ProductService);
@@ -32,6 +42,7 @@ export class ShopProductForm implements OnInit {
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild("fileUpload") private fileUpload!: ImageUpload;
 
@@ -70,7 +81,10 @@ export class ShopProductForm implements OnInit {
 
     this.productService
       .create(formData)
-      .pipe(finalize(() => this.saving.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
       .subscribe({
         next: response => {
           this.toast.success(response.message);

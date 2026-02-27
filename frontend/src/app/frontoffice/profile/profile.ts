@@ -1,4 +1,12 @@
-import { Component, inject, signal, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { HttpClient } from "@angular/common/http";
 import { finalize } from "rxjs";
@@ -37,6 +45,7 @@ import { FormField } from "@shared/components/form-field";
     FormField,
   ],
   templateUrl: "./profile.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Profile implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -44,6 +53,8 @@ export class Profile implements OnInit {
   private readonly toast = inject(Toast);
   private readonly accountUrl = `${environment.apiUrl}/account`;
   private croppedBlob: Blob | null = null;
+
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly authService = inject(AuthService);
   protected readonly profileLoading = signal(false);
@@ -96,7 +107,10 @@ export class Profile implements OnInit {
 
     this.http
       .patch<ApiResponse<{ user: User }>>(`${this.accountUrl}/avatar`, formData)
-      .pipe(finalize(() => this.avatarUploading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.avatarUploading.set(false)),
+      )
       .subscribe({
         next: () => {
           this.toast.success("Photo de profil mise à jour");
@@ -130,7 +144,10 @@ export class Profile implements OnInit {
         `${this.accountUrl}/profile`,
         this.profileForm.getRawValue(),
       )
-      .pipe(finalize(() => this.profileLoading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.profileLoading.set(false)),
+      )
       .subscribe({
         next: () => {
           this.toast.success("Profil mis à jour");
@@ -150,7 +167,10 @@ export class Profile implements OnInit {
 
     this.http
       .patch<ApiResponse<void>>(`${this.accountUrl}/password`, this.passwordForm.getRawValue())
-      .pipe(finalize(() => this.passwordLoading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.passwordLoading.set(false)),
+      )
       .subscribe({
         next: () => {
           this.toast.success("Mot de passe modifié");

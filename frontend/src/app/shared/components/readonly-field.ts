@@ -1,4 +1,4 @@
-import { Component, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { Toast } from "@core/utils/toast";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
@@ -39,6 +39,7 @@ import { NO_VALUE } from "@shared/pipes/no-value";
       </p-inputgroup>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReadonlyField {
   private readonly toast = inject(Toast);

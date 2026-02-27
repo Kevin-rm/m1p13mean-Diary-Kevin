@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 import { Ripple } from "primeng/ripple";
 import { BackofficeNavigation } from "../backoffice-navigation.service";
@@ -8,6 +8,7 @@ import { SIDEBAR_ITEMS, SidebarItem } from "./sidebar-items.config";
   selector: "app-sidebar-nav",
   imports: [RouterLink, RouterLinkActive, Ripple],
   templateUrl: "./sidebar-nav.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarNav {
   private readonly nav = inject(BackofficeNavigation);

@@ -1,4 +1,12 @@
-import { Component, inject, signal, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { finalize } from "rxjs";
@@ -16,8 +24,8 @@ import { PageHeader } from "@backoffice/layout/page-header";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
-import { CategoryService } from "./category.service";
-import { Category } from "./category.model";
+import { CategoryService } from "@core/services/category.service";
+import { Category } from "@core/models/category";
 import { FormField } from "@shared/components/form-field";
 import { NoValuePipe } from "@shared/pipes/no-value";
 
@@ -39,12 +47,14 @@ import { NoValuePipe } from "@shared/pipes/no-value";
     NoValuePipe,
   ],
   templateUrl: "./categories.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminCategories implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private editingId: string | null = null;
 
   protected readonly table = new TableState<Category>(inject(ActivatedRoute), inject(Router));
@@ -100,27 +110,36 @@ export class AdminCategories implements OnInit {
       ? this.categoryService.update(this.editingId!, data)
       : this.categoryService.create(data);
 
-    request$.pipe(finalize(() => this.saving.set(false))).subscribe({
-      next: response => {
-        this.toast.success(response.message);
-        this.drawerVisible.set(false);
-        this.loadCategories();
-      },
-      error: error => {
-        this.toast.error(extractErrorMessage(error));
-      },
-    });
+    request$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
+      .subscribe({
+        next: response => {
+          this.toast.success(response.message);
+          this.categoryService.invalidateSelectCache();
+          this.drawerVisible.set(false);
+          this.loadCategories();
+        },
+        error: error => {
+          this.toast.error(extractErrorMessage(error));
+        },
+      });
   }
 
   protected toggleActive(category: Category): void {
-    this.categoryService.toggleActive(category.id).subscribe({
-      next: response => {
-        this.toast.success(response.message);
-        this.loadCategories();
-      },
-      error: () => {
-        this.toast.error("Impossible de modifier le statut");
-      },
-    });
+    this.categoryService
+      .toggleActive(category.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          this.toast.success(response.message);
+          this.loadCategories();
+        },
+        error: () => {
+          this.toast.error("Impossible de modifier le statut");
+        },
+      });
   }
 }

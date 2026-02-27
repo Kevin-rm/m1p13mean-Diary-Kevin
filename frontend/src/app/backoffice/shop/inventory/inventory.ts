@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/layout/page-header";
 
 @Component({
   selector: "app-shop-inventory",
   imports: [PageHeader],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-page-header title="Inventaire" />
     <p class="text-muted-color">Bientôt disponible</p>

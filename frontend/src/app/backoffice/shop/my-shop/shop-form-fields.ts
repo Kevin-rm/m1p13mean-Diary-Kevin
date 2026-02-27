@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, FormGroup } from "@angular/forms";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
@@ -9,6 +9,7 @@ import { FormField } from "@shared/components/form-field";
   selector: "app-shop-form-fields",
   imports: [ReactiveFormsModule, InputText, Textarea, Fluid, FormField],
   templateUrl: "./shop-form-fields.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShopFormFields {
   form = input.required<FormGroup>();

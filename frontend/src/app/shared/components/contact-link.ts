@@ -1,4 +1,4 @@
-import { Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 @Component({
   selector: "app-contact-link",
@@ -11,6 +11,7 @@ import { Component, computed, input } from "@angular/core";
       <span class="text-muted-color">—</span>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactLink {
   protected readonly href = computed(() => {

@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map } from "rxjs";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
@@ -16,7 +17,7 @@ import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
 import { SelectOption } from "@core/models/select-option";
-import { CategoryService } from "@backoffice/admin/categories/category.service";
+import { CategoryService } from "@core/services/category.service";
 import { ProductService } from "../product.service";
 import { NoValuePipe } from "@shared/pipes/no-value";
 import { Product } from "../product.model";
@@ -43,6 +44,7 @@ const STATUS_OPTIONS = [
     NoValuePipe,
   ],
   templateUrl: "./product-list.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShopProductList implements OnInit {
   private readonly productService = inject(ProductService);
@@ -50,6 +52,7 @@ export class ShopProductList implements OnInit {
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly table = new TableState<Product>(inject(ActivatedRoute), this.router);
   protected readonly statusOptions = STATUS_OPTIONS;
@@ -105,14 +108,17 @@ export class ShopProductList implements OnInit {
   }
 
   protected toggleActive(product: Product): void {
-    this.productService.toggleActive(product.id).subscribe({
-      next: response => {
-        this.toast.success(response.message);
-        this.loadProducts();
-      },
-      error: error => {
-        this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
-      },
-    });
+    this.productService
+      .toggleActive(product.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          this.toast.success(response.message);
+          this.loadProducts();
+        },
+        error: error => {
+          this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
+        },
+      });
   }
 }

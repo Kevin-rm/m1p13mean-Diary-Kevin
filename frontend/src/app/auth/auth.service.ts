@@ -1,6 +1,15 @@
 import { Injectable, inject, signal, computed } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable, tap, map, catchError, of, share, finalize, OperatorFunction } from "rxjs";
+import {
+  Observable,
+  tap,
+  map,
+  catchError,
+  of,
+  shareReplay,
+  finalize,
+  OperatorFunction,
+} from "rxjs";
 import { environment } from "@env/environment";
 import { ApiResponse } from "@core/models/api-response";
 import { AuthData, User, UserContext } from "./auth.models";
@@ -88,7 +97,7 @@ export class AuthService {
 
     this.refreshInFlight$ = this.http.post<ApiResponse<void>>(`${this.authUrl}/refresh`, {}).pipe(
       finalize(() => (this.refreshInFlight$ = null)),
-      share(),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     return this.refreshInFlight$;

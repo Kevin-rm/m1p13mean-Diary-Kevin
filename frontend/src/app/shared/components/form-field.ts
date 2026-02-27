@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
 import { FloatLabel } from "primeng/floatlabel";
 import { ReadonlyField } from "./readonly-field";
@@ -27,6 +27,7 @@ import { ReadonlyField } from "./readonly-field";
       </div>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormField {
   inputId = input.required<string>();

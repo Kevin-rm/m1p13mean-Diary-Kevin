@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { Toast } from "primeng/toast";
 import { ConfirmDialog } from "primeng/confirmdialog";
@@ -7,5 +7,6 @@ import { ConfirmDialog } from "primeng/confirmdialog";
   selector: "app-root",
   imports: [RouterOutlet, Toast, ConfirmDialog],
   templateUrl: "./app.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {}

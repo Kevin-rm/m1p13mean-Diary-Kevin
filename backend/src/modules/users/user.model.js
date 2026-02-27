@@ -58,4 +58,6 @@ userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
+userSchema.index({ isActive: 1 });
+
 export default mongoose.model("User", userSchema);

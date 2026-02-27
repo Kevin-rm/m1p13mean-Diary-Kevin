@@ -23,7 +23,11 @@ export const SIDEBAR_ITEMS: Record<string, SidebarSection[]> = {
     {
       title: "Général",
       items: [
-        { label: "Tableau de bord", icon: "pi pi-chart-bar", routerLink: "/backoffice/shop/" },
+        {
+          label: "Tableau de bord",
+          icon: "pi pi-chart-bar",
+          routerLink: "/backoffice/shop/dashboard",
+        },
         { label: "Ma boutique", icon: "pi pi-shop", routerLink: "/backoffice/shop/my-shop" },
         { label: "Membres", icon: "pi pi-users", routerLink: "/backoffice/shop/members" },
       ],

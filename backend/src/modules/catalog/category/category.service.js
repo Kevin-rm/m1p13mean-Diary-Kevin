@@ -13,7 +13,7 @@ export async function listCategories({ search, isActive, page, limit }) {
 }
 
 export async function selectCategories() {
-  return Category.find({ isActive: true }).select("name").sort("name");
+  return Category.find({ isActive: true }).select("name").sort("name").lean();
 }
 
 export async function getCategoryById(id) {

@@ -1,20 +1,21 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { TableModule, TableLazyLoadEvent } from "primeng/table";
 import { ContactLink } from "@shared/components/contact-link";
+import { StatusTag, StatusConfig } from "@shared/components/status-tag";
 import { DataTable } from "@shared/components/data-table/data-table";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
-import { Tag } from "primeng/tag";
 import { Tooltip } from "primeng/tooltip";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/layout/page-header";
-import { NO_VALUE } from "@shared/pipes/no-value";
+import { FullNamePipe } from "@shared/pipes/full-name";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
-import { ShopService } from "./shop.service";
+import { AdminShopService } from "./shop.service";
 import { Shop } from "./shop.model";
 
 const STATUS_OPTIONS = [
@@ -24,7 +25,7 @@ const STATUS_OPTIONS = [
   { label: "Suspendu", value: "suspended" },
 ];
 
-const STATUS_CONFIG: Record<string, { label: string; severity: "warn" | "success" | "danger" }> = {
+const SHOP_STATUS_CONFIG: Record<string, StatusConfig> = {
   pending: { label: "En attente", severity: "warn" },
   active: { label: "Actif", severity: "success" },
   suspended: { label: "Suspendu", severity: "danger" },
@@ -36,22 +37,26 @@ const STATUS_CONFIG: Record<string, { label: string; severity: "warn" | "success
     FormsModule,
     TableModule,
     ContactLink,
+    StatusTag,
     DataTable,
     Select,
     Button,
-    Tag,
     Tooltip,
     PageHeader,
+    FullNamePipe,
   ],
   templateUrl: "./shops.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminShops implements OnInit {
-  private readonly shopService = inject(ShopService);
+  private readonly shopService = inject(AdminShopService);
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly table = new TableState<Shop>(inject(ActivatedRoute), inject(Router));
   protected readonly statusOptions = STATUS_OPTIONS;
+  protected readonly statusConfig = SHOP_STATUS_CONFIG;
   protected statusFilter = "";
 
   ngOnInit(): void {
@@ -80,40 +85,33 @@ export class AdminShops implements OnInit {
     this.loadShops();
   }
 
-  protected statusLabel(status: string): string {
-    return STATUS_CONFIG[status]?.label ?? status;
-  }
-
-  protected statusSeverity(status: string): "warn" | "success" | "danger" {
-    return STATUS_CONFIG[status]?.severity ?? "warn";
-  }
-
-  protected ownerName(shop: Shop): string {
-    if (!shop.owner) return NO_VALUE;
-    return `${shop.owner.firstName} ${shop.owner.lastName}`;
-  }
-
   protected validateShop(shop: Shop): void {
-    this.shopService.validate(shop.id).subscribe({
-      next: response => {
-        this.toast.success(response.message);
-        this.loadShops();
-      },
-      error: error => {
-        this.toast.error(extractErrorMessage(error, "Impossible de valider la boutique"));
-      },
-    });
+    this.shopService
+      .validate(shop.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          this.toast.success(response.message);
+          this.loadShops();
+        },
+        error: error => {
+          this.toast.error(extractErrorMessage(error, "Impossible de valider la boutique"));
+        },
+      });
   }
 
   protected suspendShop(shop: Shop): void {
-    this.shopService.suspend(shop.id).subscribe({
-      next: response => {
-        this.toast.success(response.message);
-        this.loadShops();
-      },
-      error: error => {
-        this.toast.error(extractErrorMessage(error, "Impossible de suspendre la boutique"));
-      },
-    });
+    this.shopService
+      .suspend(shop.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          this.toast.success(response.message);
+          this.loadShops();
+        },
+        error: error => {
+          this.toast.error(extractErrorMessage(error, "Impossible de suspendre la boutique"));
+        },
+      });
   }
 }

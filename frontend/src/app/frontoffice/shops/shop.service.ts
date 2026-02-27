@@ -18,12 +18,4 @@ export class ShopService extends ResourceService<Shop> {
   override list(params: ShopListParams = {}): Observable<ApiResponse<Shop[]>> {
     return super.list(params);
   }
-
-  validate(id: string): Observable<ApiResponse<Shop>> {
-    return this.http.patch<ApiResponse<Shop>>(`${this.baseUrl}/${id}/validate`, {});
-  }
-
-  suspend(id: string): Observable<ApiResponse<Shop>> {
-    return this.http.patch<ApiResponse<Shop>>(`${this.baseUrl}/${id}/suspend`, {});
-  }
 }

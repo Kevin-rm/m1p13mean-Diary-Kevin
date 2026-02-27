@@ -1,4 +1,13 @@
-import { Component, inject, signal, ViewChild, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  ViewChild,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder } from "@angular/forms";
 import { finalize } from "rxjs";
@@ -29,6 +38,7 @@ import { Product } from "../product.model";
   ],
   providers: [ConfirmationService],
   templateUrl: "./product-record.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShopProductRecord implements OnInit {
   private readonly productService = inject(ProductService);
@@ -38,6 +48,7 @@ export class ShopProductRecord implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild("imageUpload") private imageUpload!: ImageUpload;
 
@@ -77,7 +88,10 @@ export class ShopProductRecord implements OnInit {
 
     this.productService
       .update(this.productId, data)
-      .pipe(finalize(() => this.saving.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
       .subscribe({
         next: response => {
           this.toast.success(response.message);
@@ -92,22 +106,28 @@ export class ShopProductRecord implements OnInit {
   }
 
   protected toggleActive(): void {
-    this.productService.toggleActive(this.productId).subscribe({
-      next: response => {
-        this.toast.success(response.message);
-        this.product.set(response.data ?? null);
-      },
-      error: error => {
-        this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
-      },
-    });
+    this.productService
+      .toggleActive(this.productId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          this.toast.success(response.message);
+          this.product.set(response.data ?? null);
+        },
+        error: error => {
+          this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
+        },
+      });
   }
 
   protected uploadImages(files: File[]): void {
     this.uploading.set(true);
     this.productService
       .addImages(this.productId, files)
-      .pipe(finalize(() => this.uploading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.uploading.set(false)),
+      )
       .subscribe({
         next: response => {
           this.toast.success(response.message);
@@ -146,22 +166,28 @@ export class ShopProductRecord implements OnInit {
   }
 
   private removeImage(imageUrl: string): void {
-    this.productService.removeImage(this.productId, imageUrl).subscribe({
-      next: response => {
-        this.toast.success(response.message);
-        this.product.set(response.data ?? null);
-      },
-      error: error => {
-        this.toast.error(extractErrorMessage(error, "Impossible de supprimer l'image"));
-      },
-    });
+    this.productService
+      .removeImage(this.productId, imageUrl)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          this.toast.success(response.message);
+          this.product.set(response.data ?? null);
+        },
+        error: error => {
+          this.toast.error(extractErrorMessage(error, "Impossible de supprimer l'image"));
+        },
+      });
   }
 
   private loadProduct(): void {
     this.loading.set(true);
     this.productService
       .getById(this.productId)
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+      )
       .subscribe({
         next: response => {
           this.product.set(response.data ?? null);

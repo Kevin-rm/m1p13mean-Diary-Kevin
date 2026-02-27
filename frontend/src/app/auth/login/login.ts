@@ -1,4 +1,5 @@
-import { Component, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterLink } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { Card } from "primeng/card";
@@ -25,11 +26,13 @@ import { FormField } from "@shared/components/form-field";
     FormField,
   ],
   templateUrl: "./login.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Login {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly errorMessage = signal("");
   protected readonly loading = signal(false);
@@ -45,12 +48,15 @@ export class Login {
     this.loading.set(true);
     this.errorMessage.set("");
 
-    this.authService.login(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigate(["/backoffice"]),
-      error: error => {
-        this.loading.set(false);
-        this.errorMessage.set(extractErrorMessage(error));
-      },
-    });
+    this.authService
+      .login(this.form.getRawValue())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.router.navigate(["/backoffice"]),
+        error: error => {
+          this.loading.set(false);
+          this.errorMessage.set(extractErrorMessage(error));
+        },
+      });
   }
 }

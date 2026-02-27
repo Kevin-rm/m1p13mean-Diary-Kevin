@@ -1,4 +1,13 @@
-import { Component, inject, signal, ViewChild, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  ViewChild,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule, FormBuilder } from "@angular/forms";
 import { finalize } from "rxjs";
 import { Button } from "primeng/button";
@@ -30,12 +39,14 @@ import { MyShopService } from "./my-shop.service";
   ],
   providers: [ConfirmationService],
   templateUrl: "./my-shop.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyShop implements OnInit {
   private readonly myShopService = inject(MyShopService);
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild("imageUpload") private imageUpload!: ImageUpload;
 
@@ -63,7 +74,10 @@ export class MyShop implements OnInit {
     this.saving.set(true);
     this.myShopService
       .update(this.form.getRawValue())
-      .pipe(finalize(() => this.saving.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
       .subscribe({
         next: response => {
           this.toast.success(response.message);
@@ -81,7 +95,10 @@ export class MyShop implements OnInit {
     this.saving.set(true);
     this.myShopService
       .update({ schedule })
-      .pipe(finalize(() => this.saving.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
       .subscribe({
         next: response => {
           this.toast.success(response.message);
@@ -96,29 +113,35 @@ export class MyShop implements OnInit {
   protected uploadLogo(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.myShopService.uploadLogo(file).subscribe({
-      next: response => {
-        this.shop.set(response.data ?? null);
-        this.toast.success("Logo mis à jour");
-      },
-      error: error => {
-        this.toast.error(extractErrorMessage(error, "Impossible de mettre à jour le logo"));
-      },
-    });
+    this.myShopService
+      .uploadLogo(file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          this.shop.set(response.data ?? null);
+          this.toast.success("Logo mis à jour");
+        },
+        error: error => {
+          this.toast.error(extractErrorMessage(error, "Impossible de mettre à jour le logo"));
+        },
+      });
   }
 
   protected uploadImages(files: File[]): void {
-    this.myShopService.uploadImage(files[0]).subscribe({
-      next: response => {
-        if (!response.data?.shop) return;
-        this.shop.set(response.data.shop);
-        this.imageUpload.clear();
-        this.toast.success("Image ajoutée");
-      },
-      error: error => {
-        this.toast.error(extractErrorMessage(error, "Impossible d'ajouter l'image"));
-      },
-    });
+    this.myShopService
+      .uploadImage(files[0])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: response => {
+          if (!response.data?.shop) return;
+          this.shop.set(response.data.shop);
+          this.imageUpload.clear();
+          this.toast.success("Image ajoutée");
+        },
+        error: error => {
+          this.toast.error(extractErrorMessage(error, "Impossible d'ajouter l'image"));
+        },
+      });
   }
 
   private patchForm(): void {
@@ -134,7 +157,10 @@ export class MyShop implements OnInit {
   private loadShop(): void {
     this.myShopService
       .get()
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+      )
       .subscribe({
         next: response => {
           this.shop.set(response.data ?? null);

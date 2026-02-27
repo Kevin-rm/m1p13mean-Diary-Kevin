@@ -1,4 +1,13 @@
-import { Component, Injector, ViewChild, inject, input, output, TemplateRef } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Injector,
+  ViewChild,
+  inject,
+  input,
+  output,
+  TemplateRef,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { NgTemplateOutlet } from "@angular/common";
 import { Table, TableModule, TableLazyLoadEvent } from "primeng/table";
@@ -11,6 +20,7 @@ import { TableState } from "@core/utils/table-state";
   selector: "app-data-table",
   imports: [FormsModule, NgTemplateOutlet, TableModule, InputText, IconField, InputIcon],
   templateUrl: "./data-table.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataTable {
   @ViewChild(Table, { static: true }) private table!: Table;

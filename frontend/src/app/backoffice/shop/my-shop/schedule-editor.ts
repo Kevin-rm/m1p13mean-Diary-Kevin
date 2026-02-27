@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { DatePicker } from "primeng/datepicker";
 import { Select } from "primeng/select";
@@ -89,6 +89,7 @@ function dateToTime(date: Date | null): string {
       </div>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleEditor {
   protected readonly days = DAYS;

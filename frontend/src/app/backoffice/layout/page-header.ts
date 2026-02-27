@@ -1,4 +1,4 @@
-import { Component, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { Location } from "@angular/common";
 import { Button } from "primeng/button";
 
@@ -20,6 +20,7 @@ import { Button } from "primeng/button";
       <ng-content />
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageHeader {
   private readonly location = inject(Location);

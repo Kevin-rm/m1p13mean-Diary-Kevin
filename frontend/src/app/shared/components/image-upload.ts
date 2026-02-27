@@ -1,4 +1,4 @@
-import { Component, input, output, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output, ViewChild } from "@angular/core";
 import { FileUpload } from "primeng/fileupload";
 
 @Component({
@@ -27,6 +27,7 @@ import { FileUpload } from "primeng/fileupload";
       </ng-template>
     </p-fileupload>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImageUpload {
   @ViewChild("fileUpload") private fileUpload!: FileUpload;

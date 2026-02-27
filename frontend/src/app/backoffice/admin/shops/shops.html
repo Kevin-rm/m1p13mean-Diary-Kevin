@@ -14,11 +14,11 @@
 <ng-template #bodyTpl let-shop>
   <tr>
     <td class="font-medium">{{ shop.name }}</td>
-    <td class="text-muted-color">{{ ownerName(shop) }}</td>
+    <td class="text-muted-color">{{ shop.owner | fullName }}</td>
     <td><app-contact-link type="email" [value]="shop.contactEmail" /></td>
     <td><app-contact-link type="phone" [value]="shop.contactPhone" /></td>
     <td>
-      <p-tag [value]="statusLabel(shop.status)" [severity]="statusSeverity(shop.status)" />
+      <app-status-tag [status]="shop.status" [config]="statusConfig" />
     </td>
     <td>
       <div class="flex justify-end gap-1">

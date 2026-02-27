@@ -5,7 +5,7 @@ import { ResourceService } from "@core/services/resource";
 import { Shop } from "./shop.model";
 
 @Injectable({ providedIn: "root" })
-export class ShopService extends ResourceService<Shop> {
+export class AdminShopService extends ResourceService<Shop> {
   protected readonly resourcePath = "shops";
 
   validate(id: string): Observable<ApiResponse<Shop>> {

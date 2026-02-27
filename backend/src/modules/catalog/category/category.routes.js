@@ -13,17 +13,17 @@ import * as categoryController from "./category.controller.js";
 
 const router = Router();
 
+router.use(authenticate);
+
 router.get(
   "/",
-  authenticate,
   authorize("categories:read"),
   validate(listCategoriesRules),
   categoryController.listCategories,
 );
-router.get("/select", authenticate, categoryController.selectCategories);
+router.get("/select", categoryController.selectCategories);
 router.get(
   "/:id",
-  authenticate,
   authorize("categories:read"),
   validate(getCategoryRules),
   categoryController.getCategory,
@@ -31,7 +31,6 @@ router.get(
 
 router.post(
   "/",
-  authenticate,
   authorize("categories:write"),
   validate(createCategoryRules),
   categoryController.createCategory,
@@ -39,7 +38,6 @@ router.post(
 
 router.patch(
   "/:id",
-  authenticate,
   authorize("categories:write"),
   validate(updateCategoryRules),
   categoryController.updateCategory,
@@ -47,7 +45,6 @@ router.patch(
 
 router.patch(
   "/:id/toggle-active",
-  authenticate,
   authorize("categories:write"),
   validate(toggleActiveRules),
   categoryController.toggleActive,

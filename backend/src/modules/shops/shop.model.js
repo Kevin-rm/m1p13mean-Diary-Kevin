@@ -101,6 +101,8 @@ const shopSchema = createSchema({
   },
 });
 
-shopSchema.index({ status: 1 });
+shopSchema.index({ status: 1, name: 1 });
+shopSchema.index({ owner: 1 });
+shopSchema.index({ name: "text", description: "text" });
 
 export default mongoose.model("Shop", shopSchema);

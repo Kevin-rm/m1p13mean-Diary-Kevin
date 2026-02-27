@@ -1,4 +1,4 @@
-import { Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { Drawer } from "primeng/drawer";
 import { Sidebar } from "./sidebar/sidebar";
@@ -10,6 +10,7 @@ import { Footer } from "@shared/components/footer/footer";
   selector: "app-back-office",
   imports: [RouterOutlet, Drawer, Sidebar, SidebarNav, BoHeader, Footer],
   templateUrl: "./back-office.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BackOffice {
   private static readonly SIDEBAR_KEY = "sidebarCollapsed";

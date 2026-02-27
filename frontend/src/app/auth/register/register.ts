@@ -1,4 +1,12 @@
-import { Component, inject, signal, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NgTemplateOutlet } from "@angular/common";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from "@angular/forms";
@@ -36,12 +44,14 @@ import { FormField } from "@shared/components/form-field";
     FormField,
   ],
   templateUrl: "./register.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Register implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly errorMessage = signal("");
   protected readonly loading = signal(false);
@@ -96,7 +106,7 @@ export class Register implements OnInit {
         ? this.authService.registerCustomer(values)
         : this.authService.registerShop(values);
 
-    request$.subscribe({
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.router.navigate(["/"]),
       error: error => {
         this.loading.set(false);

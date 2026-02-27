@@ -138,8 +138,7 @@ export async function login({ email, password }) {
 
   const { accessToken, refreshToken } = await generateTokens(user, context, context.profile.code);
 
-  user.lastLoginAt = new Date();
-  await user.save();
+  User.findByIdAndUpdate(user._id, { lastLoginAt: new Date() }).catch(() => {});
 
   return { user, context, accessToken, refreshToken };
 }

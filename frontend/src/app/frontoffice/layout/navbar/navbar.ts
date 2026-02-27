@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
 import { Menubar } from "primeng/menubar";
 import { Button } from "primeng/button";
@@ -10,6 +10,7 @@ import { UserMenu } from "@shared/components/user-menu/user-menu";
   selector: "app-navbar",
   imports: [RouterLink, Menubar, Button, UserMenu],
   templateUrl: "./navbar.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Navbar {
   private readonly router = inject(Router);

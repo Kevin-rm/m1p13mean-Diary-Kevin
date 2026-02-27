@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   Directive,
   TemplateRef,
@@ -23,6 +24,7 @@ export class RecordPageTab {
 @Component({
   selector: "app-record-page",
   imports: [NgTemplateOutlet, Tabs, TabList, Tab, TabPanels, TabPanel, PageHeader],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-page-header [title]="title()" [back]="true">
       <ng-content select="[actions]" />

@@ -1,4 +1,4 @@
-import { Component, computed, inject, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, output } from "@angular/core";
 import { Router } from "@angular/router";
 import { Button } from "primeng/button";
 import { Breadcrumb } from "primeng/breadcrumb";
@@ -11,6 +11,7 @@ import { BackofficeNavigation } from "../backoffice-navigation.service";
   selector: "app-bo-header",
   imports: [Button, Breadcrumb, UserMenu],
   templateUrl: "./header.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoHeader {
   private readonly router = inject(Router);

@@ -1,4 +1,12 @@
-import { Component, inject, signal, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CommonModule } from "@angular/common";
 import { ShopService } from "./shop.service";
 import { Shop } from "./shop.model";
@@ -8,9 +16,11 @@ import { Shop } from "./shop.model";
   templateUrl: "./shops.html",
   styleUrls: ["./shop.css"],
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Shops implements OnInit {
   private readonly shopService = inject(ShopService);
+  private readonly destroyRef = inject(DestroyRef);
 
   shops = signal<Shop[]>([]);
   loading = signal(true);
@@ -22,15 +32,17 @@ export class Shops implements OnInit {
   }
 
   loadShops() {
-    this.shopService.list({ status: "active", page: 1, limit: 20 }).subscribe({
-      next: res => {
-        console.log(res.data);
-        this.shops.set(res.data ?? []);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-      },
-    });
+    this.shopService
+      .list({ status: "active", page: 1, limit: 20 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.shops.set(res.data ?? []);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+        },
+      });
   }
 }

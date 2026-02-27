@@ -1,11 +1,11 @@
 import Shop from "./shop.model.js";
 import { paginate } from "#utils/db/paginate.js";
-import { err, success } from "#utils/objects.js";
-import { uploadImage } from "#utils/upload/cloudinary.js";
+import { err, success, pickDefined } from "#utils/objects.js";
+import { uploadImage, replaceDocumentImage, UPLOAD_FOLDERS } from "#utils/upload/cloudinary.js";
 
 export async function listShops({ search, status, page, limit }) {
   const filter = {};
-  if (search) filter.name = { $regex: search, $options: "i" };
+  if (search) filter.$text = { $search: search };
   if (status) filter.status = status;
 
   return paginate(Shop, {
@@ -23,10 +23,7 @@ export async function getShopById(id) {
 const UPDATABLE_FIELDS = ["description", "contactEmail", "contactPhone", "schedule"];
 
 export async function updateShop(id, data) {
-  const update = {};
-  for (const key of UPDATABLE_FIELDS) {
-    if (data[key] !== undefined) update[key] = data[key];
-  }
+  const update = pickDefined(data, UPDATABLE_FIELDS);
   return Shop.findByIdAndUpdate(id, update, { new: true, runValidators: true });
 }
 
@@ -34,18 +31,14 @@ export async function setShopLogo(id, file) {
   const shop = await Shop.findById(id);
   if (!shop) return null;
 
-  const { url } = await uploadImage(file.buffer, { folder: "shop-logos" });
-  shop.logoUrl = url;
-
-  await shop.save();
-  return shop;
+  return replaceDocumentImage(shop, "logoUrl", file, UPLOAD_FOLDERS.SHOP_LOGOS);
 }
 
 export async function addShopImage(idShop, file) {
   const shop = await Shop.findById(idShop);
   if (!shop) return null;
 
-  const { url } = await uploadImage(file.buffer, { folder: "img-shop" });
+  const { url } = await uploadImage(file.buffer, { folder: UPLOAD_FOLDERS.SHOP_IMAGES });
   shop.images.push(url);
 
   await shop.save();

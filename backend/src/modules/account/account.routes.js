@@ -7,24 +7,10 @@ import * as accountController from "./account.controller.js";
 
 const router = Router();
 
-router.patch(
-  "/profile",
-  authenticate,
-  validate(updateProfileRules),
-  accountController.updateProfile,
-);
-router.patch(
-  "/avatar",
-  authenticate,
-  singleImage("avatar"),
-  handleMulterError,
-  accountController.updateAvatar,
-);
-router.patch(
-  "/password",
-  authenticate,
-  validate(changePasswordRules),
-  accountController.changePassword,
-);
+router.use(authenticate);
+
+router.patch("/profile", validate(updateProfileRules), accountController.updateProfile);
+router.patch("/avatar", singleImage("avatar"), handleMulterError, accountController.updateAvatar);
+router.patch("/password", validate(changePasswordRules), accountController.changePassword);
 
 export default router;

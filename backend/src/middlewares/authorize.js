@@ -3,7 +3,7 @@ import { forbidden } from "#utils/http/apiResponse.js";
 
 export function authorize(...requiredPermissions) {
   return async (req, res, next) => {
-    const context = await UserContext.findById(req.user.contextId).populate("profile");
+    const context = await UserContext.findById(req.user.contextId).populate("profile").lean();
     if (!context) return forbidden(res, "No active context found");
 
     const userPermissions = context.profile.permissions ?? [];

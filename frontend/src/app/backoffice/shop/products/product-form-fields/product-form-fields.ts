@@ -1,4 +1,4 @@
-import { Component, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { map } from "rxjs";
@@ -10,7 +10,7 @@ import { Fluid } from "primeng/fluid";
 import { FormField } from "@shared/components/form-field";
 import { AriaryPipe } from "@shared/pipes/ariary";
 import { SelectOption } from "@core/models/select-option";
-import { CategoryService } from "@backoffice/admin/categories/category.service";
+import { CategoryService } from "@core/services/category.service";
 
 @Component({
   selector: "app-product-form-fields",
@@ -25,6 +25,7 @@ import { CategoryService } from "@backoffice/admin/categories/category.service";
     AriaryPipe,
   ],
   templateUrl: "./product-form-fields.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductFormFields {
   private readonly categoryService = inject(CategoryService);
