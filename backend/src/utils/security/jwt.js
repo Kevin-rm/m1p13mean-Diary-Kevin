@@ -14,12 +14,12 @@ async function verify(token, config) {
   return payload;
 }
 
-export function generateAccessToken({ userId, contextId, profileCode }) {
-  return sign({ userId, contextId, profileCode }, accessTokenConfig);
+export function generateAccessToken(payload) {
+  return sign(payload, accessTokenConfig);
 }
 
-export function generateRefreshToken({ userId, contextId }) {
-  return sign({ userId, contextId, type: "refresh" }, refreshTokenConfig);
+export function generateRefreshToken(payload) {
+  return sign(payload, refreshTokenConfig);
 }
 
 export function verifyAccessToken(token) {

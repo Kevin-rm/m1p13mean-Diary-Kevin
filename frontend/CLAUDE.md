@@ -5,30 +5,45 @@
 - Angular 21
 - PrimeNG 21 (Aura preset)
 - Tailwind CSS 4 via `tailwindcss-primeui`
-- RxJS (async), signals (sync state)
-- Vitest (unit tests)
+- RxJS (async), Signals (sync state)
 
 ## Architecture
 
-- `src/app/core/` — infrastructure (models, interceptors, utils)
-- `src/app/shared/` — reusable elements
-  - `components/` — UI components (data-table, form-field, active-tag, etc.)
-  - `pipes/` — custom pipes (no-value, etc.)
-- `src/app/auth/` — auth (guards, service, login, register)
-- `src/app/frontoffice/` — front-office features
-- `src/app/backoffice/` — back-office features
-  - `layout/` — shell components (sidebar, header, page-header)
-  - `admin/` — admin pages (shops, categories)
-  - `shop/` — shop owner pages (products)
+- Feature-oriented structure
+- Clear separation between domain and UI
+- Dependency flow: bottom → top
+
+### Layers
+
+- `core` — domain & infrastructure (non-UI)
+- `shared` — reusable, domain-agnostic UI
+- `auth` — authentication
+- `frontoffice` — end-user features
+- `backoffice` — admin features
+
+### Dependency Rules
+
+```
+core → shared → (auth | frontoffice | backoffice)
+```
 
 ## Conventions
 
-- Standalone components only (no NgModules)
-- Signals + `computed` for state
-- `loadComponent` for lazy routes
-- `interface` for object shapes
+- Standalone components only
+- Lazy loading via `loadComponent`
+- Use `interface` for object shapes
+- Component selector: `app-*`
 - PrimeNG FloatLabel: `"on"`
-- Component selector prefix: `app-`
-- **Mobile-first and responsive** for all layout and styling
-- **PrimeNG first** for UI and design tokens  
-  **Tailwind CSS only** when PrimeNG has no suitable API
+
+## State & Async
+
+- Signals for synchronous state
+- `computed` for derived values
+- RxJS for async only
+- Do not mix Signals and Observables for the same state
+
+## Styling
+
+- Mobile-first
+- PrimeNG first
+- Tailwind only if PrimeNG has no suitable API

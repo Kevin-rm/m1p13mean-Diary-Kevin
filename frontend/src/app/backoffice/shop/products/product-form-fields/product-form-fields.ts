@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { map } from "rxjs";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
 import { InputNumber } from "primeng/inputnumber";
@@ -30,9 +29,10 @@ import { CategoryService } from "@core/domains/category/category.service";
 export class ProductFormFields {
   private readonly categoryService = inject(CategoryService);
 
-  protected readonly categories = toSignal(
-    this.categoryService.listForSelect().pipe(map(r => r.data ?? [])),
-    { initialValue: [] as SelectOption[] },
+  private readonly categoriesQuery = injectQuery(() => this.categoryService.selectQueryOptions());
+
+  protected readonly categories = computed<SelectOption[]>(
+    () => this.categoriesQuery.data()?.data ?? [],
   );
 
   form = input.required<FormGroup>();

@@ -1,8 +1,16 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
-import { TableModule, TableLazyLoadEvent } from "primeng/table";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { TableModule } from "primeng/table";
 import { ContactLink } from "@shared/components/contact-link";
 import { AppTag, TagConfig } from "@shared/components/app-tag";
 import { DataTable } from "@shared/components/data-table/data-table";
@@ -13,9 +21,9 @@ import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/layout/page-header";
 import { FullNamePipe } from "@shared/pipes/full-name";
 import { extractErrorMessage } from "@core/utils/error";
-import { TableState } from "@core/utils/table-state";
+import { TableState, injectTableQuery } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
-import { AdminShopService } from "./shop.service";
+import { ShopService } from "@core/domains/shop/shop.service";
 import { Shop } from "@core/domains/shop/shop.model";
 
 const STATUS_OPTIONS = [
@@ -49,40 +57,30 @@ const SHOP_STATUS_CONFIG: Record<string, TagConfig> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminShops implements OnInit {
-  private readonly shopService = inject(AdminShopService);
+  private readonly shopService = inject(ShopService);
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly queryClient = inject(QueryClient);
 
   protected readonly table = new TableState<Shop>(inject(ActivatedRoute), inject(Router));
+  protected readonly statusFilter = signal(this.table.readFilterParam("status"));
+
+  protected readonly query = injectTableQuery(
+    this.table,
+    params => this.shopService.listQueryOptions(params),
+    { filters: () => ({ status: this.statusFilter() || undefined }) },
+  );
+
   protected readonly statusOptions = STATUS_OPTIONS;
   protected readonly statusConfig = SHOP_STATUS_CONFIG;
-  protected statusFilter = "";
 
   ngOnInit(): void {
     this.breadcrumb.set([{ label: "Boutiques" }]);
-    this.statusFilter = this.table.readFilterParam("status");
-    this.loadShops();
-  }
-
-  protected loadShops(event?: TableLazyLoadEvent): void {
-    const filters = {
-      search: this.table.search() || undefined,
-      status: this.statusFilter || undefined,
-    };
-    this.table.load(
-      this.shopService.list({ ...filters, page: this.table.page, limit: this.table.limit }),
-      {
-        event,
-        queryParams: filters,
-        onError: () => this.toast.error("Impossible de charger les boutiques"),
-      },
-    );
   }
 
   protected onStatusFilter(): void {
     this.table.resetPage();
-    this.loadShops();
   }
 
   protected validateShop(shop: Shop): void {
@@ -92,7 +90,7 @@ export class AdminShops implements OnInit {
       .subscribe({
         next: response => {
           this.toast.success(response.message);
-          this.loadShops();
+          this.queryClient.invalidateQueries({ queryKey: [this.shopService.resourcePath] });
         },
         error: error => {
           this.toast.error(extractErrorMessage(error, "Impossible de valider la boutique"));
@@ -107,7 +105,7 @@ export class AdminShops implements OnInit {
       .subscribe({
         next: response => {
           this.toast.success(response.message);
-          this.loadShops();
+          this.queryClient.invalidateQueries({ queryKey: [this.shopService.resourcePath] });
         },
         error: error => {
           this.toast.error(extractErrorMessage(error, "Impossible de suspendre la boutique"));

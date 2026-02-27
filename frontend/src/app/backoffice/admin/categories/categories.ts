@@ -10,7 +10,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { finalize } from "rxjs";
-import { TableModule, TableLazyLoadEvent } from "primeng/table";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { TableModule } from "primeng/table";
 import { DataTable } from "@shared/components/data-table/data-table";
 import { Drawer } from "primeng/drawer";
 import { InputText } from "primeng/inputtext";
@@ -22,7 +23,7 @@ import { Tooltip } from "primeng/tooltip";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/layout/page-header";
 import { extractErrorMessage } from "@core/utils/error";
-import { TableState } from "@core/utils/table-state";
+import { TableState, injectTableQuery } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
 import { CategoryService } from "@core/domains/category/category.service";
 import { Category } from "@core/domains/category/category.model";
@@ -55,9 +56,15 @@ export class AdminCategories implements OnInit {
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly queryClient = inject(QueryClient);
   private editingId: string | null = null;
 
   protected readonly table = new TableState<Category>(inject(ActivatedRoute), inject(Router));
+
+  protected readonly query = injectTableQuery(this.table, params =>
+    this.categoryService.listQueryOptions(params),
+  );
+
   protected readonly drawerVisible = signal(false);
   protected readonly saving = signal(false);
   protected readonly editing = signal(false);
@@ -68,19 +75,6 @@ export class AdminCategories implements OnInit {
 
   ngOnInit(): void {
     this.breadcrumb.set([{ label: "Catégories" }]);
-    this.loadCategories();
-  }
-
-  protected loadCategories(event?: TableLazyLoadEvent): void {
-    const filters = { search: this.table.search() || undefined };
-    this.table.load(
-      this.categoryService.list({ ...filters, page: this.table.page, limit: this.table.limit }),
-      {
-        event,
-        queryParams: filters,
-        onError: () => this.toast.error("Impossible de charger les catégories"),
-      },
-    );
   }
 
   protected openCreateDrawer(): void {
@@ -118,9 +112,8 @@ export class AdminCategories implements OnInit {
       .subscribe({
         next: response => {
           this.toast.success(response.message);
-          this.categoryService.invalidateSelectCache();
+          this.queryClient.invalidateQueries({ queryKey: [this.categoryService.resourcePath] });
           this.drawerVisible.set(false);
-          this.loadCategories();
         },
         error: error => {
           this.toast.error(extractErrorMessage(error));
@@ -135,7 +128,7 @@ export class AdminCategories implements OnInit {
       .subscribe({
         next: response => {
           this.toast.success(response.message);
-          this.loadCategories();
+          this.queryClient.invalidateQueries({ queryKey: [this.categoryService.resourcePath] });
         },
         error: () => {
           this.toast.error("Impossible de modifier le statut");

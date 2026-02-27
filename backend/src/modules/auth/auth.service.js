@@ -18,7 +18,7 @@ async function generateTokens(user, context, profile, session = null) {
     userId: user._id.toString(),
     contextId: context._id.toString(),
     profileCode: profile.code,
-    permissions: profile.permissions ?? [],
+    permissions: [...(profile.permissions ?? [])],
     ...(context.shop && { shop: context.shop.toString() }),
   };
 
