@@ -46,6 +46,13 @@ export abstract class ResourceService<T> {
     return this.http.get<ApiResponse<T>>(`${this.baseUrl}/${id}`);
   }
 
+  getByIdQueryOptions(id: string) {
+    return {
+      queryKey: [this.resourcePath, id] as const,
+      queryFn: () => lastValueFrom(this.getById(id)),
+    };
+  }
+
   create(data: FormData | object): Observable<ApiResponse<T>> {
     return this.http.post<ApiResponse<T>>(this.baseUrl, data);
   }

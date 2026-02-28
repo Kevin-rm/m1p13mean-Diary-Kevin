@@ -42,9 +42,9 @@
         </app-form-field>
 
         <p-button
-          label="{{ loading() ? 'Connexion...' : 'Se connecter' }}"
+          label="{{ loginMutation.isPending() ? 'Connexion...' : 'Se connecter' }}"
           type="submit"
-          [disabled]="form.invalid || loading()"
+          [disabled]="form.invalid || loginMutation.isPending()"
         />
       </form>
 

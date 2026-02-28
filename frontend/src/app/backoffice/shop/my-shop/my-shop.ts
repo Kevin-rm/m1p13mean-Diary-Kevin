@@ -1,64 +1,122 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
+  computed,
+  effect,
   inject,
   signal,
+  untracked,
   ViewChild,
   OnInit,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule, FormBuilder } from "@angular/forms";
-import { finalize } from "rxjs";
+import { lastValueFrom } from "rxjs";
+import { injectMutation, injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { Button } from "primeng/button";
-import { ConfirmDialog } from "primeng/confirmdialog";
-import { ConfirmationService } from "primeng/api";
-import { Image } from "primeng/image";
-import { ImageUpload } from "@shared/components/image-upload";
+import { ImageSection } from "@backoffice/components/image-section";
 import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
-import { RecordPage, RecordPageTab } from "@backoffice/layout/record-page";
-import { Shop, ScheduleSlot } from "@core/domains/shop/shop.model";
+import { RecordPage, RecordPageTab } from "@backoffice/components/record-page";
+import { Shop } from "@core/domains/shop/shop.model";
+import { ShopService } from "@core/domains/shop/shop.service";
+import { ApiResponse } from "@core/common/models/api-response";
 import { ShopFormFields } from "./shop-form-fields";
 import { ScheduleEditor } from "./schedule-editor";
-import { MyShopService } from "./my-shop.service";
+
+const QUERY_KEY = ["shops", "me"];
 
 @Component({
   selector: "app-my-shop",
   imports: [
     ReactiveFormsModule,
     Button,
-    ConfirmDialog,
-    Image,
-    ImageUpload,
+    ImageSection,
     RecordPage,
     RecordPageTab,
     ShopFormFields,
     ScheduleEditor,
   ],
-  providers: [ConfirmationService],
   templateUrl: "./my-shop.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyShop implements OnInit {
-  private readonly myShopService = inject(MyShopService);
+  private readonly shopService = inject(ShopService);
+  private readonly queryClient = inject(QueryClient);
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
-  private readonly destroyRef = inject(DestroyRef);
 
-  @ViewChild("imageUpload") private imageUpload!: ImageUpload;
+  @ViewChild(ScheduleEditor) private scheduleEditor?: ScheduleEditor;
+  @ViewChild("imageSection") private imageSection!: ImageSection;
 
-  protected readonly shop = signal<Shop | null>(null);
-  protected readonly loading = signal(true);
+  private readonly shopQuery = injectQuery(() => ({
+    queryKey: QUERY_KEY,
+    queryFn: () => lastValueFrom(this.shopService.getMe()),
+  }));
+
   protected readonly editing = signal(false);
-  protected readonly saving = signal(false);
   protected readonly form = ShopFormFields.createForm(this.fb);
+  protected readonly shop = computed(() => this.shopQuery.data()?.data ?? null);
+  protected readonly loading = computed(() => this.shopQuery.isPending());
+
+  protected readonly saveMutation = injectMutation(() => ({
+    mutationFn: (data: object) => lastValueFrom(this.shopService.updateMe(data)),
+    onSuccess: (response: ApiResponse<Shop>) => {
+      this.toast.success(response.message);
+      this.queryClient.setQueryData(QUERY_KEY, response);
+      this.editing.set(false);
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error));
+    },
+  }));
+
+  protected readonly uploadLogoMutation = injectMutation(() => ({
+    mutationFn: (file: File) => lastValueFrom(this.shopService.uploadLogo(file)),
+    onSuccess: (response: ApiResponse<Shop>) => {
+      this.queryClient.setQueryData(QUERY_KEY, response);
+      this.toast.success("Logo mis à jour");
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error, "Impossible de mettre à jour le logo"));
+    },
+  }));
+
+  protected readonly uploadImagesMutation = injectMutation(() => ({
+    mutationFn: (files: File[]) => lastValueFrom(this.shopService.addImages(files)),
+    onSuccess: (response: ApiResponse<Shop>) => {
+      this.toast.success(response.message);
+      this.queryClient.setQueryData(QUERY_KEY, response);
+      this.imageSection.imageUpload.clear();
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error, "Impossible d'ajouter les images"));
+    },
+  }));
+
+  protected readonly removeImageMutation = injectMutation(() => ({
+    mutationFn: (imageUrl: string) => lastValueFrom(this.shopService.removeImage(imageUrl)),
+    onSuccess: (response: ApiResponse<Shop>) => {
+      this.toast.success(response.message);
+      this.queryClient.setQueryData(QUERY_KEY, response);
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error, "Impossible de supprimer l'image"));
+    },
+  }));
+
+  constructor() {
+    effect(() => {
+      const s = this.shop();
+      if (s && !this.editing()) {
+        untracked(() => this.patchForm());
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.breadcrumb.set([{ label: "Ma boutique" }]);
-    this.loadShop();
   }
 
   protected startEditing(): void {
@@ -66,82 +124,29 @@ export class MyShop implements OnInit {
   }
 
   protected cancelEditing(): void {
-    this.patchForm();
     this.editing.set(false);
   }
 
   protected saveShop(): void {
-    this.saving.set(true);
-    this.myShopService
-      .update(this.form.getRawValue())
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.shop.set(response.data ?? null);
-          this.patchForm();
-          this.editing.set(false);
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error));
-        },
-      });
-  }
-
-  protected saveSchedule(schedule: ScheduleSlot[]): void {
-    this.saving.set(true);
-    this.myShopService
-      .update({ schedule })
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.shop.set(response.data ?? null);
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error));
-        },
-      });
+    const data: Record<string, unknown> = { ...this.form.getRawValue() };
+    if (this.scheduleEditor) {
+      data["schedule"] = this.scheduleEditor.getSchedule();
+    }
+    this.saveMutation.mutate(data);
   }
 
   protected uploadLogo(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.myShopService
-      .uploadLogo(file)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          this.shop.set(response.data ?? null);
-          this.toast.success("Logo mis à jour");
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error, "Impossible de mettre à jour le logo"));
-        },
-      });
+    this.uploadLogoMutation.mutate(file);
   }
 
   protected uploadImages(files: File[]): void {
-    this.myShopService
-      .uploadImage(files[0])
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          if (!response.data?.shop) return;
-          this.shop.set(response.data.shop);
-          this.imageUpload.clear();
-          this.toast.success("Image ajoutée");
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error, "Impossible d'ajouter l'image"));
-        },
-      });
+    this.uploadImagesMutation.mutate(files);
+  }
+
+  protected removeImage(imageUrl: string): void {
+    this.removeImageMutation.mutate(imageUrl);
   }
 
   private patchForm(): void {
@@ -152,23 +157,5 @@ export class MyShop implements OnInit {
       contactEmail: s.contactEmail ?? "",
       contactPhone: s.contactPhone ?? "",
     });
-  }
-
-  private loadShop(): void {
-    this.myShopService
-      .get()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loading.set(false)),
-      )
-      .subscribe({
-        next: response => {
-          this.shop.set(response.data ?? null);
-          this.patchForm();
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error, "Impossible de charger la boutique"));
-        },
-      });
   }
 }

@@ -9,7 +9,7 @@ const router = Router();
 
 const authLimiter = createRateLimiter({
   limit: 10,
-  message: "Trop de tentatives, veuillez réessayer plus tard",
+  message: "Too many attempts, please try again later",
 });
 
 router.post(

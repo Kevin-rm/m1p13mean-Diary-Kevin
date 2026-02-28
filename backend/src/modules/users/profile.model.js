@@ -14,7 +14,7 @@ export const PERMISSIONS = [
   "orders:read",
   "orders:manage",
   "orders:create",
-  "shop:settings",
+  "shops:manage",
   "members:read",
   "members:manage",
   "stats:read",

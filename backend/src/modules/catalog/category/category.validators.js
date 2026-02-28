@@ -9,12 +9,12 @@ import {
 
 const categoryName = resourceNameRules("Category name");
 
-export const listCategoriesRules = [searchRule, isActiveRule, ...paginationRules];
+export const listRules = [searchRule, isActiveRule, ...paginationRules];
 
-export const getCategoryRules = [mongoIdRules()];
+export const getRules = [mongoIdRules()];
 
-export const createCategoryRules = [categoryName.required, descriptionRule];
+export const createRules = [categoryName.required, descriptionRule];
 
-export const updateCategoryRules = [mongoIdRules(), categoryName.optional, descriptionRule];
+export const updateRules = [mongoIdRules(), categoryName.optional, descriptionRule];
 
 export const toggleActiveRules = [mongoIdRules()];

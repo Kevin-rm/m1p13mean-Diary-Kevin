@@ -2,13 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   OnInit,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { lastValueFrom } from "rxjs";
+import { injectMutation, injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { AriaryPipe } from "@shared/pipes/ariary";
@@ -19,7 +18,7 @@ import { Button } from "primeng/button";
 import { ActiveTag } from "@shared/components/active-tag";
 import { Tooltip } from "primeng/tooltip";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
-import { PageHeader } from "@backoffice/layout/page-header";
+import { PageHeader } from "@backoffice/components/page-header";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState, injectTableQuery } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
@@ -59,7 +58,6 @@ export class ShopProductList implements OnInit {
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly queryClient = inject(QueryClient);
   private readonly categoriesQuery = injectQuery(() => this.categoryService.selectQueryOptions());
 
@@ -77,6 +75,17 @@ export class ShopProductList implements OnInit {
       }),
     },
   );
+
+  protected readonly toggleActiveMutation = injectMutation(() => ({
+    mutationFn: (id: string) => lastValueFrom(this.productService.toggleActive(id)),
+    onSuccess: (response: { message: string }) => {
+      this.toast.success(response.message);
+      this.queryClient.invalidateQueries({ queryKey: [this.productService.resourcePath] });
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
+    },
+  }));
 
   protected readonly statusOptions = STATUS_OPTIONS;
   protected readonly categories = computed(() => [
@@ -100,17 +109,6 @@ export class ShopProductList implements OnInit {
   }
 
   protected toggleActive(product: Product): void {
-    this.productService
-      .toggleActive(product.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.queryClient.invalidateQueries({ queryKey: [this.productService.resourcePath] });
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
-        },
-      });
+    this.toggleActiveMutation.mutate(product.id);
   }
 }

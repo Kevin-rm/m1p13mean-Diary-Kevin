@@ -7,23 +7,23 @@ import { FileUpload } from "primeng/fileupload";
   template: `
     <p-fileupload
       #fileUpload
-      [mode]="mode()"
-      [customUpload]="customUpload()"
+      mode="advanced"
+      [customUpload]="true"
       [multiple]="multiple()"
-      [accept]="accept()"
+      accept="image/jpeg,image/png,image/webp"
       [maxFileSize]="maxFileSize()"
       [fileLimit]="fileLimit()"
-      [previewWidth]="previewWidth()"
+      [previewWidth]="80"
       [showUploadButton]="showUploadButton()"
-      [showCancelButton]="showCancelButton()"
-      [chooseLabel]="chooseLabel()"
-      [chooseIcon]="chooseIcon()"
+      [showCancelButton]="true"
+      chooseLabel="Sélectionner des images"
+      chooseIcon="none"
       uploadLabel="Importer"
       cancelLabel="Annuler"
       (uploadHandler)="onUpload()"
     >
       <ng-template #empty>
-        <p class="text-muted-color m-0">{{ emptyMessage() }}</p>
+        <p class="text-muted-color m-0">Glissez-déposez des images ici</p>
       </ng-template>
     </p-fileupload>
   `,
@@ -32,18 +32,10 @@ import { FileUpload } from "primeng/fileupload";
 export class ImageUpload {
   @ViewChild("fileUpload") private fileUpload!: FileUpload;
 
-  mode = input<"advanced" | "basic">("advanced");
-  customUpload = input(true);
   multiple = input(true);
-  accept = input("image/jpeg,image/png,image/webp");
   maxFileSize = input(5_000_000);
   fileLimit = input(5);
-  previewWidth = input(80);
   showUploadButton = input(false);
-  showCancelButton = input(true);
-  chooseLabel = input("Sélectionner des images");
-  chooseIcon = input("none");
-  emptyMessage = input("Glissez-déposez des images ici ou cliquez pour sélectionner");
 
   upload = output<File[]>();
 

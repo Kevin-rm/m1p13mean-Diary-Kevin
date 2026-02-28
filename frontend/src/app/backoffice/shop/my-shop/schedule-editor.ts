@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { DatePicker } from "primeng/datepicker";
 import { Select } from "primeng/select";
@@ -15,6 +15,7 @@ const DAYS = [
   { value: "sunday", label: "Dimanche" },
 ];
 
+const DAY_INDEX = new Map(DAYS.map((d, i) => [d.value, i]));
 const MAX_SLOTS = DAYS.length;
 const DEFAULT_OPEN = "08:00";
 const DEFAULT_CLOSE = "18:00";
@@ -37,45 +38,121 @@ function dateToTime(date: Date | null): string {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
+function toRow(slot: ScheduleSlot): ScheduleRow {
+  return {
+    day: slot.day,
+    openTime: timeToDate(slot.openTime),
+    closeTime: timeToDate(slot.closeTime),
+  };
+}
+
+function toSlot(row: ScheduleRow): ScheduleSlot {
+  return { day: row.day, openTime: dateToTime(row.openTime), closeTime: dateToTime(row.closeTime) };
+}
+
+function dayLabel(value: string): string {
+  return DAYS[DAY_INDEX.get(value) ?? 0]?.label ?? value;
+}
+
+function buildScheduleSummary(slots: ScheduleSlot[]): { label: string; time: string }[] {
+  if (slots.length === 0) return [];
+
+  const groups = new Map<string, string[]>();
+  for (const slot of slots) {
+    const key = `${slot.openTime}|${slot.closeTime}`;
+    const days = groups.get(key);
+    if (days) {
+      days.push(slot.day);
+    } else {
+      groups.set(key, [slot.day]);
+    }
+  }
+
+  return Array.from(groups.entries()).map(([key, days]) => {
+    const [openTime, closeTime] = key.split("|");
+    days.sort((a, b) => (DAY_INDEX.get(a) ?? 0) - (DAY_INDEX.get(b) ?? 0));
+    return { label: formatDayRange(days), time: `${openTime} — ${closeTime}` };
+  });
+}
+
+function formatDayRange(days: string[]): string {
+  if (days.length === DAYS.length) return "Tous les jours";
+
+  const ranges = findConsecutiveRanges(days);
+  return ranges
+    .map(range => {
+      if (range.length <= 2) return range.map(dayLabel).join(", ");
+      return `Du ${dayLabel(range[0])} au ${dayLabel(range[range.length - 1])}`;
+    })
+    .join(", ");
+}
+
+function findConsecutiveRanges(days: string[]): string[][] {
+  const ranges: string[][] = [];
+  let current: string[] = [days[0]];
+
+  for (let i = 1; i < days.length; i++) {
+    if ((DAY_INDEX.get(days[i]) ?? 0) === (DAY_INDEX.get(days[i - 1]) ?? 0) + 1) {
+      current.push(days[i]);
+    } else {
+      ranges.push(current);
+      current = [days[i]];
+    }
+  }
+  ranges.push(current);
+  return ranges;
+}
+
 @Component({
   selector: "app-schedule-editor",
   imports: [FormsModule, DatePicker, Select, Button],
   template: `
     <div class="flex flex-col gap-4">
-      @for (row of rows(); track $index) {
-        <div class="flex items-center gap-3 flex-wrap">
-          <p-select
-            [options]="availableDays(row.day)"
-            [(ngModel)]="row.day"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Jour"
-            class="w-40"
-          />
-          <p-datepicker
-            [(ngModel)]="row.openTime"
-            [timeOnly]="true"
-            placeholder="Ouverture"
-            class="w-32"
-          />
-          <span class="text-muted-color">—</span>
-          <p-datepicker
-            [(ngModel)]="row.closeTime"
-            [timeOnly]="true"
-            placeholder="Fermeture"
-            class="w-32"
-          />
-          <p-button
-            icon="pi pi-trash"
-            severity="danger"
-            [text]="true"
-            [rounded]="true"
-            (click)="removeRow($index)"
-          />
-        </div>
-      }
+      @if (readonly()) {
+        @if (scheduleSummary().length === 0) {
+          <p class="text-muted-color m-0">Aucun horaire défini</p>
+        } @else {
+          @for (line of scheduleSummary(); track $index) {
+            <div class="flex items-center gap-2">
+              <span class="font-medium">{{ line.label }}</span>
+              <span class="text-muted-color">{{ line.time }}</span>
+            </div>
+          }
+        }
+      } @else {
+        @for (row of rows(); track $index) {
+          <div class="flex items-center gap-3 flex-wrap">
+            <p-select
+              [options]="availableDays(row.day)"
+              [(ngModel)]="row.day"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Jour"
+              class="w-40"
+            />
+            <p-datepicker
+              [(ngModel)]="row.openTime"
+              [timeOnly]="true"
+              placeholder="Ouverture"
+              class="w-32"
+            />
+            <span class="text-muted-color">—</span>
+            <p-datepicker
+              [(ngModel)]="row.closeTime"
+              [timeOnly]="true"
+              placeholder="Fermeture"
+              class="w-32"
+            />
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              [rounded]="true"
+              (click)="removeRow($index)"
+            />
+          </div>
+        }
 
-      <div class="flex gap-2">
         @if (rows().length < maxSlots) {
           <p-button
             label="Ajouter un créneau"
@@ -85,28 +162,27 @@ function dateToTime(date: Date | null): string {
             (click)="addRow()"
           />
         }
-        <p-button label="Enregistrer" icon="pi pi-check" (click)="onSave()" />
-      </div>
+      }
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleEditor {
-  protected readonly days = DAYS;
   protected readonly maxSlots = MAX_SLOTS;
   protected readonly rows = signal<ScheduleRow[]>([]);
+  protected readonly scheduleSummary = computed(() => buildScheduleSummary(this.schedule()));
 
   schedule = input<ScheduleSlot[]>([]);
-  save = output<ScheduleSlot[]>();
+  readonly = input(false);
 
   ngOnChanges(): void {
-    this.rows.set(
-      this.schedule().map(s => ({
-        day: s.day,
-        openTime: timeToDate(s.openTime),
-        closeTime: timeToDate(s.closeTime),
-      })),
-    );
+    this.rows.set(this.schedule().map(toRow));
+  }
+
+  getSchedule(): ScheduleSlot[] {
+    return this.rows()
+      .filter(r => r.day && r.openTime && r.closeTime)
+      .map(toSlot);
   }
 
   protected availableDays(currentDay: string) {
@@ -133,16 +209,5 @@ export class ScheduleEditor {
 
   protected removeRow(index: number): void {
     this.rows.update(r => r.filter((_, i) => i !== index));
-  }
-
-  protected onSave(): void {
-    const slots: ScheduleSlot[] = this.rows()
-      .filter(r => r.day && r.openTime && r.closeTime)
-      .map(r => ({
-        day: r.day,
-        openTime: dateToTime(r.openTime),
-        closeTime: dateToTime(r.closeTime),
-      }));
-    this.save.emit(slots);
   }
 }

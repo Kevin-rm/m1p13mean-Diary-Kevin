@@ -1,15 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import { lastValueFrom } from "rxjs";
+import { injectMutation, QueryClient } from "@tanstack/angular-query-experimental";
 import { TableModule } from "primeng/table";
 import { ContactLink } from "@shared/components/contact-link";
 import { AppTag, TagConfig } from "@shared/components/app-tag";
@@ -18,7 +11,7 @@ import { Select } from "primeng/select";
 import { Button } from "primeng/button";
 import { Tooltip } from "primeng/tooltip";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
-import { PageHeader } from "@backoffice/layout/page-header";
+import { PageHeader } from "@backoffice/components/page-header";
 import { FullNamePipe } from "@shared/pipes/full-name";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState, injectTableQuery } from "@core/utils/table-state";
@@ -60,7 +53,6 @@ export class AdminShops implements OnInit {
   private readonly shopService = inject(ShopService);
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly queryClient = inject(QueryClient);
 
   protected readonly table = new TableState<Shop>(inject(ActivatedRoute), inject(Router));
@@ -71,6 +63,28 @@ export class AdminShops implements OnInit {
     params => this.shopService.listQueryOptions(params),
     { filters: () => ({ status: this.statusFilter() || undefined }) },
   );
+
+  protected readonly validateMutation = injectMutation(() => ({
+    mutationFn: (id: string) => lastValueFrom(this.shopService.validate(id)),
+    onSuccess: (response: { message: string }) => {
+      this.toast.success(response.message);
+      this.queryClient.invalidateQueries({ queryKey: [this.shopService.resourcePath] });
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error, "Impossible de valider la boutique"));
+    },
+  }));
+
+  protected readonly suspendMutation = injectMutation(() => ({
+    mutationFn: (id: string) => lastValueFrom(this.shopService.suspend(id)),
+    onSuccess: (response: { message: string }) => {
+      this.toast.success(response.message);
+      this.queryClient.invalidateQueries({ queryKey: [this.shopService.resourcePath] });
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error, "Impossible de suspendre la boutique"));
+    },
+  }));
 
   protected readonly statusOptions = STATUS_OPTIONS;
   protected readonly statusConfig = SHOP_STATUS_CONFIG;
@@ -84,32 +98,10 @@ export class AdminShops implements OnInit {
   }
 
   protected validateShop(shop: Shop): void {
-    this.shopService
-      .validate(shop.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.queryClient.invalidateQueries({ queryKey: [this.shopService.resourcePath] });
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error, "Impossible de valider la boutique"));
-        },
-      });
+    this.validateMutation.mutate(shop.id);
   }
 
   protected suspendShop(shop: Shop): void {
-    this.shopService
-      .suspend(shop.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.queryClient.invalidateQueries({ queryKey: [this.shopService.resourcePath] });
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error, "Impossible de suspendre la boutique"));
-        },
-      });
+    this.suspendMutation.mutate(shop.id);
   }
 }

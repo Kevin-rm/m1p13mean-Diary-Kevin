@@ -36,8 +36,8 @@ export class RecordPageTab {
       </div>
     } @else {
       @if (showImage()) {
-        <div class="mb-6">
-          <div class="relative group inline-block">
+        <div class="flex items-center gap-5 mb-6">
+          <div class="relative group inline-block shrink-0">
             @if (image()) {
               <img
                 [src]="image()"
@@ -52,6 +52,12 @@ export class RecordPageTab {
               </div>
             }
             <ng-content select="[image-action]" />
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold m-0">{{ heading() }}</h2>
+            @if (subheading()) {
+              <p class="text-muted-color mt-1 mb-0">{{ subheading() }}</p>
+            }
           </div>
         </div>
       }
@@ -89,6 +95,8 @@ export class RecordPage {
   title = input.required<string>();
   loading = input(false);
   defaultTabLabel = input("Informations");
+  heading = input("");
+  subheading = input("");
   showImage = input(false);
   image = input("");
 

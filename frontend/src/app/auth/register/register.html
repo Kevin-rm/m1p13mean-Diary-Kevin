@@ -192,9 +192,9 @@
         <div class="mt-4">
           <p-fluid>
             <p-button
-              label="{{ loading() ? 'Inscription...' : 'S\'inscrire' }}"
+              label="{{ registerMutation.isPending() ? 'Inscription...' : 'S\'inscrire' }}"
               type="submit"
-              [disabled]="form.invalid || loading()"
+              [disabled]="form.invalid || registerMutation.isPending()"
             />
           </p-fluid>
         </div>
@@ -213,9 +213,9 @@
       @if (accountType() === "shop") {
         <p-divider />
         <p-button
-          label="{{ loading() ? 'Inscription...' : 'S\'inscrire' }}"
+          label="{{ registerMutation.isPending() ? 'Inscription...' : 'S\'inscrire' }}"
           (onClick)="onSubmit()"
-          [disabled]="form.invalid || loading()"
+          [disabled]="form.invalid || registerMutation.isPending()"
         />
       }
     </ng-template>

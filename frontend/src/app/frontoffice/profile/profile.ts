@@ -1,15 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  signal,
-  OnInit,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
-import { HttpClient } from "@angular/common/http";
-import { finalize } from "rxjs";
+import { lastValueFrom } from "rxjs";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { Avatar } from "primeng/avatar";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "primeng/tabs";
 import { InputText } from "primeng/inputtext";
@@ -18,11 +10,9 @@ import { Button } from "primeng/button";
 import { Fluid } from "primeng/fluid";
 import { Dialog } from "primeng/dialog";
 import { ImageCropperComponent, ImageCroppedEvent } from "ngx-image-cropper";
-import { environment } from "@env/environment";
-import { ApiResponse } from "@core/common/models/api-response";
 import { extractErrorMessage } from "@core/utils/error";
 import { AuthService } from "@auth/auth.service";
-import { User } from "@auth/auth.models";
+import { AccountService } from "@core/domains/account/account.service";
 import { Toast } from "@core/utils/toast";
 import { FormField } from "@shared/components/form-field";
 
@@ -49,18 +39,12 @@ import { FormField } from "@shared/components/form-field";
 })
 export class Profile implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly http = inject(HttpClient);
+  private readonly accountService = inject(AccountService);
   private readonly toast = inject(Toast);
-  private readonly accountUrl = `${environment.apiUrl}/account`;
   private croppedBlob: Blob | null = null;
 
-  private readonly destroyRef = inject(DestroyRef);
-
   protected readonly authService = inject(AuthService);
-  protected readonly profileLoading = signal(false);
-  protected readonly passwordLoading = signal(false);
   protected readonly avatarPreview = signal<string | null>(null);
-  protected readonly avatarUploading = signal(false);
   protected readonly cropperVisible = signal(false);
   protected readonly cropperFile = signal<File | null>(null);
 
@@ -73,6 +57,42 @@ export class Profile implements OnInit {
     currentPassword: ["", Validators.required],
     newPassword: ["", [Validators.required, Validators.minLength(8)]],
   });
+
+  protected readonly profileMutation = injectMutation(() => ({
+    mutationFn: (data: object) => lastValueFrom(this.accountService.updateProfile(data)),
+    onSuccess: () => {
+      this.toast.success("Profil mis à jour");
+      this.profileForm.markAsPristine();
+      this.authService.checkAuthState().subscribe();
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error));
+    },
+  }));
+
+  protected readonly avatarMutation = injectMutation(() => ({
+    mutationFn: (file: Blob) => lastValueFrom(this.accountService.updateAvatar(file)),
+    onSuccess: () => {
+      this.toast.success("Photo de profil mise à jour");
+      this.avatarPreview.set(null);
+      this.authService.checkAuthState().subscribe();
+    },
+    onError: error => {
+      this.avatarPreview.set(null);
+      this.toast.error(extractErrorMessage(error));
+    },
+  }));
+
+  protected readonly passwordMutation = injectMutation(() => ({
+    mutationFn: (data: object) => lastValueFrom(this.accountService.changePassword(data)),
+    onSuccess: () => {
+      this.toast.success("Mot de passe modifié");
+      this.passwordForm.reset();
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error));
+    },
+  }));
 
   ngOnInit(): void {
     const user = this.authService.user();
@@ -98,30 +118,8 @@ export class Profile implements OnInit {
   protected confirmCrop(): void {
     if (!this.croppedBlob) return;
 
-    const blob = this.croppedBlob;
-    this.avatarPreview.set(URL.createObjectURL(blob));
-    this.avatarUploading.set(true);
-
-    const formData = new FormData();
-    formData.append("avatar", blob, "avatar.png");
-
-    this.http
-      .patch<ApiResponse<{ user: User }>>(`${this.accountUrl}/avatar`, formData)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.avatarUploading.set(false)),
-      )
-      .subscribe({
-        next: () => {
-          this.toast.success("Photo de profil mise à jour");
-          this.avatarPreview.set(null);
-          this.authService.checkAuthState().subscribe();
-        },
-        error: error => {
-          this.avatarPreview.set(null);
-          this.toast.error(extractErrorMessage(error));
-        },
-      });
+    this.avatarPreview.set(URL.createObjectURL(this.croppedBlob));
+    this.avatarMutation.mutate(this.croppedBlob);
 
     this.cropperVisible.set(false);
     this.cropperFile.set(null);
@@ -136,49 +134,11 @@ export class Profile implements OnInit {
 
   protected onProfileSubmit(): void {
     if (this.profileForm.invalid) return;
-
-    this.profileLoading.set(true);
-
-    this.http
-      .patch<ApiResponse<{ user: User }>>(
-        `${this.accountUrl}/profile`,
-        this.profileForm.getRawValue(),
-      )
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.profileLoading.set(false)),
-      )
-      .subscribe({
-        next: () => {
-          this.toast.success("Profil mis à jour");
-          this.profileForm.markAsPristine();
-          this.authService.checkAuthState().subscribe();
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error));
-        },
-      });
+    this.profileMutation.mutate(this.profileForm.getRawValue());
   }
 
   protected onPasswordSubmit(): void {
     if (this.passwordForm.invalid) return;
-
-    this.passwordLoading.set(true);
-
-    this.http
-      .patch<ApiResponse<void>>(`${this.accountUrl}/password`, this.passwordForm.getRawValue())
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.passwordLoading.set(false)),
-      )
-      .subscribe({
-        next: () => {
-          this.toast.success("Mot de passe modifié");
-          this.passwordForm.reset();
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error));
-        },
-      });
+    this.passwordMutation.mutate(this.passwordForm.getRawValue());
   }
 }

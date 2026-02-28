@@ -2,29 +2,26 @@ import { ok, created, okOrNotFound, notFound, badRequest } from "#utils/http/api
 import { activeLabel } from "#utils/objects.js";
 import * as productService from "./product.service.js";
 
-export async function listProducts(req, res) {
-  const result = await productService.listProducts({
+export async function list(req, res) {
+  const result = await productService.list({
     ...req.query,
     shop: req.user.shop,
   });
   return ok(res, result.data, undefined, result.meta);
 }
 
-export async function getProduct(req, res) {
-  const product = await productService.getProductById(req.params.id, req.user.shop);
+export async function get(req, res) {
+  const product = await productService.getById(req.params.id, req.user.shop);
   return okOrNotFound(res, product, { entityName: "Product" });
 }
 
-export async function createProduct(req, res) {
-  const product = await productService.createProduct(
-    { ...req.body, shop: req.user.shop },
-    req.files,
-  );
+export async function create(req, res) {
+  const product = await productService.create({ ...req.body, shop: req.user.shop }, req.files);
   return created(res, product, "Product created");
 }
 
-export async function updateProduct(req, res) {
-  const product = await productService.updateProduct(req.params.id, req.user.shop, req.body);
+export async function update(req, res) {
+  const product = await productService.update(req.params.id, req.user.shop, req.body);
   return okOrNotFound(res, product, { message: "Product updated", entityName: "Product" });
 }
 

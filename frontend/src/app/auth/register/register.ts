@@ -1,15 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  signal,
-  OnInit,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from "@angular/core";
 import { NgTemplateOutlet } from "@angular/common";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { ReactiveFormsModule, FormsModule, FormBuilder, Validators } from "@angular/forms";
+import { lastValueFrom } from "rxjs";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { Card } from "primeng/card";
 import { InputText } from "primeng/inputtext";
 import { Password } from "primeng/password";
@@ -51,10 +45,8 @@ export class Register implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly errorMessage = signal("");
-  protected readonly loading = signal(false);
   protected readonly accountType = signal<"customer" | "shop">("customer");
   protected readonly form = this.fb.nonNullable.group({
     firstName: ["", Validators.required],
@@ -66,6 +58,24 @@ export class Register implements OnInit {
     contactEmail: ["", Validators.email],
     contactPhone: [""],
   });
+
+  protected readonly registerMutation = injectMutation(() => ({
+    mutationFn: (data: object) => {
+      const request$ =
+        this.accountType() === "customer"
+          ? this.authService.registerCustomer(
+              data as Parameters<AuthService["registerCustomer"]>[0],
+            )
+          : this.authService.registerShop(data as Parameters<AuthService["registerShop"]>[0]);
+      return lastValueFrom(request$);
+    },
+    onSuccess: () => {
+      this.router.navigate(["/"]);
+    },
+    onError: error => {
+      this.errorMessage.set(extractErrorMessage(error));
+    },
+  }));
 
   ngOnInit(): void {
     const type = this.route.snapshot.queryParamMap.get("type");
@@ -95,23 +105,7 @@ export class Register implements OnInit {
 
   protected onSubmit(): void {
     if (this.form.invalid) return;
-
-    this.loading.set(true);
     this.errorMessage.set("");
-
-    const values = this.form.getRawValue();
-
-    const request$ =
-      this.accountType() === "customer"
-        ? this.authService.registerCustomer(values)
-        : this.authService.registerShop(values);
-
-    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => this.router.navigate(["/"]),
-      error: error => {
-        this.loading.set(false);
-        this.errorMessage.set(extractErrorMessage(error));
-      },
-    });
+    this.registerMutation.mutate(this.form.getRawValue());
   }
 }

@@ -2,28 +2,28 @@ import { ok, created, okOrNotFound } from "#utils/http/apiResponse.js";
 import { activeLabel } from "#utils/objects.js";
 import * as categoryService from "./category.service.js";
 
-export async function listCategories(req, res) {
-  const result = await categoryService.listCategories(req.query);
+export async function list(req, res) {
+  const result = await categoryService.list(req.query);
   return ok(res, result.data, undefined, result.meta);
 }
 
-export async function selectCategories(_req, res) {
-  const categories = await categoryService.selectCategories();
+export async function select(_req, res) {
+  const categories = await categoryService.select();
   return ok(res, categories);
 }
 
-export async function getCategory(req, res) {
-  const category = await categoryService.getCategoryById(req.params.id);
+export async function get(req, res) {
+  const category = await categoryService.getById(req.params.id);
   return okOrNotFound(res, category, { entityName: "Category" });
 }
 
-export async function createCategory(req, res) {
-  const category = await categoryService.createCategory(req.body);
+export async function create(req, res) {
+  const category = await categoryService.create(req.body);
   return created(res, category, "Category created");
 }
 
-export async function updateCategory(req, res) {
-  const category = await categoryService.updateCategory(req.params.id, req.body);
+export async function update(req, res) {
+  const category = await categoryService.update(req.params.id, req.body);
   return okOrNotFound(res, category, { message: "Category updated", entityName: "Category" });
 }
 

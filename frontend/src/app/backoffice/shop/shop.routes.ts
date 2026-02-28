@@ -5,12 +5,12 @@ export const shopRoutes: Routes = [
   { path: "", redirectTo: "dashboard", pathMatch: "full" },
   {
     path: "dashboard",
-    canActivate: [permissionGuard("shop:settings")],
+    canActivate: [permissionGuard("shops:manage")],
     loadComponent: () => import("@backoffice/shop/dashboard/dashboard").then(m => m.ShopDashboard),
   },
   {
     path: "my-shop",
-    canActivate: [permissionGuard("shop:settings")],
+    canActivate: [permissionGuard("shops:manage")],
     loadComponent: () => import("@backoffice/shop/my-shop/my-shop").then(m => m.MyShop),
   },
   {

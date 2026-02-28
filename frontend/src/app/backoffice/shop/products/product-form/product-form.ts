@@ -1,24 +1,16 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  signal,
-  ViewChild,
-  OnInit,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, inject, ViewChild, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder } from "@angular/forms";
 import { NgTemplateOutlet } from "@angular/common";
-import { finalize } from "rxjs";
+import { lastValueFrom } from "rxjs";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { Button } from "primeng/button";
 import { Card } from "primeng/card";
 import { ImageUpload } from "@shared/components/image-upload";
 import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
-import { PageHeader } from "@backoffice/layout/page-header";
+import { PageHeader } from "@backoffice/components/page-header";
 import { ProductFormFields } from "../product-form-fields/product-form-fields";
 import { ProductService } from "@core/domains/product/product.service";
 
@@ -42,11 +34,18 @@ export class ShopProductForm implements OnInit {
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
-
   @ViewChild("fileUpload") private fileUpload!: ImageUpload;
 
-  protected readonly saving = signal(false);
+  protected readonly createMutation = injectMutation(() => ({
+    mutationFn: (formData: FormData) => lastValueFrom(this.productService.create(formData)),
+    onSuccess: (response: { message: string }) => {
+      this.toast.success(response.message);
+      this.router.navigate(["/backoffice/shop/products"]);
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error));
+    },
+  }));
 
   protected readonly form = ProductFormFields.createForm(this.fb);
 
@@ -65,7 +64,6 @@ export class ShopProductForm implements OnInit {
   protected submit(): void {
     if (this.form.invalid) return;
 
-    this.saving.set(true);
     const values = this.form.getRawValue();
 
     const formData = new FormData();
@@ -79,20 +77,6 @@ export class ShopProductForm implements OnInit {
       formData.append("images", file);
     }
 
-    this.productService
-      .create(formData)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.router.navigate(["/backoffice/shop/products"]);
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error));
-        },
-      });
+    this.createMutation.mutate(formData);
   }
 }

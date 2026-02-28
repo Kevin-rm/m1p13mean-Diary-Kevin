@@ -31,7 +31,7 @@ const profiles = [
       "products:write",
       "orders:read",
       "orders:manage",
-      "shop:settings",
+      "shops:manage",
       "members:read",
       "members:manage",
       "stats:read",

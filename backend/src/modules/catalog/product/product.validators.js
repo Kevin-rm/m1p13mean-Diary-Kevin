@@ -10,16 +10,16 @@ import {
 
 const productName = resourceNameRules("Product name");
 
-export const listProductsRules = [
+export const listRules = [
   searchRule,
   query("category").optional().isMongoId().withMessage("Invalid category"),
   isActiveRule,
   ...paginationRules,
 ];
 
-export const getProductRules = [mongoIdRules()];
+export const getRules = [mongoIdRules()];
 
-export const createProductRules = [
+export const createRules = [
   productName.required,
   descriptionRule,
   body("price")
@@ -40,7 +40,7 @@ export const createProductRules = [
     .withMessage("Invalid category"),
 ];
 
-export const updateProductRules = [
+export const updateRules = [
   mongoIdRules(),
   productName.optional,
   descriptionRule,

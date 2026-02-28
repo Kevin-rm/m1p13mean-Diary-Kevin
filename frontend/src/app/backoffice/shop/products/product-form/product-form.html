@@ -1,11 +1,11 @@
 <ng-template #formActions>
   <p-button label="Réinitialiser" severity="secondary" [outlined]="true" (click)="resetForm()" />
   <p-button
-    [label]="saving() ? 'Enregistrement...' : 'Créer le produit'"
+    [label]="createMutation.isPending() ? 'Enregistrement...' : 'Créer le produit'"
     form="productForm"
     type="submit"
-    [disabled]="form.invalid || saving()"
-    [loading]="saving()"
+    [disabled]="form.invalid || createMutation.isPending()"
+    [loading]="createMutation.isPending()"
   />
 </ng-template>
 

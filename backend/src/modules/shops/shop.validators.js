@@ -2,7 +2,7 @@ import { body, query } from "express-validator";
 import { SHOP_STATUSES, DAYS_OF_WEEK } from "./shop.model.js";
 import { mongoIdRules, searchRule, paginationRules, descriptionRule } from "#utils/validators.js";
 
-export const listShopsRules = [
+export const listRules = [
   searchRule,
   query("status")
     .optional()
@@ -11,13 +11,13 @@ export const listShopsRules = [
   ...paginationRules,
 ];
 
-export const getShopRules = [mongoIdRules()];
+export const getRules = [mongoIdRules()];
 
-export const validateShopRules = [mongoIdRules()];
+export const validateRules = [mongoIdRules()];
 
-export const suspendShopRules = [mongoIdRules()];
+export const suspendRules = [mongoIdRules()];
 
-export const updateMyShopRules = [
+export const updateRules = [
   descriptionRule,
   body("contactEmail")
     .optional({ values: "falsy" })

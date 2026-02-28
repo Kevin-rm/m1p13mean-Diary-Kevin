@@ -4,10 +4,10 @@ import { authenticate } from "#middlewares/authenticate.js";
 import { authorize } from "#middlewares/authorize.js";
 import { multipleImages, handleMulterError } from "#utils/upload/multer.js";
 import {
-  listProductsRules,
-  getProductRules,
-  createProductRules,
-  updateProductRules,
+  listRules,
+  getRules,
+  createRules,
+  updateRules,
   toggleActiveRules,
   removeImageRules,
 } from "./product.validators.js";
@@ -17,35 +17,20 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get(
-  "/",
-  authorize("products:read"),
-  validate(listProductsRules),
-  productController.listProducts,
-);
+router.get("/", authorize("products:read"), validate(listRules), productController.list);
 
-router.get(
-  "/:id",
-  authorize("products:read"),
-  validate(getProductRules),
-  productController.getProduct,
-);
+router.get("/:id", authorize("products:read"), validate(getRules), productController.get);
 
 router.post(
   "/",
   authorize("products:write"),
   multipleImages("images", 5),
   handleMulterError,
-  validate(createProductRules),
-  productController.createProduct,
+  validate(createRules),
+  productController.create,
 );
 
-router.patch(
-  "/:id",
-  authorize("products:write"),
-  validate(updateProductRules),
-  productController.updateProduct,
-);
+router.patch("/:id", authorize("products:write"), validate(updateRules), productController.update);
 
 router.patch(
   "/:id/toggle-active",

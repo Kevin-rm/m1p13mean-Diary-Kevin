@@ -6,7 +6,7 @@ import { toggleActiveStatus } from "#utils/db/toggleActive.js";
 import { uploadImages, deleteImage, extractPublicId } from "#utils/upload/cloudinary.js";
 import { UPLOAD_FOLDERS } from "#utils/constants.js";
 
-export async function listProducts({ shop, search, category, isActive, page, limit }) {
+export async function list({ shop, search, category, isActive, page, limit }) {
   const filter = { shop };
   if (search) filter.name = { $regex: search, $options: "i" };
   if (category) filter.category = category;
@@ -20,14 +20,11 @@ export async function listProducts({ shop, search, category, isActive, page, lim
   });
 }
 
-export async function getProductById(id, shop) {
+export async function getById(id, shop) {
   return Product.findOne({ _id: id, shop }).populate("category", "name");
 }
 
-export async function createProduct(
-  { name, description, price, stock, category, shop },
-  imageFiles,
-) {
+export async function create({ name, description, price, stock, category, shop }, imageFiles) {
   try {
     let images = [];
     if (imageFiles?.length) {
@@ -53,7 +50,7 @@ export async function createProduct(
   }
 }
 
-export async function updateProduct(id, shop, data) {
+export async function update(id, shop, data) {
   const update = pickDefined(data, ["name", "description", "price", "stock", "category"]);
 
   try {
