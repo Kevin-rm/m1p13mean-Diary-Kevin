@@ -8,6 +8,8 @@ import accountRoutes from "./modules/account/account.routes.js";
 import categoryRoutes from "./modules/catalog/category/category.routes.js";
 import shopRoutes from "./modules/shops/shop.routes.js";
 import productRoutes from "./modules/catalog/product/product.routes.js";
+import promotionRoutes from "./modules/catalog/product/promotion/promotion.routes.js";
+import stockmovementRoutes from "./modules/catalog/product/stockmovement/stockmovement.routes.js";
 import { notFound } from "./utils/http/apiResponse.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { MS_PER_MINUTE } from "./utils/constants.js";
@@ -36,6 +38,8 @@ app.use("/api/account", accountRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/shops", shopRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/promotions", promotionRoutes);
+app.use("/api/stockmovement", stockmovementRoutes);
 
 app.use((_req, res) => notFound(res, "Route not found"));
 app.use(errorHandler);
