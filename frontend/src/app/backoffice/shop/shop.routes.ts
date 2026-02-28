@@ -15,6 +15,7 @@ export const shopRoutes: Routes = [
   },
   {
     path: "members",
+    canActivate: [permissionGuard("members:read")],
     loadComponent: () => import("@backoffice/shop/members/members").then(m => m.ShopMembers),
   },
   {

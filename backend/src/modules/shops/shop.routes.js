@@ -11,6 +11,7 @@ import {
   suspendRules,
 } from "./shop.validators.js";
 import * as shopController from "./shop.controller.js";
+import memberRoutes from "./members/member.routes.js";
 
 const router = Router();
 
@@ -26,6 +27,8 @@ meRouter.post("/logo", singleImage("logo"), handleMulterError, shopController.se
 meRouter.post("/images", multipleImages("images", 5), handleMulterError, shopController.addImages);
 meRouter.delete("/images", shopController.removeImage);
 router.use("/me", meRouter);
+
+router.use("/me/members", memberRoutes);
 
 router.get("/:id", validate(getRules), shopController.get);
 

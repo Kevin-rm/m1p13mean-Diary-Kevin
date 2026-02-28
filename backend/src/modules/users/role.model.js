@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { createSchema } from "#utils/db/createSchema.js";
+import { PERMISSIONS } from "./profile.model.js";
 
 export const ROLE_CODES = ["owner", "manager", "seller"];
 
@@ -18,6 +19,10 @@ const roleSchema = createSchema({
   description: {
     type: String,
     trim: true,
+  },
+  permissions: {
+    type: [{ type: String, enum: PERMISSIONS }],
+    default: [],
   },
 });
 

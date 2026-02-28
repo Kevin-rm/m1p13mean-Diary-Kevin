@@ -13,12 +13,12 @@ import { throwIfDuplicateKey } from "#utils/db/errors.js";
 import { refreshTokenConfig } from "#config/auth.js";
 import { withTransaction } from "#utils/db/withTransaction.js";
 
-async function generateTokens(user, context, profile, session = null) {
+export async function generateTokens(user, context, profile, role = null, session = null) {
   const tokenPayload = {
     userId: user._id.toString(),
     contextId: context._id.toString(),
     profileCode: profile.code,
-    permissions: [...(profile.permissions ?? [])],
+    permissions: [...(profile.permissions ?? []), ...(role?.permissions ?? [])],
     ...(context.shop && { shop: context.shop.toString() }),
   };
 
@@ -63,6 +63,7 @@ export async function registerCustomer({ firstName, lastName, email, password })
       user,
       context,
       customerProfile,
+      null,
       session,
     );
 
@@ -120,7 +121,13 @@ export async function registerShop({
       { session },
     );
 
-    const { accessToken, refreshToken } = await generateTokens(user, context, shopProfile, session);
+    const { accessToken, refreshToken } = await generateTokens(
+      user,
+      context,
+      shopProfile,
+      ownerRole,
+      session,
+    );
 
     return { user, context, shop, accessToken, refreshToken };
   });
@@ -130,10 +137,18 @@ export async function login({ email, password }) {
   const user = await User.findOne({ email }).select("+password");
   if (!user || !(await user.comparePassword(password))) return null;
 
-  const context = await UserContext.findOne({ user: user._id, isActive: true }).populate("profile");
+  const context = await UserContext.findOne({ user: user._id, isActive: true })
+    .sort({ updatedAt: -1 })
+    .populate("profile")
+    .populate("role");
   if (!context) return null;
 
-  const { accessToken, refreshToken } = await generateTokens(user, context, context.profile);
+  const { accessToken, refreshToken } = await generateTokens(
+    user,
+    context,
+    context.profile,
+    context.role,
+  );
 
   User.findByIdAndUpdate(user._id, { lastLoginAt: new Date() }).catch(() => {});
 
@@ -156,13 +171,20 @@ export async function refresh(refreshTokenValue) {
   );
   if (!storedToken) return null;
 
-  const context = await UserContext.findById(payload.contextId).populate("profile");
+  const context = await UserContext.findById(payload.contextId)
+    .populate("profile")
+    .populate("role");
   if (!context) return null;
 
   const user = await User.findById(payload.userId);
   if (!user) return null;
 
-  const { accessToken, refreshToken } = await generateTokens(user, context, context.profile);
+  const { accessToken, refreshToken } = await generateTokens(
+    user,
+    context,
+    context.profile,
+    context.role,
+  );
   return { accessToken, refreshToken };
 }
 

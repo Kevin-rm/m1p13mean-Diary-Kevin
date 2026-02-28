@@ -1,0 +1,107 @@
+<p-confirmDialog />
+
+<app-page-header title="Membres">
+  <p-button label="Inviter" icon="pi pi-plus" (click)="inviteVisible.set(true)" />
+</app-page-header>
+
+<p-tabs value="members">
+  <p-tablist>
+    <p-tab value="members">Membres</p-tab>
+    <p-tab value="invitations">Invitations</p-tab>
+  </p-tablist>
+  <p-tabpanels>
+    <p-tabpanel value="members">
+      @if (membersQuery.isPending()) {
+        <div class="flex justify-center py-8">
+          <i class="pi pi-spin pi-spinner text-muted-color" style="font-size: 2rem"></i>
+        </div>
+      } @else if (members().length === 0) {
+        <p class="text-center text-muted-color py-8 m-0">Aucun membre</p>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (member of members(); track member.id) {
+            <div class="flex flex-wrap items-center gap-3 p-4 rounded-lg border border-surface">
+              <div class="flex-1 min-w-0">
+                <div class="font-medium">{{ member.user | fullName }}</div>
+                <div class="text-sm text-muted-color truncate">{{ member.user.email }}</div>
+              </div>
+              <span class="text-sm">{{ member.role.label }}</span>
+              <app-active-tag [isActive]="member.isActive" />
+              @if (!isOwner(member)) {
+                <div class="flex gap-1">
+                  <p-button
+                    icon="pi pi-pencil"
+                    [text]="true"
+                    [rounded]="true"
+                    severity="info"
+                    pTooltip="Modifier le rôle"
+                    (click)="openEdit(member)"
+                  />
+                  <p-button
+                    [icon]="member.isActive ? 'pi pi-ban' : 'pi pi-check-circle'"
+                    [text]="true"
+                    [rounded]="true"
+                    [severity]="member.isActive ? 'warn' : 'success'"
+                    [pTooltip]="member.isActive ? 'Désactiver' : 'Activer'"
+                    (click)="toggleActiveMutation.mutate(member.id)"
+                  />
+                  <p-button
+                    icon="pi pi-trash"
+                    [text]="true"
+                    [rounded]="true"
+                    severity="danger"
+                    pTooltip="Retirer"
+                    (click)="confirmRemove(member)"
+                  />
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </p-tabpanel>
+
+    <p-tabpanel value="invitations">
+      @if (invitationsQuery.isPending()) {
+        <div class="flex justify-center py-8">
+          <i class="pi pi-spin pi-spinner text-muted-color" style="font-size: 2rem"></i>
+        </div>
+      } @else if (invitations().length === 0) {
+        <p class="text-center text-muted-color py-8 m-0">Aucune invitation en attente</p>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (invitation of invitations(); track invitation.id) {
+            <div class="flex flex-wrap items-center gap-3 p-4 rounded-lg border border-surface">
+              <div class="flex-1 min-w-0">
+                <div class="font-medium">{{ invitation.user | fullName }}</div>
+                <div class="text-sm text-muted-color truncate">{{ invitation.user.email }}</div>
+              </div>
+              <span class="text-sm">{{ invitation.role.label }}</span>
+              <p-button
+                icon="pi pi-times"
+                [text]="true"
+                [rounded]="true"
+                severity="danger"
+                pTooltip="Annuler l'invitation"
+                (click)="cancelInvitationMutation.mutate(invitation.id)"
+              />
+            </div>
+          }
+        </div>
+      }
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>
+
+<app-invite-dialog
+  [(visible)]="inviteVisible"
+  [roles]="roles()"
+  [loading]="inviteMutation.isPending()"
+  (submit)="inviteMutation.mutate($event)"
+/>
+
+<app-edit-member-dialog
+  [roles]="roles()"
+  [loading]="updateMutation.isPending()"
+  (submit)="updateMutation.mutate($event)"
+/>

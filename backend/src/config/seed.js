@@ -25,17 +25,7 @@ const profiles = [
     code: "shop",
     label: "Shop",
     description: "Shop owner or member with shop-related permissions",
-    permissions: [
-      "categories:read",
-      "products:read",
-      "products:write",
-      "orders:read",
-      "orders:manage",
-      "shops:manage",
-      "members:read",
-      "members:manage",
-      "stats:read",
-    ],
+    permissions: ["categories:read", "products:read", "orders:read"],
   },
   {
     code: "customer",
@@ -54,9 +44,31 @@ const profiles = [
 ];
 
 const roles = [
-  { code: "owner", label: "Owner", description: "Shop owner with full access" },
-  { code: "manager", label: "Manager", description: "Shop manager" },
-  { code: "seller", label: "Seller", description: "Shop seller" },
+  {
+    code: "owner",
+    label: "Owner",
+    description: "Shop owner with full access",
+    permissions: [
+      "products:write",
+      "orders:manage",
+      "shops:manage",
+      "members:read",
+      "members:manage",
+      "stats:read",
+    ],
+  },
+  {
+    code: "manager",
+    label: "Manager",
+    description: "Shop manager",
+    permissions: ["products:write", "orders:manage", "members:read", "stats:read"],
+  },
+  {
+    code: "seller",
+    label: "Seller",
+    description: "Shop seller",
+    permissions: [],
+  },
 ];
 
 export async function seedDatabase() {

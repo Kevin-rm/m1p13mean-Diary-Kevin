@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { lastValueFrom } from "rxjs";
-import { injectMutation } from "@tanstack/angular-query-experimental";
+import { injectMutation, injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { Avatar } from "primeng/avatar";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "primeng/tabs";
 import { InputText } from "primeng/inputtext";
@@ -13,7 +14,9 @@ import { ImageCropperComponent, ImageCroppedEvent } from "ngx-image-cropper";
 import { extractErrorMessage } from "@core/utils/error";
 import { AuthService } from "@auth/auth.service";
 import { AccountService } from "@core/domains/account/account.service";
+import { InvitationService } from "@core/domains/member/invitation/invitation.service";
 import { Toast } from "@core/utils/toast";
+import { FullNamePipe } from "@shared/pipes/full-name";
 import { FormField } from "@shared/components/form-field";
 
 @Component({
@@ -32,6 +35,7 @@ import { FormField } from "@shared/components/form-field";
     Fluid,
     Dialog,
     ImageCropperComponent,
+    FullNamePipe,
     FormField,
   ],
   templateUrl: "./profile.html",
@@ -39,14 +43,21 @@ import { FormField } from "@shared/components/form-field";
 })
 export class Profile implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
   private readonly accountService = inject(AccountService);
+  private readonly invitationService = inject(InvitationService);
   private readonly toast = inject(Toast);
+  private readonly queryClient = inject(QueryClient);
   private croppedBlob: Blob | null = null;
 
   protected readonly authService = inject(AuthService);
   protected readonly avatarPreview = signal<string | null>(null);
   protected readonly cropperVisible = signal(false);
   protected readonly cropperFile = signal<File | null>(null);
+
+  protected readonly invitationsQuery = injectQuery(() =>
+    this.invitationService.listByUserQueryOptions(),
+  );
 
   protected readonly profileForm = this.fb.nonNullable.group({
     firstName: ["", Validators.required],
@@ -94,12 +105,37 @@ export class Profile implements OnInit {
     },
   }));
 
+  protected readonly acceptMutation = injectMutation(() => ({
+    mutationFn: (id: string) => lastValueFrom(this.invitationService.accept(id)),
+    onSuccess: async () => {
+      this.toast.success("Invitation acceptée");
+      await lastValueFrom(this.authService.checkAuthState());
+      this.router.navigate(["/backoffice/shop"]);
+    },
+    onError: (error: unknown) => {
+      this.toast.error(extractErrorMessage(error));
+    },
+  }));
+
+  protected readonly declineMutation = injectMutation(() => ({
+    mutationFn: (id: string) => lastValueFrom(this.invitationService.decline(id)),
+    onSuccess: () => {
+      this.toast.success("Invitation déclinée");
+      this.queryClient.invalidateQueries({ queryKey: ["invitations"] });
+    },
+    onError: (error: unknown) => {
+      this.toast.error(extractErrorMessage(error));
+    },
+  }));
+
   ngOnInit(): void {
     const user = this.authService.user();
     if (user) {
       this.profileForm.patchValue({ firstName: user.firstName, lastName: user.lastName });
     }
   }
+
+  protected readonly invitations = () => this.invitationsQuery.data()?.data ?? [];
 
   protected onAvatarSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
