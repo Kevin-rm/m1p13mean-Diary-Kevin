@@ -34,15 +34,9 @@
       [readonly]="readonly()"
       [displayValue]="form().controls['price'].value | ariary"
       [copyable]="true"
+      addon="Ar"
     >
-      <p-inputnumber
-        [inputId]="idPrefix() + 'Price'"
-        formControlName="price"
-        suffix=" Ar"
-        [minFractionDigits]="0"
-        [maxFractionDigits]="0"
-        [min]="0"
-      />
+      <p-inputnumber [inputId]="idPrefix() + 'Price'" formControlName="price" [min]="0" />
     </app-form-field>
 
     <app-form-field
@@ -75,6 +69,8 @@
       formControlName="category"
       optionLabel="name"
       optionValue="id"
+      [checkmark]="true"
+      [showClear]="true"
     />
   </app-form-field>
 </p-fluid>

@@ -63,7 +63,7 @@ export class Profile implements OnInit {
     onSuccess: () => {
       this.toast.success("Profil mis à jour");
       this.profileForm.markAsPristine();
-      this.authService.checkAuthState().subscribe();
+      lastValueFrom(this.authService.checkAuthState());
     },
     onError: error => {
       this.toast.error(extractErrorMessage(error));
@@ -75,7 +75,7 @@ export class Profile implements OnInit {
     onSuccess: () => {
       this.toast.success("Photo de profil mise à jour");
       this.avatarPreview.set(null);
-      this.authService.checkAuthState().subscribe();
+      lastValueFrom(this.authService.checkAuthState());
     },
     onError: error => {
       this.avatarPreview.set(null);

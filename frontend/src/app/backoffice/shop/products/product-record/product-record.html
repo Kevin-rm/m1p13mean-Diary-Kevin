@@ -10,10 +10,9 @@
         />
         <p-button
           [label]="saveMutation.isPending() ? 'Enregistrement...' : 'Enregistrer'"
-          form="editProductForm"
-          type="submit"
           [disabled]="form.invalid || saveMutation.isPending()"
           [loading]="saveMutation.isPending()"
+          (click)="saveProduct()"
         />
       } @else {
         <p-button

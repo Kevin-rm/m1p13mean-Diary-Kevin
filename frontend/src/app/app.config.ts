@@ -46,6 +46,13 @@ export const appConfig: ApplicationConfig = {
               paddingY: "0.375rem",
             },
           },
+          components: {
+            inputgroup: {
+              addon: {
+                padding: "{form.field.padding.y} {form.field.padding.x}",
+              },
+            },
+          },
         }),
         options: {
           darkModeSelector: false,

@@ -1,11 +1,13 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
 import { FloatLabel } from "primeng/floatlabel";
+import { InputGroup } from "primeng/inputgroup";
+import { InputGroupAddon } from "primeng/inputgroupaddon";
 import { ReadonlyField } from "./readonly-field";
 
 @Component({
   selector: "app-form-field",
-  imports: [FloatLabel, ReadonlyField],
+  imports: [FloatLabel, InputGroup, InputGroupAddon, ReadonlyField],
   template: `
     @if (readonly()) {
       <app-readonly-field
@@ -17,10 +19,15 @@ import { ReadonlyField } from "./readonly-field";
       />
     } @else {
       <div>
-        <p-floatlabel variant="on">
-          <ng-content />
-          <label [for]="inputId()">{{ label() }}</label>
-        </p-floatlabel>
+        <p-inputgroup>
+          <p-floatlabel variant="on">
+            <ng-content />
+            <label [for]="inputId()">{{ label() }}</label>
+          </p-floatlabel>
+          @if (addon()) {
+            <p-inputgroup-addon>{{ addon() }}</p-inputgroup-addon>
+          }
+        </p-inputgroup>
         @for (error of visibleErrors; track error.key) {
           <small class="text-red-500">{{ error.message }}</small>
         }
@@ -38,6 +45,7 @@ export class FormField {
   displayValue = input<string | number | null>();
   copyable = input(false);
   multiline = input(false);
+  addon = input<string>();
 
   protected get visibleErrors() {
     const ctrl = this.control();

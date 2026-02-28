@@ -128,6 +128,7 @@ function findConsecutiveRanges(days: string[]): string[][] {
               optionLabel="label"
               optionValue="value"
               placeholder="Jour"
+              [checkmark]="true"
               class="w-40"
             />
             <p-datepicker
@@ -160,6 +161,7 @@ function findConsecutiveRanges(days: string[]): string[][] {
             severity="secondary"
             [outlined]="true"
             (click)="addRow()"
+            class="self-start"
           />
         }
       }

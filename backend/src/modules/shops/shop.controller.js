@@ -1,8 +1,10 @@
 import { ok, okOrNotFound, notFound, badRequest } from "#utils/http/apiResponse.js";
 import * as shopService from "./shop.service.js";
 
+const getId = req => req.resolvedId ?? req.params.id;
+
 export function resolveMyShop(req, _res, next) {
-  req.params.id = req.user.shop;
+  req.resolvedId = req.user.shop;
   next();
 }
 
@@ -12,25 +14,25 @@ export async function list(req, res) {
 }
 
 export async function get(req, res) {
-  const shop = await shopService.getById(req.params.id);
+  const shop = await shopService.getById(getId(req));
   return okOrNotFound(res, shop, { entityName: "Shop" });
 }
 
 export async function update(req, res) {
-  const shop = await shopService.update(req.params.id, req.body);
+  const shop = await shopService.update(getId(req), req.body);
   return okOrNotFound(res, shop, { entityName: "Shop", message: "Shop updated" });
 }
 
 export async function setLogo(req, res) {
   if (!req.file) return badRequest(res, "No file provided");
-  const shop = await shopService.setLogo(req.params.id, req.file);
+  const shop = await shopService.setLogo(getId(req), req.file);
   if (!shop) return notFound(res, "Shop not found");
   return ok(res, shop, "Logo updated");
 }
 
 export async function addImages(req, res) {
   if (!req.files?.length) return badRequest(res, "At least one image is required");
-  const result = await shopService.addImages(req.params.id, req.files);
+  const result = await shopService.addImages(getId(req), req.files);
   if (result.error === "not_found") return notFound(res, "Shop not found");
   return ok(res, result.data, "Images added");
 }
@@ -38,7 +40,7 @@ export async function addImages(req, res) {
 export async function removeImage(req, res) {
   const { imageUrl } = req.body;
   if (!imageUrl) return badRequest(res, "imageUrl is required");
-  const result = await shopService.removeImage(req.params.id, imageUrl);
+  const result = await shopService.removeImage(getId(req), imageUrl);
   if (result.error === "not_found") return notFound(res, "Shop not found");
   if (result.error === "image_not_found") return notFound(res, "Image not found");
   return ok(res, result.data, "Image removed");

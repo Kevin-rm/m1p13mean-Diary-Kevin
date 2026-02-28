@@ -24,10 +24,9 @@
         />
         <p-button
           [label]="saveMutation.isPending() ? 'Enregistrement...' : 'Enregistrer'"
-          form="editShopForm"
-          type="submit"
           [disabled]="form.invalid || saveMutation.isPending()"
           [loading]="saveMutation.isPending()"
+          (click)="saveShop()"
         />
       } @else {
         <p-button
