@@ -28,10 +28,7 @@ export async function getProductById(id, shop) {
   return Product.findOne({ _id: id, shop }).populate("category", "name");
 }
 
-export async function createProduct(
-  { name, description, price, stock, category, shop },
-  imageFiles,
-) {
+export async function createProduct({ name, description, price, category, shop }, imageFiles) {
   try {
     let images = [];
     if (imageFiles?.length) {
@@ -46,7 +43,7 @@ export async function createProduct(
       name,
       description,
       price,
-      stock,
+      stock: 0,
       category,
       shop,
       images,
@@ -58,7 +55,7 @@ export async function createProduct(
 }
 
 export async function updateProduct(id, shop, data) {
-  const update = pickDefined(data, ["name", "description", "price", "stock", "category"]);
+  const update = pickDefined(data, ["name", "description", "price", "category"]);
 
   try {
     return await Product.findOneAndUpdate({ _id: id, shop }, update, {
