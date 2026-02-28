@@ -36,3 +36,5 @@ router.patch(
   validate(cancelOrderRules),
   orderController.cancelOrder,
 );
+
+export default router;
