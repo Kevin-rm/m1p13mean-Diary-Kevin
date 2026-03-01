@@ -3,8 +3,12 @@ import { HttpClient } from "@angular/common/http";
 import { Observable, lastValueFrom } from "rxjs";
 import { environment } from "@env/environment";
 import { ApiResponse } from "./models/api-response";
-import { SelectOption } from "./models/select-option";
 import { buildQueryParams } from "@core/utils/http-params";
+
+export interface SelectOption {
+  id: string;
+  name: string;
+}
 
 export interface ListParams {
   search?: string;

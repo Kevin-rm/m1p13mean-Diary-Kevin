@@ -6,7 +6,7 @@ import { Select } from "primeng/select";
 import { Button } from "primeng/button";
 import { Fluid } from "primeng/fluid";
 import { FormField } from "@shared/components/form-field";
-import { SelectOption } from "@core/common/models/select-option";
+import { SelectOption } from "@core/common/resource.service";
 
 @Component({
   selector: "app-invite-dialog",

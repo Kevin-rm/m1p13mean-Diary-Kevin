@@ -79,8 +79,8 @@ export class AdminCategories implements OnInit {
       this.toast.success(response.message);
       this.queryClient.invalidateQueries({ queryKey: [this.categoryService.resourcePath] });
     },
-    onError: () => {
-      this.toast.error("Impossible de modifier le statut");
+    onError: (error: unknown) => {
+      this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
     },
   }));
 

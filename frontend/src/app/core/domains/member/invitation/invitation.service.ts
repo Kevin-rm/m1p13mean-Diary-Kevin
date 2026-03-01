@@ -9,6 +9,7 @@ import { Invitation } from "./invitation.model";
 @Injectable({ providedIn: "root" })
 export class InvitationService {
   private readonly http = inject(HttpClient);
+  readonly resourcePath = "invitations";
   private readonly shopUrl = `${environment.apiUrl}/shops/me/members/invitations`;
   private readonly accountUrl = `${environment.apiUrl}/account/invitations`;
 
@@ -22,7 +23,7 @@ export class InvitationService {
 
   listByShopQueryOptions() {
     return {
-      queryKey: ["invitations", "shop"] as const,
+      queryKey: [this.resourcePath, "shop"] as const,
       queryFn: () => lastValueFrom(this.listByShop()),
     };
   }
@@ -33,7 +34,7 @@ export class InvitationService {
 
   listByUserQueryOptions() {
     return {
-      queryKey: ["invitations", "user"] as const,
+      queryKey: [this.resourcePath, "user"] as const,
       queryFn: () => lastValueFrom(this.listByUser()),
     };
   }

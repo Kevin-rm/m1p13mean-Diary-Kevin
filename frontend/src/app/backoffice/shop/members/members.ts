@@ -72,7 +72,7 @@ export class ShopMembers implements OnInit {
     onSuccess: () => {
       this.toast.success("Invitation envoyée");
       this.inviteVisible.set(false);
-      this.queryClient.invalidateQueries({ queryKey: ["invitations"] });
+      this.queryClient.invalidateQueries({ queryKey: [this.invitationService.resourcePath] });
     },
     onError: (error: unknown) => {
       this.toast.error(extractErrorMessage(error));
@@ -84,7 +84,7 @@ export class ShopMembers implements OnInit {
       lastValueFrom(this.memberService.update(data.memberId, { roleId: data.roleId })),
     onSuccess: () => {
       this.toast.success("Rôle modifié");
-      this.queryClient.invalidateQueries({ queryKey: ["members"] });
+      this.queryClient.invalidateQueries({ queryKey: [this.memberService.resourcePath] });
     },
     onError: (error: unknown) => {
       this.toast.error(extractErrorMessage(error));
@@ -95,10 +95,10 @@ export class ShopMembers implements OnInit {
     mutationFn: (id: string) => lastValueFrom(this.memberService.toggleActive(id)),
     onSuccess: (response: { message?: string }) => {
       this.toast.success(response.message ?? "Statut modifié");
-      this.queryClient.invalidateQueries({ queryKey: ["members"] });
+      this.queryClient.invalidateQueries({ queryKey: [this.memberService.resourcePath] });
     },
     onError: (error: unknown) => {
-      this.toast.error(extractErrorMessage(error));
+      this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
     },
   }));
 
@@ -106,7 +106,7 @@ export class ShopMembers implements OnInit {
     mutationFn: (id: string) => lastValueFrom(this.memberService.remove(id)),
     onSuccess: () => {
       this.toast.success("Membre retiré");
-      this.queryClient.invalidateQueries({ queryKey: ["members"] });
+      this.queryClient.invalidateQueries({ queryKey: [this.memberService.resourcePath] });
     },
     onError: (error: unknown) => {
       this.toast.error(extractErrorMessage(error));
@@ -117,7 +117,7 @@ export class ShopMembers implements OnInit {
     mutationFn: (id: string) => lastValueFrom(this.invitationService.cancel(id)),
     onSuccess: () => {
       this.toast.success("Invitation annulée");
-      this.queryClient.invalidateQueries({ queryKey: ["invitations"] });
+      this.queryClient.invalidateQueries({ queryKey: [this.invitationService.resourcePath] });
     },
     onError: (error: unknown) => {
       this.toast.error(extractErrorMessage(error));

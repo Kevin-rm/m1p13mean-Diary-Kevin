@@ -3,7 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { lastValueFrom, Observable } from "rxjs";
 import { environment } from "@env/environment";
 import { ApiResponse } from "@core/common/models/api-response";
-import { SelectOption } from "@core/common/models/select-option";
+import { SelectOption } from "@core/common/resource.service";
 
 @Injectable({ providedIn: "root" })
 export class RoleService {

@@ -8,7 +8,11 @@ import { Member } from "./member.model";
 @Injectable({ providedIn: "root" })
 export class MemberService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/shops/me/members`;
+  readonly resourcePath = "shops/me/members";
+
+  private get baseUrl(): string {
+    return `${environment.apiUrl}/${this.resourcePath}`;
+  }
 
   list(): Observable<ApiResponse<Member[]>> {
     return this.http.get<ApiResponse<Member[]>>(this.baseUrl);
@@ -16,7 +20,7 @@ export class MemberService {
 
   listQueryOptions() {
     return {
-      queryKey: ["members"] as const,
+      queryKey: [this.resourcePath] as const,
       queryFn: () => lastValueFrom(this.list()),
     };
   }

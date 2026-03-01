@@ -22,7 +22,7 @@ import { PageHeader } from "@backoffice/components/page-header";
 import { extractErrorMessage } from "@core/utils/error";
 import { TableState, injectTableQuery } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
-import { SelectOption } from "@core/common/models/select-option";
+import { SelectOption } from "@core/common/resource.service";
 import { CategoryService } from "@core/domains/category/category.service";
 import { ProductService } from "@core/domains/product/product.service";
 import { NoValuePipe } from "@shared/pipes/no-value";

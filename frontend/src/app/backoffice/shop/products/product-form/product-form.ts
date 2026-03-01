@@ -71,7 +71,7 @@ export class ShopProductForm implements OnInit {
     if (values.description) formData.append("description", values.description);
     formData.append("price", String(values.price));
     formData.append("stock", String(values.stock));
-    formData.append("category", values.category);
+    formData.append("category", values.category!);
 
     for (const file of this.fileUpload?.files ?? []) {
       formData.append("images", file);

@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms";
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
@@ -8,7 +14,7 @@ import { Select } from "primeng/select";
 import { Fluid } from "primeng/fluid";
 import { FormField } from "@shared/components/form-field";
 import { AriaryPipe } from "@shared/pipes/ariary";
-import { SelectOption } from "@core/common/models/select-option";
+import { SelectOption } from "@core/common/resource.service";
 import { CategoryService } from "@core/domains/category/category.service";
 
 @Component({
@@ -51,7 +57,7 @@ export class ProductFormFields {
       description: [""],
       price: [0, [Validators.required, Validators.min(0)]],
       stock: [0, Validators.min(0)],
-      category: ["", Validators.required],
+      category: new FormControl<string | null>(null, Validators.required),
     });
   }
 }

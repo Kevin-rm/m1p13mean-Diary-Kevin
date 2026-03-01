@@ -121,7 +121,7 @@ export class Profile implements OnInit {
     mutationFn: (id: string) => lastValueFrom(this.invitationService.decline(id)),
     onSuccess: () => {
       this.toast.success("Invitation déclinée");
-      this.queryClient.invalidateQueries({ queryKey: ["invitations"] });
+      this.queryClient.invalidateQueries({ queryKey: [this.invitationService.resourcePath] });
     },
     onError: (error: unknown) => {
       this.toast.error(extractErrorMessage(error));
