@@ -3,27 +3,28 @@ import { Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 import { lastValueFrom } from "rxjs";
 import { injectMutation, injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { Avatar } from "primeng/avatar";
+import { Image } from "primeng/image";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "primeng/tabs";
 import { InputText } from "primeng/inputtext";
 import { Password } from "primeng/password";
 import { Button } from "primeng/button";
+import { OverlayBadge } from "primeng/overlaybadge";
 import { Fluid } from "primeng/fluid";
 import { Dialog } from "primeng/dialog";
 import { ImageCropperComponent, ImageCroppedEvent } from "ngx-image-cropper";
 import { extractErrorMessage } from "@core/utils/error";
 import { AuthService } from "@auth/auth.service";
 import { AccountService } from "@core/domains/account/account.service";
-import { InvitationService } from "@core/domains/member/invitation/invitation.service";
 import { Toast } from "@core/utils/toast";
 import { FullNamePipe } from "@shared/pipes/full-name";
 import { FormField } from "@shared/components/form-field";
+import { Loader } from "@shared/components/loader";
 
 @Component({
   selector: "app-profile",
   imports: [
     ReactiveFormsModule,
-    Avatar,
+    Image,
     Tabs,
     TabList,
     Tab,
@@ -32,11 +33,13 @@ import { FormField } from "@shared/components/form-field";
     InputText,
     Password,
     Button,
+    OverlayBadge,
     Fluid,
     Dialog,
     ImageCropperComponent,
     FullNamePipe,
     FormField,
+    Loader,
   ],
   templateUrl: "./profile.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,7 +48,6 @@ export class Profile implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly accountService = inject(AccountService);
-  private readonly invitationService = inject(InvitationService);
   private readonly toast = inject(Toast);
   private readonly queryClient = inject(QueryClient);
   private croppedBlob: Blob | null = null;
@@ -56,7 +58,7 @@ export class Profile implements OnInit {
   protected readonly cropperFile = signal<File | null>(null);
 
   protected readonly invitationsQuery = injectQuery(() =>
-    this.invitationService.listByUserQueryOptions(),
+    this.accountService.listInvitationsQueryOptions(),
   );
 
   protected readonly profileForm = this.fb.nonNullable.group({
@@ -106,10 +108,10 @@ export class Profile implements OnInit {
   }));
 
   protected readonly acceptMutation = injectMutation(() => ({
-    mutationFn: (id: string) => lastValueFrom(this.invitationService.accept(id)),
-    onSuccess: async () => {
+    mutationFn: (id: string) =>
+      lastValueFrom(this.accountService.acceptInvitation(id).pipe(this.authService.setAuthState())),
+    onSuccess: () => {
       this.toast.success("Invitation acceptée");
-      await lastValueFrom(this.authService.checkAuthState());
       this.router.navigate(["/backoffice/shop"]);
     },
     onError: (error: unknown) => {
@@ -118,10 +120,10 @@ export class Profile implements OnInit {
   }));
 
   protected readonly declineMutation = injectMutation(() => ({
-    mutationFn: (id: string) => lastValueFrom(this.invitationService.decline(id)),
+    mutationFn: (id: string) => lastValueFrom(this.accountService.declineInvitation(id)),
     onSuccess: () => {
       this.toast.success("Invitation déclinée");
-      this.queryClient.invalidateQueries({ queryKey: [this.invitationService.resourcePath] });
+      this.queryClient.invalidateQueries({ queryKey: [AccountService.resourcePath] });
     },
     onError: (error: unknown) => {
       this.toast.error(extractErrorMessage(error));

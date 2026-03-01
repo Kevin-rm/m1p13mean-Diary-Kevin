@@ -9,14 +9,14 @@ import {
 import { Router } from "@angular/router";
 import { lastValueFrom } from "rxjs";
 import { injectMutation } from "@tanstack/angular-query-experimental";
-import { Avatar } from "primeng/avatar";
 import { Menu } from "primeng/menu";
+import { UserAvatar } from "@shared/components/user-avatar";
 import { ConfirmationService, MenuItem } from "primeng/api";
 import { AuthService } from "@auth/auth.service";
 
 @Component({
   selector: "app-user-menu",
-  imports: [Avatar, Menu],
+  imports: [Menu, UserAvatar],
   templateUrl: "./user-menu.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -3,51 +3,31 @@ import { HttpClient } from "@angular/common/http";
 import { lastValueFrom, Observable } from "rxjs";
 import { environment } from "@env/environment";
 import { ApiResponse } from "@core/common/models/api-response";
-import { AuthData } from "@auth/auth.models";
 import { Invitation } from "./invitation.model";
 
 @Injectable({ providedIn: "root" })
 export class InvitationService {
+  static readonly resourcePath = "invitations";
+
   private readonly http = inject(HttpClient);
-  readonly resourcePath = "invitations";
-  private readonly shopUrl = `${environment.apiUrl}/shops/me/members/invitations`;
-  private readonly accountUrl = `${environment.apiUrl}/account/invitations`;
+  private readonly baseUrl = `${environment.apiUrl}/shops/me/members/${InvitationService.resourcePath}`;
 
   invite(data: { email: string; roleId: string }): Observable<ApiResponse<Invitation>> {
-    return this.http.post<ApiResponse<Invitation>>(this.shopUrl, data);
+    return this.http.post<ApiResponse<Invitation>>(this.baseUrl, data);
   }
 
-  listByShop(): Observable<ApiResponse<Invitation[]>> {
-    return this.http.get<ApiResponse<Invitation[]>>(this.shopUrl);
+  list(): Observable<ApiResponse<Invitation[]>> {
+    return this.http.get<ApiResponse<Invitation[]>>(this.baseUrl);
   }
 
-  listByShopQueryOptions() {
+  listQueryOptions() {
     return {
-      queryKey: [this.resourcePath, "shop"] as const,
-      queryFn: () => lastValueFrom(this.listByShop()),
+      queryKey: [InvitationService.resourcePath] as const,
+      queryFn: () => lastValueFrom(this.list()),
     };
-  }
-
-  listByUser(): Observable<ApiResponse<Invitation[]>> {
-    return this.http.get<ApiResponse<Invitation[]>>(this.accountUrl);
-  }
-
-  listByUserQueryOptions() {
-    return {
-      queryKey: [this.resourcePath, "user"] as const,
-      queryFn: () => lastValueFrom(this.listByUser()),
-    };
-  }
-
-  accept(id: string): Observable<ApiResponse<AuthData>> {
-    return this.http.post<ApiResponse<AuthData>>(`${this.accountUrl}/${id}/accept`, {});
-  }
-
-  decline(id: string): Observable<ApiResponse<Invitation>> {
-    return this.http.post<ApiResponse<Invitation>>(`${this.accountUrl}/${id}/decline`, {});
   }
 
   cancel(id: string): Observable<ApiResponse<Invitation>> {
-    return this.http.delete<ApiResponse<Invitation>>(`${this.shopUrl}/${id}`);
+    return this.http.delete<ApiResponse<Invitation>>(`${this.baseUrl}/${id}`);
   }
 }

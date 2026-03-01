@@ -26,9 +26,9 @@ export async function invite(shopId, { email, roleId }, invitedById) {
 }
 
 export async function listByShop(shopId) {
-  return Invitation.find({ shop: shopId })
+  return Invitation.find({ shop: shopId, status: "pending" })
     .sort({ createdAt: -1 })
-    .populate("user", "firstName lastName email")
+    .populate("user", "firstName lastName email avatarUrl")
     .populate("role", "code label");
 }
 

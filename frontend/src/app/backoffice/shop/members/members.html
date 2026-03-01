@@ -1,5 +1,3 @@
-<p-confirmDialog />
-
 <app-page-header title="Membres">
   <p-button label="Inviter" icon="pi pi-plus" (click)="inviteVisible.set(true)" />
 </app-page-header>
@@ -7,53 +5,45 @@
 <p-tabs value="members">
   <p-tablist>
     <p-tab value="members">Membres</p-tab>
-    <p-tab value="invitations">Invitations</p-tab>
+    <p-tab value="invitations">
+      @if (invitations().length > 0) {
+        <p-overlaybadge [value]="'' + invitations().length">Invitations</p-overlaybadge>
+      } @else {
+        Invitations
+      }
+    </p-tab>
   </p-tablist>
   <p-tabpanels>
     <p-tabpanel value="members">
       @if (membersQuery.isPending()) {
-        <div class="flex justify-center py-8">
-          <i class="pi pi-spin pi-spinner text-muted-color" style="font-size: 2rem"></i>
-        </div>
+        <app-loader />
       } @else if (members().length === 0) {
         <p class="text-center text-muted-color py-8 m-0">Aucun membre</p>
       } @else {
         <div class="flex flex-col gap-3">
           @for (member of members(); track member.id) {
             <div class="flex flex-wrap items-center gap-3 p-4 rounded-lg border border-surface">
+              <app-user-avatar [user]="member.user" />
               <div class="flex-1 min-w-0">
-                <div class="font-medium">{{ member.user | fullName }}</div>
-                <div class="text-sm text-muted-color truncate">{{ member.user.email }}</div>
+                <div class="font-medium">
+                  {{ member.user | fullName }}
+                  @if (isCurrentUser(member)) {
+                    <span class="text-muted-color text-sm">(vous)</span>
+                  }
+                </div>
+                <app-contact-link type="email" [value]="member.user.email" />
               </div>
               <span class="text-sm">{{ member.role.label }}</span>
               <app-active-tag [isActive]="member.isActive" />
               @if (!isOwner(member)) {
-                <div class="flex gap-1">
-                  <p-button
-                    icon="pi pi-pencil"
-                    [text]="true"
-                    [rounded]="true"
-                    severity="info"
-                    pTooltip="Modifier le rôle"
-                    (click)="openEdit(member)"
-                  />
-                  <p-button
-                    [icon]="member.isActive ? 'pi pi-ban' : 'pi pi-check-circle'"
-                    [text]="true"
-                    [rounded]="true"
-                    [severity]="member.isActive ? 'warn' : 'success'"
-                    [pTooltip]="member.isActive ? 'Désactiver' : 'Activer'"
-                    (click)="toggleActiveMutation.mutate(member.id)"
-                  />
-                  <p-button
-                    icon="pi pi-trash"
-                    [text]="true"
-                    [rounded]="true"
-                    severity="danger"
-                    pTooltip="Retirer"
-                    (click)="confirmRemove(member)"
-                  />
-                </div>
+                <p-menu #menu [model]="memberActions(member)" [popup]="true" appendTo="body" />
+                <p-button
+                  icon="pi pi-ellipsis-v"
+                  [text]="true"
+                  [rounded]="true"
+                  severity="secondary"
+                  (click)="menu.toggle($event)"
+                />
               }
             </div>
           }
@@ -63,18 +53,17 @@
 
     <p-tabpanel value="invitations">
       @if (invitationsQuery.isPending()) {
-        <div class="flex justify-center py-8">
-          <i class="pi pi-spin pi-spinner text-muted-color" style="font-size: 2rem"></i>
-        </div>
+        <app-loader />
       } @else if (invitations().length === 0) {
         <p class="text-center text-muted-color py-8 m-0">Aucune invitation en attente</p>
       } @else {
         <div class="flex flex-col gap-3">
           @for (invitation of invitations(); track invitation.id) {
             <div class="flex flex-wrap items-center gap-3 p-4 rounded-lg border border-surface">
+              <app-user-avatar [user]="invitation.user" />
               <div class="flex-1 min-w-0">
                 <div class="font-medium">{{ invitation.user | fullName }}</div>
-                <div class="text-sm text-muted-color truncate">{{ invitation.user.email }}</div>
+                <app-contact-link type="email" [value]="invitation.user.email" />
               </div>
               <span class="text-sm">{{ invitation.role.label }}</span>
               <p-button

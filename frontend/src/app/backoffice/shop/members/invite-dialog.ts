@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, input, model, output } from "@angular/core";
-import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { ReactiveFormsModule, FormBuilder, FormControl, Validators } from "@angular/forms";
 import { Dialog } from "primeng/dialog";
 import { InputText } from "primeng/inputtext";
 import { Select } from "primeng/select";
@@ -21,7 +21,7 @@ import { SelectOption } from "@core/common/resource.service";
       (onHide)="onHide()"
     >
       <p-fluid>
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 pt-2">
           <app-form-field
             inputId="inviteEmail"
             label="Email"
@@ -41,6 +41,7 @@ import { SelectOption } from "@core/common/resource.service";
             label="Rôle"
             [control]="form.controls.roleId"
             [errors]="{ required: 'Rôle requis' }"
+            [floatLabel]="false"
           >
             <p-select
               inputId="inviteRole"
@@ -49,6 +50,8 @@ import { SelectOption } from "@core/common/resource.service";
               optionLabel="name"
               optionValue="id"
               placeholder="Sélectionner un rôle"
+              [showClear]="true"
+              appendTo="body"
               [invalid]="form.controls.roleId.touched && form.controls.roleId.invalid"
             />
           </app-form-field>
@@ -71,7 +74,7 @@ export class InviteDialog {
 
   protected readonly form = this.fb.nonNullable.group({
     email: ["", [Validators.required, Validators.email]],
-    roleId: ["", Validators.required],
+    roleId: new FormControl<string | null>(null, Validators.required),
   });
 
   readonly roles = input.required<SelectOption[]>();
@@ -81,7 +84,8 @@ export class InviteDialog {
 
   protected onSubmit(): void {
     if (this.form.invalid) return;
-    this.submit.emit(this.form.getRawValue());
+    const { email, roleId } = this.form.getRawValue();
+    this.submit.emit({ email, roleId: roleId! });
   }
 
   protected onHide(): void {

@@ -5,14 +5,9 @@
   [loading]="loading()"
   [showImage]="true"
   [image]="shop()?.logoUrl ?? ''"
+  (imageClick)="logoInput.click()"
 >
-  <label
-    image-action
-    class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-  >
-    <i class="pi pi-camera text-2xl"></i>
-    <input type="file" accept="image/*" class="hidden" (change)="uploadLogo($event)" />
-  </label>
+  <input #logoInput type="file" accept="image/*" class="hidden" (change)="uploadLogo($event)" />
   <div actions class="flex gap-2">
     @if (shop()) {
       @if (editing()) {

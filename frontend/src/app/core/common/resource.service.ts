@@ -68,4 +68,8 @@ export abstract class ResourceService<T> {
   toggleActive(id: string): Observable<ApiResponse<T>> {
     return this.http.patch<ApiResponse<T>>(`${this.baseUrl}/${id}/toggle-active`, {});
   }
+
+  remove(id: string): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/${id}`);
+  }
 }
