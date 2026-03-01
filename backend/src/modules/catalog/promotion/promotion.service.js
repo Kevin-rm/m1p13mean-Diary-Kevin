@@ -1,5 +1,5 @@
 import Promotion from "./promotion.model.js";
-import Product from "../product.model.js";
+import Product from "../product/product.model.js";
 import { paginate } from "#utils/db/paginate.js";
 import { toggleActiveStatus } from "#utils/db/status.js";
 import { NotFoundError } from "#utils/http/errors.js";

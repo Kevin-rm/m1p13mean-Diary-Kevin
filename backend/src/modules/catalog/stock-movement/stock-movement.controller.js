@@ -1,5 +1,5 @@
 import { ok, created } from "#utils/http/apiResponse.js";
-import * as stockMovementService from "./stockmovement.service.js";
+import * as stockMovementService from "./stock-movement.service.js";
 
 export async function list(req, res) {
   const result = await stockMovementService.list({

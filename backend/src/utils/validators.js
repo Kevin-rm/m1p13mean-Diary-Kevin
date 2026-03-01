@@ -44,6 +44,7 @@ export const paginationRules = [
 const mongoIdRule = (source, name) => source(name).isMongoId().withMessage(`Invalid ${name}`);
 
 export const paramIdRules = (name = "id") => mongoIdRule(param, name);
+export const queryIdRules = name => mongoIdRule(query, name);
 export const bodyIdRules = name => mongoIdRule(body, name);
 
 export const resourceNameRules = label => {
