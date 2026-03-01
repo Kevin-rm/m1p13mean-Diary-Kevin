@@ -1,7 +1,7 @@
 import { Routes } from "@angular/router";
 import { guestGuard } from "@auth/guards/guest.guard";
 import { authGuard } from "@auth/guards/auth.guard";
-import { backofficeRedirectGuard } from "@auth/guards/backoffice-redirect.guard";
+import { backofficeDispatchGuard } from "@backoffice/backoffice-dispatch.guard";
 import { profileGuard } from "@auth/guards/profile.guard";
 import { FrontOffice } from "@frontoffice/layout/front-office";
 
@@ -51,7 +51,7 @@ export const routes: Routes = [
       {
         path: "",
         pathMatch: "full",
-        canActivate: [backofficeRedirectGuard],
+        canActivate: [backofficeDispatchGuard],
         children: [],
       },
       {

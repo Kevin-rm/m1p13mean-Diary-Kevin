@@ -1,14 +1,21 @@
 <div class="flex flex-col gap-6 pt-4">
   <div class="flex items-center gap-4">
-    <div class="relative">
+    <div class="relative shrink-0">
       @if (avatarPreview() || authService.avatarUrl()) {
-        <p-avatar
-          [image]="avatarPreview() || authService.avatarUrl()!"
-          shape="circle"
-          size="xlarge"
+        <p-image
+          [src]="avatarPreview() || authService.avatarUrl()!"
+          [alt]="authService.fullName()"
+          [preview]="true"
+          imageClass="size-28 rounded-full object-cover border border-surface shadow-sm"
         />
       } @else {
-        <p-avatar [label]="authService.avatarLabel()" shape="circle" size="xlarge" />
+        <div
+          class="size-28 rounded-full bg-surface-100 flex items-center justify-center border border-surface"
+        >
+          <span class="text-3xl font-semibold text-muted-color">{{
+            authService.avatarLabel()
+          }}</span>
+        </div>
       }
       <button
         type="button"
@@ -34,7 +41,14 @@
   <p-tabs value="0">
     <p-tablist>
       <p-tab value="0">Informations personnelles</p-tab>
-      <p-tab value="1">Sécurité</p-tab>
+      <p-tab value="1">
+        @if (invitations().length > 0) {
+          <p-overlaybadge [value]="'' + invitations().length">Invitations</p-overlaybadge>
+        } @else {
+          Invitations
+        }
+      </p-tab>
+      <p-tab value="2">Sécurité</p-tab>
     </p-tablist>
 
     <p-tabpanels>
@@ -80,16 +94,56 @@
             </app-form-field>
 
             <p-button
-              label="{{ profileLoading() ? 'Enregistrement...' : 'Enregistrer' }}"
+              label="{{ profileMutation.isPending() ? 'Enregistrement...' : 'Enregistrer' }}"
               type="submit"
               [fluid]="false"
-              [disabled]="profileForm.invalid || profileForm.pristine || profileLoading()"
+              [disabled]="
+                profileForm.invalid || profileForm.pristine || profileMutation.isPending()
+              "
             />
           </form>
         </p-fluid>
       </p-tabpanel>
 
       <p-tabpanel value="1">
+        @if (invitationsQuery.isPending()) {
+          <app-loader />
+        } @else if (invitations().length === 0) {
+          <p class="text-center text-muted-color py-8 m-0">Aucune invitation en attente</p>
+        } @else {
+          <div class="flex flex-col gap-3">
+            @for (invitation of invitations(); track invitation.id) {
+              <div class="flex flex-wrap items-center gap-3 p-4 rounded-lg border border-surface">
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium">{{ invitation.shop?.name }}</div>
+                  <div class="text-sm text-muted-color">
+                    Rôle : {{ invitation.role.label }} · Invité par
+                    {{ invitation.invitedBy | fullName }}
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <p-button
+                    label="Décliner"
+                    severity="secondary"
+                    [outlined]="true"
+                    size="small"
+                    [loading]="declineMutation.isPending()"
+                    (click)="declineMutation.mutate(invitation.id)"
+                  />
+                  <p-button
+                    label="Accepter"
+                    size="small"
+                    [loading]="acceptMutation.isPending()"
+                    (click)="acceptMutation.mutate(invitation.id)"
+                  />
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </p-tabpanel>
+
+      <p-tabpanel value="2">
         <p-fluid>
           <form
             [formGroup]="passwordForm"
@@ -147,10 +201,12 @@
             </app-form-field>
 
             <p-button
-              label="{{ passwordLoading() ? 'Modification...' : 'Modifier le mot de passe' }}"
+              label="{{
+                passwordMutation.isPending() ? 'Modification...' : 'Modifier le mot de passe'
+              }}"
               type="submit"
               [fluid]="false"
-              [disabled]="passwordForm.invalid || passwordLoading()"
+              [disabled]="passwordForm.invalid || passwordMutation.isPending()"
             />
           </form>
         </p-fluid>
@@ -178,7 +234,11 @@
     }
     <ng-template #footer>
       <p-button label="Annuler" severity="secondary" (onClick)="cancelCrop()" />
-      <p-button label="Confirmer" [loading]="avatarUploading()" (onClick)="confirmCrop()" />
+      <p-button
+        label="Confirmer"
+        [loading]="avatarMutation.isPending()"
+        (onClick)="confirmCrop()"
+      />
     </ng-template>
   </p-dialog>
 </div>

@@ -1,16 +1,11 @@
-import UserContext from "#modules/users/userContext.model.js";
 import { forbidden } from "#utils/http/apiResponse.js";
 
 export function authorize(...requiredPermissions) {
-  return async (req, res, next) => {
-    const context = await UserContext.findById(req.user.contextId).populate("profile").lean();
-    if (!context) return forbidden(res, "No active context found");
-
-    const userPermissions = context.profile.permissions ?? [];
+  return (req, res, next) => {
+    const userPermissions = req.user.permissions ?? [];
     const hasAll = requiredPermissions.every(p => userPermissions.includes(p));
     if (!hasAll) return forbidden(res, "Insufficient permissions");
 
-    req.context = context;
     next();
   };
 }

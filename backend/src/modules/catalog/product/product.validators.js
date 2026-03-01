@@ -1,6 +1,6 @@
 import { body, query } from "express-validator";
 import {
-  mongoIdRules,
+  paramIdRules,
   searchRule,
   isActiveRule,
   paginationRules,
@@ -10,16 +10,16 @@ import {
 
 const productName = resourceNameRules("Product name");
 
-export const listProductsRules = [
+export const listRules = [
   searchRule,
   query("category").optional().isMongoId().withMessage("Invalid category"),
   isActiveRule,
   ...paginationRules,
 ];
 
-export const getProductRules = [mongoIdRules()];
+export const getRules = [paramIdRules()];
 
-export const createProductRules = [
+export const createRules = [
   productName.required,
   descriptionRule,
   body("price")
@@ -35,8 +35,8 @@ export const createProductRules = [
     .withMessage("Invalid category"),
 ];
 
-export const updateProductRules = [
-  mongoIdRules(),
+export const updateRules = [
+  paramIdRules(),
   productName.optional,
   descriptionRule,
   body("price")
@@ -47,6 +47,6 @@ export const updateProductRules = [
   body("category").optional().isMongoId().withMessage("Invalid category"),
 ];
 
-export const toggleActiveRules = [mongoIdRules()];
+export const toggleActiveRules = [paramIdRules()];
 
-export const removeImageRules = [mongoIdRules()];
+export const removeImageRules = [paramIdRules()];

@@ -1,7 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { map } from "rxjs";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
 import { InputNumber } from "primeng/inputnumber";
@@ -9,8 +14,8 @@ import { Select } from "primeng/select";
 import { Fluid } from "primeng/fluid";
 import { FormField } from "@shared/components/form-field";
 import { AriaryPipe } from "@shared/pipes/ariary";
-import { SelectOption } from "@core/models/select-option";
-import { CategoryService } from "@core/services/category.service";
+import { SelectOption } from "@core/common/resource.service";
+import { CategoryService } from "@core/domains/category/category.service";
 
 @Component({
   selector: "app-product-form-fields",
@@ -30,15 +35,16 @@ import { CategoryService } from "@core/services/category.service";
 export class ProductFormFields {
   private readonly categoryService = inject(CategoryService);
 
+  private readonly categoriesQuery = injectQuery(() => this.categoryService.selectQueryOptions());
+
+  protected readonly categories = computed<SelectOption[]>(
+    () => this.categoriesQuery.data()?.data ?? [],
+  );
+
   form = input.required<FormGroup>();
   idPrefix = input("product");
   readonly = input(false);
   categoryNameHint = input("");
-
-  protected readonly categories = toSignal(
-    this.categoryService.listForSelect().pipe(map(r => r.data ?? [])),
-    { initialValue: [] as SelectOption[] },
-  );
 
   protected get categoryName(): string {
     const id = this.form().controls["category"].value;
@@ -51,7 +57,7 @@ export class ProductFormFields {
       description: [""],
       price: [0, [Validators.required, Validators.min(0)]],
       stock: [0, Validators.min(0)],
-      category: ["", Validators.required],
+      category: new FormControl<string | null>(null, Validators.required),
     });
   }
 }

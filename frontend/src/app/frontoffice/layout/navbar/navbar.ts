@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
 import { Menubar } from "primeng/menubar";
 import { Button } from "primeng/button";
@@ -21,11 +21,16 @@ export class Navbar {
     { label: "Produits", routerLink: "/products" },
     { label: "Catégories", routerLink: "/categories" },
   ];
-  protected readonly userMenuItems: MenuItem[] = [
-    {
-      label: "Mon profil",
-      icon: "pi pi-user",
-      command: () => this.router.navigate(["/profile"]),
-    },
-  ];
+  protected readonly userMenuItems = computed<MenuItem[]>(() => [
+    { label: "Mon profil", icon: "pi pi-user", command: () => this.router.navigate(["/profile"]) },
+    ...(this.authService.hasProfile("customer")
+      ? []
+      : [
+          {
+            label: "Accéder au backoffice",
+            icon: "pi pi-th-large",
+            command: () => this.router.navigate(["/backoffice"]),
+          },
+        ]),
+  ]);
 }

@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { validateEnv } from "./config/env.js";
 import app from "./app.js";
 import logger from "./config/logger.js";
 import { connectDB, disconnectDB } from "./config/database.js";
@@ -8,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 
 async function start() {
   try {
+    validateEnv();
     await connectDB();
     if (process.env.ENABLE_SEED === "true") await seedDatabase();
 

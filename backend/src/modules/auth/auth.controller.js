@@ -3,27 +3,24 @@ import { setAuthCookies, clearAuthCookies } from "#utils/security/cookies.js";
 import * as authService from "./auth.service.js";
 
 export async function registerCustomer(req, res) {
-  const result = await authService.registerCustomer(req.body);
-  setAuthCookies(res, result);
-  return created(res, { user: result.user, context: result.context }, "Registration successful");
+  const { accessToken, refreshToken, ...data } = await authService.registerCustomer(req.body);
+  setAuthCookies(res, { accessToken, refreshToken });
+  return created(res, data, "Registration successful");
 }
 
 export async function registerShop(req, res) {
-  const result = await authService.registerShop(req.body);
-  setAuthCookies(res, result);
-  return created(
-    res,
-    { user: result.user, context: result.context, shop: result.shop },
-    "Registration successful",
-  );
+  const { accessToken, refreshToken, ...data } = await authService.registerShop(req.body);
+  setAuthCookies(res, { accessToken, refreshToken });
+  return created(res, data, "Registration successful");
 }
 
 export async function login(req, res) {
   const result = await authService.login(req.body);
   if (!result) return unauthorized(res, "Invalid email or password");
 
-  setAuthCookies(res, result);
-  return ok(res, { user: result.user, context: result.context }, "Login successful");
+  const { accessToken, refreshToken, ...data } = result;
+  setAuthCookies(res, { accessToken, refreshToken });
+  return ok(res, data, "Login successful");
 }
 
 export async function logout(req, res) {

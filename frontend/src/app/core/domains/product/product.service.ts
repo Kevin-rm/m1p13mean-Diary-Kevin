@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { ApiResponse } from "@core/models/api-response";
-import { ActivatableResourceService } from "@core/services/resource";
+import { ApiResponse } from "@core/common/models/api-response";
+import { ResourceService } from "@core/common/resource.service";
 import { Product } from "./product.model";
 
 @Injectable({ providedIn: "root" })
-export class ProductService extends ActivatableResourceService<Product> {
-  protected readonly resourcePath = "products";
+export class ProductService extends ResourceService<Product> {
+  readonly resourcePath = "products";
 
   addImages(id: string, files: File[]): Observable<ApiResponse<Product>> {
     const formData = new FormData();

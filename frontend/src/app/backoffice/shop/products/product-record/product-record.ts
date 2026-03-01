@@ -1,66 +1,125 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
+  computed,
+  effect,
   inject,
   signal,
+  untracked,
   ViewChild,
   OnInit,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ReactiveFormsModule, FormBuilder } from "@angular/forms";
-import { finalize } from "rxjs";
+import { lastValueFrom } from "rxjs";
+import { injectMutation, injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { Button } from "primeng/button";
-import { ConfirmDialog } from "primeng/confirmdialog";
-import { ConfirmationService } from "primeng/api";
-import { Image } from "primeng/image";
-import { ImageUpload } from "@shared/components/image-upload";
+import { ImageSection } from "@backoffice/components/image-section";
 import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
-import { RecordPage, RecordPageTab } from "@backoffice/layout/record-page";
+import { RecordPage, RecordPageTab } from "@backoffice/components/record-page";
 import { ProductFormFields } from "../product-form-fields/product-form-fields";
-import { ProductService } from "../product.service";
-import { Product } from "../product.model";
+import { ProductService } from "@core/domains/product/product.service";
+import { Product } from "@core/domains/product/product.model";
+import { ApiResponse } from "@core/common/models/api-response";
 
 @Component({
   selector: "app-shop-product-record",
   imports: [
     ReactiveFormsModule,
     Button,
-    ConfirmDialog,
-    Image,
-    ImageUpload,
+    ImageSection,
     RecordPage,
     RecordPageTab,
     ProductFormFields,
   ],
-  providers: [ConfirmationService],
   templateUrl: "./product-record.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShopProductRecord implements OnInit {
   private readonly productService = inject(ProductService);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly queryClient = inject(QueryClient);
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly productId = inject(ActivatedRoute).snapshot.params["id"];
+  private readonly queryOpts = this.productService.getByIdQueryOptions(this.productId);
 
-  @ViewChild("imageUpload") private imageUpload!: ImageUpload;
+  @ViewChild("imageSection") private imageSection!: ImageSection;
 
-  protected readonly product = signal<Product | null>(null);
-  protected readonly loading = signal(true);
+  private readonly productQuery = injectQuery(() => this.queryOpts);
+
   protected readonly editing = signal(false);
-  protected readonly saving = signal(false);
-  protected readonly uploading = signal(false);
   protected readonly form = ProductFormFields.createForm(this.fb);
+  protected readonly product = computed(() => this.productQuery.data()?.data ?? null);
+  protected readonly loading = computed(() => this.productQuery.isPending());
 
-  private get productId(): string {
-    return this.route.snapshot.params["id"];
+  protected readonly saveMutation = injectMutation(() => ({
+    mutationFn: (data: object) => lastValueFrom(this.productService.update(this.productId, data)),
+    onSuccess: (response: ApiResponse<Product>) => {
+      this.toast.success(response.message);
+      this.queryClient.setQueryData(this.queryOpts.queryKey, response);
+      this.editing.set(false);
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error));
+    },
+  }));
+
+  protected readonly toggleActiveMutation = injectMutation(() => ({
+    mutationFn: (id: string) => lastValueFrom(this.productService.toggleActive(id)),
+    onSuccess: (response: ApiResponse<Product>) => {
+      this.toast.success(response.message);
+      this.queryClient.setQueryData(this.queryOpts.queryKey, response);
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
+    },
+  }));
+
+  protected readonly uploadImagesMutation = injectMutation(() => ({
+    mutationFn: (files: File[]) =>
+      lastValueFrom(this.productService.addImages(this.productId, files)),
+    onSuccess: (response: ApiResponse<Product>) => {
+      this.toast.success(response.message);
+      this.queryClient.setQueryData(this.queryOpts.queryKey, response);
+      this.imageSection.imageUpload.clear();
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error, "Impossible d'ajouter les images"));
+    },
+  }));
+
+  protected readonly removeImageMutation = injectMutation(() => ({
+    mutationFn: (imageUrl: string) =>
+      lastValueFrom(this.productService.removeImage(this.productId, imageUrl)),
+    onSuccess: (response: ApiResponse<Product>) => {
+      this.toast.success(response.message);
+      this.queryClient.setQueryData(this.queryOpts.queryKey, response);
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error, "Impossible de supprimer l'image"));
+    },
+  }));
+
+  constructor() {
+    effect(() => {
+      const p = this.product();
+      if (p && !this.editing()) {
+        untracked(() => this.patchForm());
+      }
+    });
+
+    effect(() => {
+      if (this.productQuery.isError()) {
+        untracked(() => {
+          this.toast.error("Produit introuvable");
+          this.router.navigate(["/backoffice/shop/products"]);
+        });
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -68,7 +127,6 @@ export class ShopProductRecord implements OnInit {
       { label: "Produits", routerLink: "/backoffice/shop/products" },
       { label: "Détail" },
     ]);
-    this.loadProduct();
   }
 
   protected startEditing(): void {
@@ -76,80 +134,24 @@ export class ShopProductRecord implements OnInit {
   }
 
   protected cancelEditing(): void {
-    this.patchForm();
     this.editing.set(false);
   }
 
   protected saveProduct(): void {
     if (this.form.invalid) return;
-
-    this.saving.set(true);
-    const data = this.form.getRawValue();
-
-    this.productService
-      .update(this.productId, data)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.product.set(response.data ?? null);
-          this.patchForm();
-          this.editing.set(false);
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error));
-        },
-      });
+    this.saveMutation.mutate(this.form.getRawValue());
   }
 
   protected toggleActive(): void {
-    this.productService
-      .toggleActive(this.productId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.product.set(response.data ?? null);
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
-        },
-      });
+    this.toggleActiveMutation.mutate(this.productId);
   }
 
   protected uploadImages(files: File[]): void {
-    this.uploading.set(true);
-    this.productService
-      .addImages(this.productId, files)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.uploading.set(false)),
-      )
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.product.set(response.data ?? null);
-          this.imageUpload.clear();
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error, "Impossible d'ajouter les images"));
-        },
-      });
+    this.uploadImagesMutation.mutate(files);
   }
 
-  protected confirmRemoveImage(imageUrl: string): void {
-    this.confirmationService.confirm({
-      message: "Voulez-vous vraiment supprimer cette image ?",
-      header: "Confirmation",
-      icon: "pi pi-exclamation-triangle",
-      acceptLabel: "Supprimer",
-      rejectLabel: "Annuler",
-      acceptButtonStyleClass: "p-button-danger",
-      accept: () => this.removeImage(imageUrl),
-    });
+  protected removeImage(imageUrl: string): void {
+    this.removeImageMutation.mutate(imageUrl);
   }
 
   private patchForm(): void {
@@ -163,40 +165,5 @@ export class ShopProductRecord implements OnInit {
       stock: p.stock,
       category: p.category?.id ?? "",
     });
-  }
-
-  private removeImage(imageUrl: string): void {
-    this.productService
-      .removeImage(this.productId, imageUrl)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.product.set(response.data ?? null);
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error, "Impossible de supprimer l'image"));
-        },
-      });
-  }
-
-  private loadProduct(): void {
-    this.loading.set(true);
-    this.productService
-      .getById(this.productId)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loading.set(false)),
-      )
-      .subscribe({
-        next: response => {
-          this.product.set(response.data ?? null);
-          this.patchForm();
-        },
-        error: () => {
-          this.toast.error("Produit introuvable");
-          this.router.navigate(["/backoffice/shop/products"]);
-        },
-      });
   }
 }

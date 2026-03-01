@@ -1,19 +1,15 @@
 import { Router } from "express";
-import rateLimit from "express-rate-limit";
 import { validate } from "#utils/http/validate.js";
 import { authenticate } from "#middlewares/authenticate.js";
-import { MS_PER_MINUTE } from "#utils/constants.js";
+import { createRateLimiter } from "#utils/http/rateLimiter.js";
 import { customerRegistrationRules, shopRegistrationRules, loginRules } from "./auth.validators.js";
 import * as authController from "./auth.controller.js";
 
 const router = Router();
 
-const authLimiter = rateLimit({
-  windowMs: 15 * MS_PER_MINUTE,
+const authLimiter = createRateLimiter({
   limit: 10,
-  standardHeaders: "draft-7",
-  legacyHeaders: false,
-  message: { message: "Trop de tentatives, veuillez réessayer plus tard" },
+  message: "Too many attempts, please try again later",
 });
 
 router.post(

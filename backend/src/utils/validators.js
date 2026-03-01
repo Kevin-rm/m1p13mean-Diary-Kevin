@@ -41,8 +41,10 @@ export const paginationRules = [
 ];
 
 // Common
-export const mongoIdRules = (paramName = "id") =>
-  param(paramName).isMongoId().withMessage(`Invalid ${paramName}`);
+const mongoIdRule = (source, name) => source(name).isMongoId().withMessage(`Invalid ${name}`);
+
+export const paramIdRules = (name = "id") => mongoIdRule(param, name);
+export const bodyIdRules = name => mongoIdRule(body, name);
 
 export const resourceNameRules = label => {
   const base = chain => chain.trim().notEmpty();

@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.routes.js";
 import accountRoutes from "./modules/account/account.routes.js";
@@ -12,21 +11,15 @@ import promotionRoutes from "./modules/catalog/product/promotion/promotion.route
 import stockmovementRoutes from "./modules/catalog/product/stockmovement/stockmovement.routes.js";
 import cartRoutes from "./modules/orders/cart/cart.routes.js";
 import orderRoutes from "./modules/orders/order.routes.js";
+import roleRoutes from "./modules/users/role.routes.js";
 import { notFound } from "./utils/http/apiResponse.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
-import { MS_PER_MINUTE } from "./utils/constants.js";
+import { createRateLimiter } from "./utils/http/rateLimiter.js";
 
 const app = express();
 
 app.use(helmet());
-app.use(
-  rateLimit({
-    windowMs: 15 * MS_PER_MINUTE,
-    limit: 100,
-    standardHeaders: "draft-7",
-    legacyHeaders: false,
-  }),
-);
+app.use(createRateLimiter({ limit: 100 }));
 app.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:4200", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -44,6 +37,7 @@ app.use("/api/promotions", promotionRoutes);
 app.use("/api/stockmovement", stockmovementRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/roles", roleRoutes);
 
 app.use((_req, res) => notFound(res, "Route not found"));
 app.use(errorHandler);

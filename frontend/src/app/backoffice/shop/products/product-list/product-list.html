@@ -66,29 +66,32 @@
   searchPlaceholder="Rechercher un produit..."
   emptyMessage="Aucun produit trouvé"
   [tableStyle]="{ 'min-width': '50rem' }"
-  (searchChange)="loadProducts()"
-  (lazyLoad)="loadProducts($event)"
+  (lazyLoad)="table.handleLazyLoad($event)"
 >
   <p-select
     filters
     inputId="productCategoryFilter"
     [options]="categories()"
-    [(ngModel)]="categoryFilter"
+    [ngModel]="categoryFilter()"
+    (ngModelChange)="categoryFilter.set($event)"
     (onChange)="onFilter()"
     optionLabel="label"
     optionValue="value"
     placeholder="Catégorie"
+    [checkmark]="true"
     class="w-full sm:w-48"
   />
   <p-select
     filters
     inputId="productStatusFilter"
     [options]="statusOptions"
-    [(ngModel)]="statusFilter"
+    [ngModel]="statusFilter()"
+    (ngModelChange)="statusFilter.set($event)"
     (onChange)="onFilter()"
     optionLabel="label"
     optionValue="value"
     placeholder="Statut"
+    [checkmark]="true"
     class="w-full sm:w-40"
   />
 </app-data-table>

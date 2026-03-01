@@ -1,9 +1,15 @@
 import Shop from "./shop.model.js";
 import { paginate } from "#utils/db/paginate.js";
-import { err, success, pickDefined } from "#utils/objects.js";
-import { uploadImage, replaceDocumentImage, UPLOAD_FOLDERS } from "#utils/upload/cloudinary.js";
+import { pickDefined } from "#utils/objects.js";
+import { NotFoundError, BadRequestError } from "#utils/http/errors.js";
+import {
+  addDocumentImages,
+  removeDocumentImage,
+  replaceDocumentImage,
+} from "#utils/upload/cloudinary.js";
+import { UPLOAD_FOLDERS } from "#utils/constants.js";
 
-export async function listShops({ search, status, page, limit }) {
+export async function list({ search, status, page, limit }) {
   const filter = {};
   if (search) filter.$text = { $search: search };
   if (status) filter.status = status;
@@ -16,49 +22,54 @@ export async function listShops({ search, status, page, limit }) {
   });
 }
 
-export async function getShopById(id) {
-  return Shop.findById(id).populate("owner", "firstName lastName email");
+export async function getById(id) {
+  const shop = await Shop.findById(id).populate("owner", "firstName lastName email");
+  if (!shop) throw new NotFoundError("Shop not found");
+  return shop;
 }
 
 const UPDATABLE_FIELDS = ["description", "contactEmail", "contactPhone", "schedule"];
 
-export async function updateShop(id, data) {
+export async function update(id, data) {
   const update = pickDefined(data, UPDATABLE_FIELDS);
-  return Shop.findByIdAndUpdate(id, update, { new: true, runValidators: true });
+  const shop = await Shop.findByIdAndUpdate(id, update, { new: true, runValidators: true });
+  if (!shop) throw new NotFoundError("Shop not found");
+  return shop;
 }
 
-export async function setShopLogo(id, file) {
+export async function setLogo(id, file) {
   const shop = await Shop.findById(id);
-  if (!shop) return null;
+  if (!shop) throw new NotFoundError("Shop not found");
 
-  return replaceDocumentImage(shop, "logoUrl", file, UPLOAD_FOLDERS.SHOP_LOGOS);
+  return replaceDocumentImage(shop, "logoUrl", file, UPLOAD_FOLDERS.SHOPS);
 }
 
-export async function addShopImage(idShop, file) {
-  const shop = await Shop.findById(idShop);
-  if (!shop) return null;
+export async function addImages(id, imageFiles) {
+  const shop = await Shop.findById(id);
+  if (!shop) throw new NotFoundError("Shop not found");
+  return addDocumentImages(shop, imageFiles, UPLOAD_FOLDERS.SHOPS);
+}
 
-  const { url } = await uploadImage(file.buffer, { folder: UPLOAD_FOLDERS.SHOP_IMAGES });
-  shop.images.push(url);
+export async function removeImage(id, imageUrl) {
+  const shop = await Shop.findById(id);
+  if (!shop) throw new NotFoundError("Shop not found");
+  return removeDocumentImage(shop, imageUrl);
+}
 
+async function transitionStatus(id, fromStatus, toStatus, errorMessage) {
+  const shop = await Shop.findById(id);
+  if (!shop) throw new NotFoundError("Shop not found");
+  if (shop.status !== fromStatus) throw new BadRequestError(errorMessage);
+
+  shop.status = toStatus;
   await shop.save();
   return shop;
 }
 
-async function transitionStatus(id, fromStatus, toStatus) {
-  const shop = await Shop.findById(id);
-  if (!shop) return err("not_found");
-  if (shop.status !== fromStatus) return err("invalid_status");
-
-  shop.status = toStatus;
-  await shop.save();
-  return success(shop);
+export async function validate(id) {
+  return transitionStatus(id, "pending", "active", "Only pending shops can be validated");
 }
 
-export async function validateShop(id) {
-  return transitionStatus(id, "pending", "active");
-}
-
-export async function suspendShop(id) {
-  return transitionStatus(id, "active", "suspended");
+export async function suspend(id) {
+  return transitionStatus(id, "active", "suspended", "Only active shops can be suspended");
 }

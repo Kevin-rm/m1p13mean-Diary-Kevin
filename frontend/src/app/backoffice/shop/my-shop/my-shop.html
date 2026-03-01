@@ -1,18 +1,13 @@
-<p-confirmDialog />
-
 <app-record-page
-  [title]="shop()?.name ?? 'Ma boutique'"
+  title="Ma boutique"
+  [heading]="shop()?.name ?? ''"
+  [subheading]="shop()?.contactEmail ?? ''"
   [loading]="loading()"
   [showImage]="true"
   [image]="shop()?.logoUrl ?? ''"
+  (imageClick)="logoInput.click()"
 >
-  <label
-    image-action
-    class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-  >
-    <i class="pi pi-camera text-2xl"></i>
-    <input type="file" accept="image/*" class="hidden" (change)="uploadLogo($event)" />
-  </label>
+  <input #logoInput type="file" accept="image/*" class="hidden" (change)="uploadLogo($event)" />
   <div actions class="flex gap-2">
     @if (shop()) {
       @if (editing()) {
@@ -23,11 +18,10 @@
           (click)="cancelEditing()"
         />
         <p-button
-          [label]="saving() ? 'Enregistrement...' : 'Enregistrer'"
-          form="editShopForm"
-          type="submit"
-          [disabled]="form.invalid || saving()"
-          [loading]="saving()"
+          [label]="saveMutation.isPending() ? 'Enregistrement...' : 'Enregistrer'"
+          [disabled]="form.invalid || saveMutation.isPending()"
+          [loading]="saveMutation.isPending()"
+          (click)="saveShop()"
         />
       } @else {
         <p-button
@@ -53,37 +47,20 @@
 
   <ng-template recordTab="Horaires">
     @if (shop(); as s) {
-      <app-schedule-editor [schedule]="s.schedule" (save)="saveSchedule($event)" />
+      <app-schedule-editor [schedule]="s.schedule" [readonly]="!editing()" />
     }
   </ng-template>
 
   <ng-template recordTab="Images">
     @if (shop(); as s) {
-      @if (s.images.length) {
-        <div class="flex flex-wrap gap-4">
-          @for (image of s.images; track image) {
-            <p-image
-              [src]="image"
-              [alt]="s.name"
-              width="128"
-              [preview]="true"
-              imageClass="rounded-lg object-cover border border-surface-200"
-              [imageStyle]="{ width: '128px', height: '128px' }"
-            />
-          }
-        </div>
-      } @else {
-        <p class="text-muted-color">Aucune image</p>
-      }
-
-      <div class="mt-6">
-        <app-image-upload
-          #imageUpload
-          [multiple]="false"
-          [showUploadButton]="true"
-          (upload)="uploadImages($event)"
-        />
-      </div>
+      <app-image-section
+        #imageSection
+        [images]="s.images"
+        [alt]="s.name"
+        [removable]="true"
+        (upload)="uploadImages($event)"
+        (remove)="removeImage($event)"
+      />
     }
   </ng-template>
 </app-record-page>

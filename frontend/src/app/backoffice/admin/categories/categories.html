@@ -48,8 +48,7 @@
   [columns]="4"
   searchPlaceholder="Rechercher une catégorie..."
   emptyMessage="Aucune catégorie trouvée"
-  (searchChange)="loadCategories()"
-  (lazyLoad)="loadCategories($event)"
+  (lazyLoad)="table.handleLazyLoad($event)"
 />
 
 <p-drawer
@@ -100,10 +99,10 @@
         (click)="drawerVisible.set(false)"
       />
       <p-button
-        [label]="saving() ? 'Enregistrement...' : 'Enregistrer'"
+        [label]="saveMutation.isPending() ? 'Enregistrement...' : 'Enregistrer'"
         icon="pi pi-check"
-        [disabled]="form.invalid || saving()"
-        [loading]="saving()"
+        [disabled]="form.invalid || saveMutation.isPending()"
+        [loading]="saveMutation.isPending()"
         (click)="saveCategory()"
       />
     </div>

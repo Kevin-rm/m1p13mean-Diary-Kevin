@@ -2,30 +2,35 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   input,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { Avatar } from "primeng/avatar";
+import { lastValueFrom } from "rxjs";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { Menu } from "primeng/menu";
+import { UserAvatar } from "@shared/components/user-avatar";
 import { ConfirmationService, MenuItem } from "primeng/api";
 import { AuthService } from "@auth/auth.service";
 
 @Component({
   selector: "app-user-menu",
-  imports: [Avatar, Menu],
+  imports: [Menu, UserAvatar],
   templateUrl: "./user-menu.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserMenu {
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly authService = inject(AuthService);
+  protected readonly logoutMutation = injectMutation(() => ({
+    mutationFn: () => lastValueFrom(this.authService.logout()),
+    onSuccess: () => {
+      this.router.navigate(["/login"]);
+    },
+  }));
   protected readonly menuItems = computed<MenuItem[]>(() => [
     ...this.extraItems(),
     { separator: true },
@@ -51,14 +56,7 @@ export class UserMenu {
       header: "Déconnexion",
       acceptButtonProps: { label: "Se déconnecter", severity: "danger" },
       rejectButtonProps: { label: "Annuler", severity: "secondary", outlined: true },
-      accept: () => {
-        this.authService
-          .logout()
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(() => {
-            this.router.navigate(["/login"]);
-          });
-      },
+      accept: () => this.logoutMutation.mutate(),
     });
   }
 }

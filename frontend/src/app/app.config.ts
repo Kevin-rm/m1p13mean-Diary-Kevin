@@ -11,6 +11,7 @@ import { providePrimeNG } from "primeng/config";
 import { definePreset } from "@primeuix/themes";
 import Aura from "@primeuix/themes/aura";
 import { firstValueFrom } from "rxjs";
+import { provideTanStackQuery, QueryClient } from "@tanstack/angular-query-experimental";
 
 import { routes } from "./app.routes";
 import { credentialsInterceptor } from "@core/interceptors/credentials-interceptor";
@@ -45,12 +46,20 @@ export const appConfig: ApplicationConfig = {
               paddingY: "0.375rem",
             },
           },
+          components: {
+            inputgroup: {
+              addon: {
+                padding: "{form.field.padding.y} {form.field.padding.x}",
+              },
+            },
+          },
         }),
         options: {
           darkModeSelector: false,
         },
       },
     }),
+    provideTanStackQuery(new QueryClient()),
     provideAppInitializer(() => {
       const authService = inject(AuthService);
       return firstValueFrom(authService.checkAuthState());

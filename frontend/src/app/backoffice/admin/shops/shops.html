@@ -18,7 +18,7 @@
     <td><app-contact-link type="email" [value]="shop.contactEmail" /></td>
     <td><app-contact-link type="phone" [value]="shop.contactPhone" /></td>
     <td>
-      <app-status-tag [status]="shop.status" [config]="statusConfig" />
+      <app-tag [value]="shop.status" [config]="statusConfig" />
     </td>
     <td>
       <div class="flex justify-end gap-1">
@@ -55,18 +55,19 @@
   searchPlaceholder="Rechercher une boutique..."
   emptyMessage="Aucune boutique trouvée"
   [tableStyle]="{ 'min-width': '50rem' }"
-  (searchChange)="loadShops()"
-  (lazyLoad)="loadShops($event)"
+  (lazyLoad)="table.handleLazyLoad($event)"
 >
   <p-select
     filters
     inputId="shopStatusFilter"
     [options]="statusOptions"
-    [(ngModel)]="statusFilter"
+    [ngModel]="statusFilter()"
+    (ngModelChange)="statusFilter.set($event)"
     (onChange)="onStatusFilter()"
     optionLabel="label"
     optionValue="value"
     placeholder="Filtrer par statut"
+    [checkmark]="true"
     class="w-full sm:w-48"
   />
 </app-data-table>

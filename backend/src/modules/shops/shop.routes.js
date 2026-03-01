@@ -2,64 +2,51 @@ import { Router } from "express";
 import { validate } from "#utils/http/validate.js";
 import { authenticate } from "#middlewares/authenticate.js";
 import { authorize } from "#middlewares/authorize.js";
-import { singleImage, handleMulterError } from "#utils/upload/multer.js";
+import { singleImage, multipleImages } from "#utils/upload/multer.js";
 import {
-  listShopsRules,
-  getShopRules,
-  updateMyShopRules,
-  validateShopRules,
-  suspendShopRules,
+  listRules,
+  getRules,
+  updateRules,
+  validateRules,
+  suspendRules,
 } from "./shop.validators.js";
 import * as shopController from "./shop.controller.js";
+import memberRoutes from "./members/member.routes.js";
 
 const router = Router();
 
 router.use(authenticate);
 
-router.get("/", validate(listShopsRules), shopController.listShops);
-router.get("/me", authorize("shop:settings"), shopController.getMyShop);
-router.patch(
-  "/me",
-  authorize("shop:settings"),
-  validate(updateMyShopRules),
-  shopController.updateMyShop,
-);
-router.post(
-  "/me/logo",
-  authorize("shop:settings"),
-  singleImage("logo"),
-  handleMulterError,
-  shopController.setMyShopLogo,
-);
-router.post(
-  "/me/image",
-  authorize("shop:settings"),
-  singleImage("shopImage"),
-  handleMulterError,
-  shopController.addMyShopImage,
-);
+router.get("/", validate(listRules), shopController.list);
 
-router.get("/:id", validate(getShopRules), shopController.getShop);
-router.post(
-  "/:id/image",
-  authorize("shop:settings"),
-  singleImage("shopImage"),
-  handleMulterError,
-  shopController.addShopImage,
-);
+const meRouter = Router();
+meRouter.use(authorize("shops:manage"), (req, _res, next) => {
+  req.resolvedId = req.user.shop;
+  next();
+});
+meRouter.get("/", shopController.get);
+meRouter.patch("/", validate(updateRules), shopController.update);
+meRouter.post("/logo", singleImage("logo"), shopController.setLogo);
+meRouter.post("/images", multipleImages("images", 5), shopController.addImages);
+meRouter.delete("/images", shopController.removeImage);
+router.use("/me", meRouter);
+
+router.use("/me/members", memberRoutes);
+
+router.get("/:id", validate(getRules), shopController.get);
 
 router.patch(
   "/:id/validate",
   authorize("shops:validate"),
-  validate(validateShopRules),
-  shopController.validateShop,
+  validate(validateRules),
+  shopController.validateStatus,
 );
 
 router.patch(
   "/:id/suspend",
   authorize("shops:suspend"),
-  validate(suspendShopRules),
-  shopController.suspendShop,
+  validate(suspendRules),
+  shopController.suspend,
 );
 
 export default router;

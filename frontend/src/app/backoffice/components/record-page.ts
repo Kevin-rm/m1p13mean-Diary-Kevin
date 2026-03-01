@@ -6,12 +6,15 @@ import {
   contentChildren,
   inject,
   input,
+  output,
   signal,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { NgTemplateOutlet } from "@angular/common";
+import { Image } from "primeng/image";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "primeng/tabs";
 import { PageHeader } from "./page-header";
+import { Loader } from "@shared/components/loader";
 
 @Directive({
   selector: "ng-template[recordTab]",
@@ -23,7 +26,7 @@ export class RecordPageTab {
 
 @Component({
   selector: "app-record-page",
-  imports: [NgTemplateOutlet, Tabs, TabList, Tab, TabPanels, TabPanel, PageHeader],
+  imports: [NgTemplateOutlet, Image, Tabs, TabList, Tab, TabPanels, TabPanel, PageHeader, Loader],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-page-header [title]="title()" [back]="true">
@@ -32,17 +35,18 @@ export class RecordPageTab {
 
     @if (loading()) {
       <div class="flex justify-center items-center flex-1" style="min-height: calc(100vh - 12rem)">
-        <i class="pi pi-spin pi-spinner text-muted-color" style="font-size: 2rem"></i>
+        <app-loader />
       </div>
     } @else {
       @if (showImage()) {
-        <div class="mb-6">
-          <div class="relative group inline-block">
+        <div class="flex items-center gap-5 mb-6">
+          <div class="relative group inline-block shrink-0">
             @if (image()) {
-              <img
+              <p-image
                 [src]="image()"
                 [alt]="title()"
-                class="size-28 rounded-2xl object-cover border border-surface shadow-sm"
+                [preview]="true"
+                imageClass="size-28 rounded-2xl object-cover border border-surface shadow-sm"
               />
             } @else {
               <div
@@ -51,7 +55,19 @@ export class RecordPageTab {
                 <i class="pi pi-image text-4xl text-muted-color"></i>
               </div>
             }
-            <ng-content select="[image-action]" />
+            <button
+              type="button"
+              class="absolute bottom-0 right-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary text-primary-contrast border-2 border-surface cursor-pointer"
+              (click)="imageClick.emit()"
+            >
+              <i class="pi pi-camera text-xs"></i>
+            </button>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold m-0">{{ heading() }}</h2>
+            @if (subheading()) {
+              <p class="text-muted-color mt-1 mb-0">{{ subheading() }}</p>
+            }
           </div>
         </div>
       }
@@ -89,8 +105,11 @@ export class RecordPage {
   title = input.required<string>();
   loading = input(false);
   defaultTabLabel = input("Informations");
+  heading = input("");
+  subheading = input("");
   showImage = input(false);
   image = input("");
+  imageClick = output();
 
   protected onTabClick(label: string): void {
     this.activeTab.set(label);

@@ -11,7 +11,7 @@
 
   <ng-template #end>
     @if (authService.isAuthenticated()) {
-      <app-user-menu [extraItems]="userMenuItems" />
+      <app-user-menu [extraItems]="userMenuItems()" />
     } @else {
       <p-button
         label="Se connecter"

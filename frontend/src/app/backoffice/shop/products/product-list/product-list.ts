@@ -1,26 +1,32 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { map } from "rxjs";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from "@angular/core";
+import { lastValueFrom } from "rxjs";
+import { injectMutation, injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { AriaryPipe } from "@shared/pipes/ariary";
-import { TableModule, TableLazyLoadEvent } from "primeng/table";
+import { TableModule } from "primeng/table";
 import { DataTable } from "@shared/components/data-table/data-table";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
 import { ActiveTag } from "@shared/components/active-tag";
 import { Tooltip } from "primeng/tooltip";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
-import { PageHeader } from "@backoffice/layout/page-header";
+import { PageHeader } from "@backoffice/components/page-header";
 import { extractErrorMessage } from "@core/utils/error";
-import { TableState } from "@core/utils/table-state";
+import { TableState, injectTableQuery } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
-import { SelectOption } from "@core/models/select-option";
-import { CategoryService } from "@core/services/category.service";
-import { ProductService } from "../product.service";
+import { SelectOption } from "@core/common/resource.service";
+import { CategoryService } from "@core/domains/category/category.service";
+import { ProductService } from "@core/domains/product/product.service";
 import { NoValuePipe } from "@shared/pipes/no-value";
-import { Product } from "../product.model";
+import { Product } from "@core/domains/product/product.model";
 
 const STATUS_OPTIONS = [
   { label: "Tous", value: "" },
@@ -52,55 +58,50 @@ export class ShopProductList implements OnInit {
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly toast = inject(Toast);
   private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly queryClient = inject(QueryClient);
+  private readonly categoriesQuery = injectQuery(() => this.categoryService.selectQueryOptions());
 
   protected readonly table = new TableState<Product>(inject(ActivatedRoute), this.router);
-  protected readonly statusOptions = STATUS_OPTIONS;
-  protected readonly categories = toSignal(
-    this.categoryService
-      .listForSelect()
-      .pipe(
-        map(r => [
-          { label: "Toutes", value: "" },
-          ...(r.data ?? []).map((c: SelectOption) => ({ label: c.name, value: c.id })),
-        ]),
-      ),
-    { initialValue: [] as { label: string; value: string }[] },
+  protected readonly categoryFilter = signal(this.table.readFilterParam("category"));
+  protected readonly statusFilter = signal(this.table.readFilterParam("isActive"));
+
+  protected readonly query = injectTableQuery(
+    this.table,
+    params => this.productService.listQueryOptions(params),
+    {
+      filters: () => ({
+        category: this.categoryFilter() || undefined,
+        isActive: this.statusFilter() ? this.statusFilter() === "true" : undefined,
+      }),
+    },
   );
-  protected categoryFilter = "";
-  protected statusFilter = "";
+
+  protected readonly toggleActiveMutation = injectMutation(() => ({
+    mutationFn: (id: string) => lastValueFrom(this.productService.toggleActive(id)),
+    onSuccess: (response: { message: string }) => {
+      this.toast.success(response.message);
+      this.queryClient.invalidateQueries({ queryKey: [this.productService.resourcePath] });
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
+    },
+  }));
+
+  protected readonly statusOptions = STATUS_OPTIONS;
+  protected readonly categories = computed(() => [
+    { label: "Toutes", value: "" },
+    ...(this.categoriesQuery.data()?.data ?? []).map((c: SelectOption) => ({
+      label: c.name,
+      value: c.id,
+    })),
+  ]);
 
   ngOnInit(): void {
     this.breadcrumb.set([{ label: "Produits" }]);
-    this.categoryFilter = this.table.readFilterParam("category");
-    this.statusFilter = this.table.readFilterParam("isActive");
-    this.loadProducts();
-  }
-
-  protected loadProducts(event?: TableLazyLoadEvent): void {
-    const queryParams = {
-      search: this.table.search() || undefined,
-      category: this.categoryFilter || undefined,
-      isActive: this.statusFilter || undefined,
-    };
-    this.table.load(
-      this.productService.list({
-        ...queryParams,
-        isActive: this.statusFilter ? this.statusFilter === "true" : undefined,
-        page: this.table.page,
-        limit: this.table.limit,
-      }),
-      {
-        event,
-        queryParams,
-        onError: () => this.toast.error("Impossible de charger les produits"),
-      },
-    );
   }
 
   protected onFilter(): void {
     this.table.resetPage();
-    this.loadProducts();
   }
 
   protected navigateToNew(): void {
@@ -108,17 +109,6 @@ export class ShopProductList implements OnInit {
   }
 
   protected toggleActive(product: Product): void {
-    this.productService
-      .toggleActive(product.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: response => {
-          this.toast.success(response.message);
-          this.loadProducts();
-        },
-        error: error => {
-          this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
-        },
-      });
+    this.toggleActiveMutation.mutate(product.id);
   }
 }

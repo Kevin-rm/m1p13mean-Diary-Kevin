@@ -6,7 +6,4 @@ export function pickDefined(source, fields) {
   return result;
 }
 
-export const err = code => ({ error: code });
-export const success = data => ({ data });
-
 export const activeLabel = isActive => (isActive ? "activated" : "deactivated");

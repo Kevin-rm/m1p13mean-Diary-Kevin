@@ -11,7 +11,8 @@ import {
   OperatorFunction,
 } from "rxjs";
 import { environment } from "@env/environment";
-import { ApiResponse } from "@core/models/api-response";
+import { ApiResponse } from "@core/common/models/api-response";
+import { initials } from "@shared/pipes/initials";
 import { AuthData, User, UserContext } from "./auth.models";
 
 interface AuthState {
@@ -35,11 +36,7 @@ export class AuthService {
     if (!user) return "";
     return `${user.firstName} ${user.lastName}`;
   });
-  readonly avatarLabel = computed(() => {
-    const user = this.user();
-    if (!user) return "";
-    return (user.firstName[0] + user.lastName[0]).toUpperCase();
-  });
+  readonly avatarLabel = computed(() => initials(this.user()));
   readonly avatarUrl = computed(() => this.user()?.avatarUrl ?? null);
 
   login(credentials: { email: string; password: string }): Observable<ApiResponse<AuthData>> {
@@ -74,6 +71,12 @@ export class AuthService {
       .pipe(this.setAuthState());
   }
 
+  setAuthState(): OperatorFunction<ApiResponse<AuthData>, ApiResponse<AuthData>> {
+    return tap(response => {
+      if (response.data) this._authState.set(response.data);
+    });
+  }
+
   checkAuthState(): Observable<boolean> {
     return this.http.get<ApiResponse<AuthData>>(`${this.authUrl}/me`).pipe(
       this.setAuthState(),
@@ -104,9 +107,10 @@ export class AuthService {
   }
 
   hasPermission(...permissions: string[]): boolean {
-    const profile = this._authState().context?.profile;
-    if (!profile) return false;
-    return permissions.every(p => profile.permissions.includes(p));
+    const ctx = this._authState().context;
+    if (!ctx?.profile) return false;
+    const all = [...ctx.profile.permissions, ...(ctx.role?.permissions ?? [])];
+    return permissions.every(p => all.includes(p));
   }
 
   hasProfile(...codes: string[]): boolean {
@@ -117,11 +121,5 @@ export class AuthService {
 
   clearState(): void {
     this._authState.set({ user: null, context: null });
-  }
-
-  private setAuthState(): OperatorFunction<ApiResponse<AuthData>, ApiResponse<AuthData>> {
-    return tap(response => {
-      if (response.data) this._authState.set(response.data);
-    });
   }
 }

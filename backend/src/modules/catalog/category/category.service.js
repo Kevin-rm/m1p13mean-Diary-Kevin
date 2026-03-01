@@ -3,8 +3,9 @@ import { paginate } from "#utils/db/paginate.js";
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
 import { pickDefined } from "#utils/objects.js";
 import { toggleActiveStatus } from "#utils/db/toggleActive.js";
+import { NotFoundError } from "#utils/http/errors.js";
 
-export async function listCategories({ search, isActive, page, limit }) {
+export async function list({ search, isActive, page, limit }) {
   const filter = {};
   if (search) filter.name = { $regex: search, $options: "i" };
   if (isActive !== undefined) filter.isActive = isActive;
@@ -12,15 +13,17 @@ export async function listCategories({ search, isActive, page, limit }) {
   return paginate(Category, { filter, page, limit });
 }
 
-export async function selectCategories() {
-  return Category.find({ isActive: true }).select("name").sort("name").lean();
+export async function select() {
+  return Category.find({ isActive: true }).select("name").sort("name");
 }
 
-export async function getCategoryById(id) {
-  return Category.findById(id);
+export async function getById(id) {
+  const category = await Category.findById(id);
+  if (!category) throw new NotFoundError("Category not found");
+  return category;
 }
 
-export async function createCategory({ name, description }) {
+export async function create({ name, description }) {
   try {
     return await Category.create({ name, description });
   } catch (error) {
@@ -28,11 +31,16 @@ export async function createCategory({ name, description }) {
   }
 }
 
-export async function updateCategory(id, data) {
+export async function update(id, data) {
   const update = pickDefined(data, ["name", "description"]);
 
   try {
-    return await Category.findByIdAndUpdate(id, update, { new: true, runValidators: true });
+    const category = await Category.findByIdAndUpdate(id, update, {
+      new: true,
+      runValidators: true,
+    });
+    if (!category) throw new NotFoundError("Category not found");
+    return category;
   } catch (error) {
     throwIfDuplicateKey(error, { name: "Category name already exists" });
   }

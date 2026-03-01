@@ -1,8 +1,9 @@
-import { signal } from "@angular/core";
+import { signal, effect } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Observable, finalize } from "rxjs";
 import { TableLazyLoadEvent } from "primeng/table";
-import { ApiResponse } from "@core/models/api-response";
+import { injectQuery, keepPreviousData } from "@tanstack/angular-query-experimental";
+import { ApiResponse } from "@core/common/models/api-response";
+import { buildQueryParams } from "./http-params";
 
 export class TableState<T> {
   readonly items = signal<T[]>([]);
@@ -11,18 +12,20 @@ export class TableState<T> {
   readonly first = signal(0);
   readonly rows = signal(10);
   readonly search = signal("");
-  page = 1;
-  limit = 10;
+  readonly page = signal(1);
+  readonly limit = signal(10);
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
   ) {
     const params = this.route.snapshot.queryParams;
-    this.page = +(params["page"] ?? 1);
-    this.limit = +(params["limit"] ?? 10);
-    this.first.set((this.page - 1) * this.limit);
-    this.rows.set(this.limit);
+    const p = +(params["page"] ?? 1);
+    const l = +(params["limit"] ?? 10);
+    this.page.set(p);
+    this.limit.set(l);
+    this.first.set((p - 1) * l);
+    this.rows.set(l);
     this.search.set(params["search"] ?? "");
   }
 
@@ -31,41 +34,63 @@ export class TableState<T> {
   }
 
   handleLazyLoad(event: TableLazyLoadEvent): void {
-    this.page = Math.floor((event.first ?? 0) / (event.rows ?? 10)) + 1;
-    this.limit = event.rows ?? 10;
+    this.page.set(Math.floor((event.first ?? 0) / (event.rows ?? 10)) + 1);
+    this.limit.set(event.rows ?? 10);
+    this.first.set(event.first ?? 0);
+    this.rows.set(event.rows ?? 10);
   }
 
   resetPage(): void {
-    this.page = 1;
+    this.page.set(1);
+    this.first.set(0);
   }
 
-  syncQueryParams(extra: Record<string, string | number | undefined>): void {
-    const queryParams: Record<string, string | number | undefined> = {
+  syncQueryParams(extra: Record<string, unknown> = {}): void {
+    const queryParams = buildQueryParams({
       ...extra,
-      page: this.page > 1 ? this.page : undefined,
-      limit: this.limit !== 10 ? this.limit : undefined,
-    };
+      search: this.search() || undefined,
+      page: this.page() > 1 ? this.page() : undefined,
+      limit: this.limit() !== 10 ? this.limit() : undefined,
+    });
     this.router.navigate([], { queryParams, queryParamsHandling: "replace", replaceUrl: true });
   }
+}
 
-  load(
-    source$: Observable<ApiResponse<T[]>>,
-    options: {
-      event?: TableLazyLoadEvent;
-      queryParams?: Record<string, string | number | undefined>;
-      onError?: () => void;
-    } = {},
-  ): void {
-    if (options.event) this.handleLazyLoad(options.event);
-    if (options.queryParams) this.syncQueryParams(options.queryParams);
+export interface TableQueryOptions {
+  filters?: () => Record<string, unknown>;
+}
 
-    this.loading.set(true);
-    source$.pipe(finalize(() => this.loading.set(false))).subscribe({
-      next: response => {
-        this.items.set(response.data ?? []);
-        this.totalRecords.set((response.meta?.["total"] as number) ?? 0);
-      },
-      error: options.onError,
-    });
-  }
+export function injectTableQuery<T>(
+  table: TableState<T>,
+  optionsFn: (params: Record<string, unknown>) => {
+    queryKey: readonly unknown[];
+    queryFn: () => Promise<ApiResponse<T[]>>;
+  },
+  options: TableQueryOptions = {},
+) {
+  const query = injectQuery(() => {
+    const extra = options.filters?.() ?? {};
+    const params: Record<string, unknown> = {
+      ...extra,
+      search: table.search() || undefined,
+      page: table.page(),
+      limit: table.limit(),
+    };
+    return {
+      ...optionsFn(params),
+      placeholderData: keepPreviousData,
+    };
+  });
+
+  effect(() => {
+    const data = query.data();
+    if (data) {
+      table.items.set(data.data ?? []);
+      table.totalRecords.set((data.meta?.["total"] as number) ?? 0);
+    }
+    table.loading.set(query.isPending());
+    table.syncQueryParams(options.filters?.() ?? {});
+  });
+
+  return query;
 }
