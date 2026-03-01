@@ -3,6 +3,7 @@ import { paginate } from "#utils/db/paginate.js";
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
 import { pickDefined } from "#utils/objects.js";
 import { toggleActiveStatus } from "#utils/db/toggleActive.js";
+import { NotFoundError } from "#utils/http/errors.js";
 
 export async function list({ search, isActive, page, limit }) {
   const filter = {};
@@ -17,7 +18,9 @@ export async function select() {
 }
 
 export async function getById(id) {
-  return Category.findById(id);
+  const category = await Category.findById(id);
+  if (!category) throw new NotFoundError("Category not found");
+  return category;
 }
 
 export async function create({ name, description }) {
@@ -32,7 +35,12 @@ export async function update(id, data) {
   const update = pickDefined(data, ["name", "description"]);
 
   try {
-    return await Category.findByIdAndUpdate(id, update, { new: true, runValidators: true });
+    const category = await Category.findByIdAndUpdate(id, update, {
+      new: true,
+      runValidators: true,
+    });
+    if (!category) throw new NotFoundError("Category not found");
+    return category;
   } catch (error) {
     throwIfDuplicateKey(error, { name: "Category name already exists" });
   }

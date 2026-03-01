@@ -12,6 +12,7 @@ import {
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
 import { refreshTokenConfig } from "#config/auth.js";
 import { withTransaction } from "#utils/db/withTransaction.js";
+import logger from "#config/logger.js";
 
 export async function generateTokens(user, context, profile, role = null, session = null) {
   const tokenPayload = {
@@ -150,7 +151,9 @@ export async function login({ email, password }) {
     context.role,
   );
 
-  User.findByIdAndUpdate(user._id, { lastLoginAt: new Date() }).catch(() => {});
+  User.findByIdAndUpdate(user._id, { lastLoginAt: new Date() }).catch(err =>
+    logger.warn("Failed to update lastLoginAt", err),
+  );
 
   return { user, context, accessToken, refreshToken };
 }

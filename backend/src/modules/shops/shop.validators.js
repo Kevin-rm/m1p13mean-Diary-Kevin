@@ -1,6 +1,6 @@
 import { body, query } from "express-validator";
 import { SHOP_STATUSES, DAYS_OF_WEEK } from "./shop.model.js";
-import { mongoIdRules, searchRule, paginationRules, descriptionRule } from "#utils/validators.js";
+import { paramIdRules, searchRule, paginationRules, descriptionRule } from "#utils/validators.js";
 
 export const listRules = [
   searchRule,
@@ -11,11 +11,11 @@ export const listRules = [
   ...paginationRules,
 ];
 
-export const getRules = [mongoIdRules()];
+export const getRules = [paramIdRules()];
 
-export const validateRules = [mongoIdRules()];
+export const validateRules = [paramIdRules()];
 
-export const suspendRules = [mongoIdRules()];
+export const suspendRules = [paramIdRules()];
 
 export const updateRules = [
   descriptionRule,

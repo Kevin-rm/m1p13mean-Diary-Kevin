@@ -1,10 +1,11 @@
 import Product from "./product.model.js";
 import { paginate } from "#utils/db/paginate.js";
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
-import { pickDefined, err, success } from "#utils/objects.js";
+import { pickDefined } from "#utils/objects.js";
 import { toggleActiveStatus } from "#utils/db/toggleActive.js";
-import { uploadImages, deleteImage, extractPublicId } from "#utils/upload/cloudinary.js";
+import { uploadImages, addDocumentImages, removeDocumentImage } from "#utils/upload/cloudinary.js";
 import { UPLOAD_FOLDERS } from "#utils/constants.js";
+import { NotFoundError } from "#utils/http/errors.js";
 
 export async function list({ shop, search, category, isActive, page, limit }) {
   const filter = { shop };
@@ -21,7 +22,9 @@ export async function list({ shop, search, category, isActive, page, limit }) {
 }
 
 export async function getById(id, shop) {
-  return Product.findOne({ _id: id, shop }).populate("category", "name");
+  const product = await Product.findOne({ _id: id, shop }).populate("category", "name");
+  if (!product) throw new NotFoundError("Product not found");
+  return product;
 }
 
 export async function create({ name, description, price, stock, category, shop }, imageFiles) {
@@ -54,10 +57,12 @@ export async function update(id, shop, data) {
   const update = pickDefined(data, ["name", "description", "price", "stock", "category"]);
 
   try {
-    return await Product.findOneAndUpdate({ _id: id, shop }, update, {
+    const product = await Product.findOneAndUpdate({ _id: id, shop }, update, {
       new: true,
       runValidators: true,
     }).populate("category", "name");
+    if (!product) throw new NotFoundError("Product not found");
+    return product;
   } catch (error) {
     throwIfDuplicateKey(error, { name: "A product with this name already exists in your shop" });
   }
@@ -73,28 +78,14 @@ export async function toggleActive(id, shop) {
 
 export async function addImages(id, shop, imageFiles) {
   const product = await Product.findOne({ _id: id, shop });
-  if (!product) return err("not_found");
-
-  const results = await uploadImages(
-    imageFiles.map(f => f.buffer),
-    { folder: UPLOAD_FOLDERS.PRODUCTS },
-  );
-  product.images.push(...results.map(r => r.url));
-  await product.save();
-  return success(await product.populate("category", "name"));
+  if (!product) throw new NotFoundError("Product not found");
+  await addDocumentImages(product, imageFiles, UPLOAD_FOLDERS.PRODUCTS);
+  return product.populate("category", "name");
 }
 
 export async function removeImage(id, shop, imageUrl) {
   const product = await Product.findOne({ _id: id, shop });
-  if (!product) return err("not_found");
-
-  const imageIndex = product.images.indexOf(imageUrl);
-  if (imageIndex === -1) return err("image_not_found");
-
-  const publicId = extractPublicId(imageUrl);
-  if (publicId) await deleteImage(publicId);
-
-  product.images.splice(imageIndex, 1);
-  await product.save();
-  return success(await product.populate("category", "name"));
+  if (!product) throw new NotFoundError("Product not found");
+  await removeDocumentImage(product, imageUrl);
+  return product.populate("category", "name");
 }

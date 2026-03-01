@@ -1,5 +1,4 @@
 import multer, { MulterError } from "multer";
-import { badRequest } from "#utils/http/apiResponse.js";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MB = 1024 * 1024;
@@ -22,13 +21,8 @@ export function multipleImages(fieldName, maxCount = 5) {
   return upload.array(fieldName, maxCount);
 }
 
-const MULTER_ERROR_MESSAGES = {
+export const MULTER_ERROR_MESSAGES = {
   LIMIT_FILE_SIZE: `File too large (max ${MAX_FILE_SIZE / MB} MB)`,
   LIMIT_FILE_COUNT: "Too many files",
   LIMIT_UNEXPECTED_FILE: "Invalid file type (accepted: JPEG, PNG, WebP)",
 };
-
-export function handleMulterError(err, _req, res, _next) {
-  if (!(err instanceof MulterError)) return _next(err);
-  return badRequest(res, MULTER_ERROR_MESSAGES[err.code] || "File upload error");
-}

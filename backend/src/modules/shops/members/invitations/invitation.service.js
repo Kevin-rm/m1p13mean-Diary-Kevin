@@ -2,29 +2,27 @@ import User from "#modules/users/user.model.js";
 import UserContext from "#modules/users/userContext.model.js";
 import Role from "#modules/users/role.model.js";
 import Invitation from "./invitation.model.js";
-import { err, success } from "#utils/objects.js";
+import { NotFoundError, BadRequestError } from "#utils/http/errors.js";
 
 export async function invite(shopId, { email, roleId }, invitedById) {
   const user = await User.findOne({ email });
-  if (!user) return err("user_not_found");
+  if (!user) throw new NotFoundError("User not found");
 
   const existing = await UserContext.findOne({ user: user._id, shop: shopId });
-  if (existing) return err("already_member");
+  if (existing) throw new BadRequestError("User is already a member");
 
   const pending = await Invitation.findOne({ shop: shopId, user: user._id, status: "pending" });
-  if (pending) return err("already_invited");
+  if (pending) throw new BadRequestError("Invitation already pending");
 
   const role = await Role.findById(roleId);
-  if (!role || role.code === "owner") return err("invalid_role");
+  if (!role || role.code === "owner") throw new BadRequestError("Invalid role");
 
-  const invitation = await Invitation.create({
+  return Invitation.create({
     shop: shopId,
     user: user._id,
     role: roleId,
     invitedBy: invitedById,
   });
-
-  return success(invitation);
 }
 
 export async function listByShop(shopId) {
@@ -50,11 +48,11 @@ export async function accept(invitationId, userId, session) {
   })
     .populate("role")
     .session(session);
-  if (!invitation) return err("not_found");
+  if (!invitation) throw new NotFoundError("Invitation not found");
 
   invitation.status = "accepted";
   await invitation.save({ session });
-  return success(invitation);
+  return invitation;
 }
 
 export async function decline(invitationId, userId) {
@@ -63,11 +61,11 @@ export async function decline(invitationId, userId) {
     user: userId,
     status: "pending",
   });
-  if (!invitation) return err("not_found");
+  if (!invitation) throw new NotFoundError("Invitation not found");
 
   invitation.status = "declined";
   await invitation.save();
-  return success(invitation);
+  return invitation;
 }
 
 export async function cancel(invitationId, shopId) {
@@ -76,9 +74,9 @@ export async function cancel(invitationId, shopId) {
     shop: shopId,
     status: "pending",
   });
-  if (!invitation) return err("not_found");
+  if (!invitation) throw new NotFoundError("Invitation not found");
 
   invitation.status = "cancelled";
   await invitation.save();
-  return success(invitation);
+  return invitation;
 }

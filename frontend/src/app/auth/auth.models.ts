@@ -9,7 +9,7 @@ export interface User {
 export interface UserContext {
   id: string;
   profile: { id: string; code: string; label: string; permissions: string[] };
-  role?: { id: string; code: string; label: string };
+  role?: { id: string; code: string; label: string; permissions?: string[] };
   shop?: { id: string; name: string; status: string };
 }
 

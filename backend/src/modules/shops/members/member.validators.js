@@ -1,9 +1,5 @@
-import { body } from "express-validator";
-import { mongoIdRules } from "#utils/validators.js";
+import { paramIdRules, bodyIdRules } from "#utils/validators.js";
 
-export const memberIdRules = [mongoIdRules("memberId")];
+export const memberIdRules = [paramIdRules("memberId")];
 
-export const updateRules = [
-  mongoIdRules("memberId"),
-  body("roleId").isMongoId().withMessage("Invalid role"),
-];
+export const updateRules = [paramIdRules("memberId"), bodyIdRules("roleId")];

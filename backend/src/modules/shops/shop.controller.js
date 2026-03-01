@@ -1,12 +1,7 @@
-import { ok, okOrNotFound, notFound, badRequest } from "#utils/http/apiResponse.js";
+import { ok, badRequest } from "#utils/http/apiResponse.js";
 import * as shopService from "./shop.service.js";
 
 const getId = req => req.resolvedId ?? req.params.id;
-
-export function resolveMyShop(req, _res, next) {
-  req.resolvedId = req.user.shop;
-  next();
-}
 
 export async function list(req, res) {
   const result = await shopService.list(req.query);
@@ -15,49 +10,39 @@ export async function list(req, res) {
 
 export async function get(req, res) {
   const shop = await shopService.getById(getId(req));
-  return okOrNotFound(res, shop, { entityName: "Shop" });
+  return ok(res, shop);
 }
 
 export async function update(req, res) {
   const shop = await shopService.update(getId(req), req.body);
-  return okOrNotFound(res, shop, { entityName: "Shop", message: "Shop updated" });
+  return ok(res, shop, "Shop updated");
 }
 
 export async function setLogo(req, res) {
   if (!req.file) return badRequest(res, "No file provided");
   const shop = await shopService.setLogo(getId(req), req.file);
-  if (!shop) return notFound(res, "Shop not found");
   return ok(res, shop, "Logo updated");
 }
 
 export async function addImages(req, res) {
   if (!req.files?.length) return badRequest(res, "At least one image is required");
-  const result = await shopService.addImages(getId(req), req.files);
-  if (result.error === "not_found") return notFound(res, "Shop not found");
-  return ok(res, result.data, "Images added");
+  const shop = await shopService.addImages(getId(req), req.files);
+  return ok(res, shop, "Images added");
 }
 
 export async function removeImage(req, res) {
   const { imageUrl } = req.body;
   if (!imageUrl) return badRequest(res, "imageUrl is required");
-  const result = await shopService.removeImage(getId(req), imageUrl);
-  if (result.error === "not_found") return notFound(res, "Shop not found");
-  if (result.error === "image_not_found") return notFound(res, "Image not found");
-  return ok(res, result.data, "Image removed");
+  const shop = await shopService.removeImage(getId(req), imageUrl);
+  return ok(res, shop, "Image removed");
 }
 
 export async function validateStatus(req, res) {
-  const result = await shopService.validate(req.params.id);
-  if (result.error === "not_found") return notFound(res, "Shop not found");
-  if (result.error === "invalid_status")
-    return badRequest(res, "Only pending shops can be validated");
-  return ok(res, result.data, "Shop validated");
+  const shop = await shopService.validate(req.params.id);
+  return ok(res, shop, "Shop validated");
 }
 
 export async function suspend(req, res) {
-  const result = await shopService.suspend(req.params.id);
-  if (result.error === "not_found") return notFound(res, "Shop not found");
-  if (result.error === "invalid_status")
-    return badRequest(res, "Only active shops can be suspended");
-  return ok(res, result.data, "Shop suspended");
+  const shop = await shopService.suspend(req.params.id);
+  return ok(res, shop, "Shop suspended");
 }

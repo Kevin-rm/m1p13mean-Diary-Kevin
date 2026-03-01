@@ -1,6 +1,8 @@
+import { NotFoundError } from "#utils/http/errors.js";
+
 export async function toggleActiveStatus(Model, filter, { populate } = {}) {
   const doc = await Model.findOne(typeof filter === "string" ? { _id: filter } : filter);
-  if (!doc) return null;
+  if (!doc) throw new NotFoundError();
 
   doc.isActive = !doc.isActive;
   await doc.save();

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { validate } from "#utils/http/validate.js";
 import { authenticate } from "#middlewares/authenticate.js";
 import { authorize } from "#middlewares/authorize.js";
-import { multipleImages, handleMulterError } from "#utils/upload/multer.js";
+import { multipleImages } from "#utils/upload/multer.js";
 import {
   listRules,
   getRules,
@@ -25,7 +25,6 @@ router.post(
   "/",
   authorize("products:write"),
   multipleImages("images", 5),
-  handleMulterError,
   validate(createRules),
   productController.create,
 );
@@ -43,7 +42,6 @@ router.post(
   "/:id/images",
   authorize("products:write"),
   multipleImages("images", 5),
-  handleMulterError,
   validate(removeImageRules),
   productController.addImages,
 );

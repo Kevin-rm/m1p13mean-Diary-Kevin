@@ -104,9 +104,10 @@ export class AuthService {
   }
 
   hasPermission(...permissions: string[]): boolean {
-    const profile = this._authState().context?.profile;
-    if (!profile) return false;
-    return permissions.every(p => profile.permissions.includes(p));
+    const ctx = this._authState().context;
+    if (!ctx?.profile) return false;
+    const all = [...ctx.profile.permissions, ...(ctx.role?.permissions ?? [])];
+    return permissions.every(p => all.includes(p));
   }
 
   hasProfile(...codes: string[]): boolean {

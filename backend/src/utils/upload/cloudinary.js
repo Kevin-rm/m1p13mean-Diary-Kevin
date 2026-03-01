@@ -1,4 +1,5 @@
 import cloudinary from "#config/cloudinary.js";
+import { NotFoundError } from "#utils/http/errors.js";
 
 const ROOT_FOLDER = "mallhub";
 const UPLOAD_SEGMENT = "/upload/";
@@ -41,6 +42,28 @@ export function extractPublicId(cloudinaryUrl) {
     .slice(uploadIndex + UPLOAD_SEGMENT.length)
     .replace(/^v\d+\//, "")
     .replace(/\.[^.]+$/, "");
+}
+
+export async function addDocumentImages(doc, imageFiles, folder) {
+  const results = await uploadImages(
+    imageFiles.map(f => f.buffer),
+    { folder },
+  );
+  doc.images.push(...results.map(r => r.url));
+  await doc.save();
+  return doc;
+}
+
+export async function removeDocumentImage(doc, imageUrl) {
+  const imageIndex = doc.images.indexOf(imageUrl);
+  if (imageIndex === -1) throw new NotFoundError("Image not found");
+
+  const publicId = extractPublicId(imageUrl);
+  if (publicId) await deleteImage(publicId);
+
+  doc.images.splice(imageIndex, 1);
+  await doc.save();
+  return doc;
 }
 
 export async function replaceDocumentImage(doc, field, file, folder) {

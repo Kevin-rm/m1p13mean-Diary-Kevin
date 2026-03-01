@@ -1,5 +1,5 @@
 import {
-  mongoIdRules,
+  paramIdRules,
   searchRule,
   isActiveRule,
   paginationRules,
@@ -11,10 +11,10 @@ const categoryName = resourceNameRules("Category name");
 
 export const listRules = [searchRule, isActiveRule, ...paginationRules];
 
-export const getRules = [mongoIdRules()];
+export const getRules = [paramIdRules()];
 
 export const createRules = [categoryName.required, descriptionRule];
 
-export const updateRules = [mongoIdRules(), categoryName.optional, descriptionRule];
+export const updateRules = [paramIdRules(), categoryName.optional, descriptionRule];
 
-export const toggleActiveRules = [mongoIdRules()];
+export const toggleActiveRules = [paramIdRules()];
