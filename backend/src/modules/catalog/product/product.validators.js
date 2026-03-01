@@ -28,11 +28,6 @@ export const createRules = [
     .isFloat({ min: 0 })
     .withMessage("Price must be a positive number")
     .toFloat(),
-  body("stock")
-    .optional()
-    .isInt({ min: 0 })
-    .withMessage("Stock must be a non-negative integer")
-    .toInt(),
   body("category")
     .notEmpty()
     .withMessage("Category is required")
@@ -49,11 +44,6 @@ export const updateRules = [
     .isFloat({ min: 0 })
     .withMessage("Price must be a positive number")
     .toFloat(),
-  body("stock")
-    .optional()
-    .isInt({ min: 0 })
-    .withMessage("Stock must be a non-negative integer")
-    .toInt(),
   body("category").optional().isMongoId().withMessage("Invalid category"),
 ];
 
