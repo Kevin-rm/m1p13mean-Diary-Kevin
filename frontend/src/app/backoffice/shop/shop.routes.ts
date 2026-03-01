@@ -1,8 +1,9 @@
 import { Routes } from "@angular/router";
 import { permissionGuard } from "@auth/guards/permission.guard";
+import { shopRedirectGuard } from "./shop-redirect.guard";
 
 export const shopRoutes: Routes = [
-  { path: "", redirectTo: "dashboard", pathMatch: "full" },
+  { path: "", canActivate: [shopRedirectGuard], children: [] },
   {
     path: "dashboard",
     canActivate: [permissionGuard("shops:manage")],

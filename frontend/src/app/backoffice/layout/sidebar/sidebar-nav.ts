@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 import { Ripple } from "primeng/ripple";
+import { AuthService } from "@auth/auth.service";
 import { BackofficeNavigation } from "../backoffice-navigation.service";
-import { SIDEBAR_ITEMS, SidebarItem } from "./sidebar-items.config";
+import { canAccessItem, SIDEBAR_ITEMS, SidebarItem } from "./sidebar-items.config";
 
 @Component({
   selector: "app-sidebar-nav",
@@ -11,8 +12,10 @@ import { SIDEBAR_ITEMS, SidebarItem } from "./sidebar-items.config";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarNav {
+  private readonly authService = inject(AuthService);
   private readonly nav = inject(BackofficeNavigation);
   private readonly expandedItems = new Set<string>();
+  private readonly canAccess = canAccessItem(p => this.authService.hasPermission(p));
 
   protected readonly linkActiveOptions = {
     paths: "exact" as const,
@@ -21,7 +24,17 @@ export class SidebarNav {
     fragment: "ignored" as const,
   };
 
-  protected readonly sections = computed(() => SIDEBAR_ITEMS[this.nav.activeSection()] ?? []);
+  protected readonly sections = computed(() =>
+    (SIDEBAR_ITEMS[this.nav.activeSection()] ?? [])
+      .map(s => ({
+        ...s,
+        items: s.items
+          .filter(this.canAccess)
+          .map(i => (i.children ? { ...i, children: i.children.filter(this.canAccess) } : i))
+          .filter(i => !i.children || i.children.length > 0),
+      }))
+      .filter(s => s.items.length > 0),
+  );
 
   collapsed = input(false);
 
