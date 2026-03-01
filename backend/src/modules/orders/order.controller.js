@@ -1,47 +1,40 @@
-import { ok, okOrNotFound, notFound, badRequest } from "#utils/http/apiResponse.js";
-import * as orderService from "./order.service";
+import { ok } from "#utils/http/apiResponse.js";
+import * as orderService from "./order.service.js";
 
-export async function listOrders(req, res) {
-  const result = await orderService.listOrders({
+export async function list(req, res) {
+  const result = await orderService.list({
     ...req.query,
-    shop: req.context.shop,
+    shop: req.user.shop,
   });
   return ok(res, result.data, undefined, result.meta);
 }
 
-export async function getOrder(req, res) {
-  const order = orderService.getOrderById(req.params.id, req.context.shop);
-  return okOrNotFound(res, order, { entityName: "Order" });
+export async function get(req, res) {
+  const order = await orderService.getById(req.params.id, req.user.shop);
+  return ok(res, order);
 }
 
-export async function confirmOrder(req, res) {
-  const result = await orderService.confirmOrder(req.params.id, req.context.user._id);
-  if (result.error === "not_found") return notFound(res, "Order not found");
-  if (result.error === "invalid_status")
-    return badRequest(res, "Only pending shops can be validated");
-  return ok(res, result.data, "Shop validated");
+export async function confirm(req, res) {
+  const order = await orderService.confirm(req.params.id, req.user.shop, req.user.userId);
+  return ok(res, order, "Order confirmed");
 }
 
-export async function refuseOrder(req, res) {
-  const result = await orderService.refuseOrder(
+export async function refuse(req, res) {
+  const order = await orderService.refuse(
     req.params.id,
-    req.context.user._id,
+    req.user.shop,
+    req.user.userId,
     req.body.reason,
   );
-  if (result.error === "not_found") return notFound(res, "Order not found");
-  if (result.error === "invalid_status")
-    return badRequest(res, "Only active shops can be suspended");
-  return ok(res, result.data, "Shop suspended");
+  return ok(res, order, "Order refused");
 }
 
-export async function cancelOrder(req, res) {
-  const result = await orderService.cancelOrder(
+export async function cancel(req, res) {
+  const order = await orderService.cancel(
     req.params.id,
-    req.context.user._id,
+    req.user.shop,
+    req.user.userId,
     req.body.reason,
   );
-  if (result.error === "not_found") return notFound(res, "Order not found");
-  if (result.error === "invalid_status")
-    return badRequest(res, "Only active shops can be suspended");
-  return ok(res, result.data, "Shop suspended");
+  return ok(res, order, "Order cancelled");
 }

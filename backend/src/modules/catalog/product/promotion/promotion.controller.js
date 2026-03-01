@@ -1,50 +1,31 @@
-import { ok, created, okOrNotFound, notFound, badRequest } from "#utils/http/apiResponse.js";
-
+import { ok, created } from "#utils/http/apiResponse.js";
+import { activeLabel } from "#utils/objects.js";
 import * as promotionService from "./promotion.service.js";
 
-export async function listPromotions(req, res) {
-  const result = await promotionService.listPromotions({
+export async function list(req, res) {
+  const result = await promotionService.list({
     ...req.query,
-    shop: req.context.shop,
+    shop: req.user.shop,
   });
-
   return ok(res, result.data, undefined, result.meta);
 }
 
-export async function getPromotion(req, res) {
-  const promotion = await promotionService.getPromotionById(req.params.id, req.context.shop);
-
-  return okOrNotFound(res, promotion, { entityName: "Promotion" });
+export async function get(req, res) {
+  const promotion = await promotionService.getById(req.params.id, req.user.shop);
+  return ok(res, promotion);
 }
 
-export async function createPromotion(req, res) {
-  const result = await promotionService.createPromotion(req.body, req.context.shop);
-
-  if (result.error === "not_found") return notFound(res, "Product not found");
-
-  if (result.error === "invalid_dates") return badRequest(res, "End date must be after start date");
-
-  return created(res, result.data, "Promotion created");
+export async function create(req, res) {
+  const promotion = await promotionService.create(req.body, req.user.shop);
+  return created(res, promotion, "Promotion created");
 }
 
-export async function updatePromotion(req, res) {
-  const promotion = await promotionService.updatePromotion(
-    req.params.id,
-    req.context.shop,
-    req.body,
-  );
-
-  return okOrNotFound(res, promotion, {
-    message: "Promotion updated",
-    entityName: "Promotion",
-  });
+export async function update(req, res) {
+  const promotion = await promotionService.update(req.params.id, req.user.shop, req.body);
+  return ok(res, promotion, "Promotion updated");
 }
 
 export async function toggleActive(req, res) {
-  const promotion = await promotionService.toggleActive(req.params.id, req.context.shop);
-
-  return okOrNotFound(res, promotion, {
-    message: "Promotion status updated",
-    entityName: "Promotion",
-  });
+  const promotion = await promotionService.toggleActive(req.params.id, req.user.shop);
+  return ok(res, promotion, `Promotion ${activeLabel(promotion.isActive)}`);
 }

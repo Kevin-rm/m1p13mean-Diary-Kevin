@@ -1,40 +1,33 @@
-import { authenticate } from "#middlewares/authenticate.js";
-import { validate } from "#utils/http/validate.js";
 import { Router } from "express";
-import {
-  listOrdersRules,
-  getOrderRules,
-  confirmOrderRules,
-  refuseOrderRules,
-  cancelOrderRules,
-} from "./order.validators";
-import * as orderController from "./order.controller.js";
+import { authenticate } from "#middlewares/authenticate.js";
 import { authorize } from "#middlewares/authorize.js";
+import { validate } from "#utils/http/validate.js";
+import { listRules, getRules, confirmRules, refuseRules, cancelRules } from "./order.validators.js";
+import * as orderController from "./order.controller.js";
 
 const router = Router();
+
 router.use(authenticate);
 
-router.get("/", validate(listOrdersRules), orderController.listOrders);
-router.get("/:id", authorize("shop:settings"), validate(getOrderRules), orderController.getOrder);
+router.get("/", authorize("orders:read"), validate(listRules), orderController.list);
+router.get("/:id", authorize("orders:read"), validate(getRules), orderController.get);
 router.patch(
   "/:id/confirm",
-  authorize("shops:validate"),
-  validate(confirmOrderRules),
-  orderController.confirmOrder,
+  authorize("orders:manage"),
+  validate(confirmRules),
+  orderController.confirm,
 );
-
 router.patch(
-  "/:id/suspend",
-  authorize("shops:suspend"),
-  validate(refuseOrderRules),
-  orderController.refuseOrder,
+  "/:id/refuse",
+  authorize("orders:manage"),
+  validate(refuseRules),
+  orderController.refuse,
 );
-
 router.patch(
   "/:id/cancel",
-  authorize("shops:suspend"),
-  validate(cancelOrderRules),
-  orderController.cancelOrder,
+  authorize("orders:manage"),
+  validate(cancelRules),
+  orderController.cancel,
 );
 
 export default router;

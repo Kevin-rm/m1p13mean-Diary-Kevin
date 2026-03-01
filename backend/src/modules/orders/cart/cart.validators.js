@@ -1,18 +1,32 @@
 import { body } from "express-validator";
 
-export const addItemCartRules = [
+export const addItemRules = [
   body("productId")
-    .exists()
+    .notEmpty()
+    .withMessage("Product is required")
     .isMongoId()
-    .withMessage("productId is required and must be a valid ID"),
-  body("shopId").exists().isMongoId().withMessage("shopId is required and must be a valid ID"),
-  body("quantity").optional().isInt({ min: 1 }).withMessage("quantity must be a positive integer"),
+    .withMessage("Invalid product id"),
+  body("shopId")
+    .notEmpty()
+    .withMessage("Shop is required")
+    .isMongoId()
+    .withMessage("Invalid shop id"),
+  body("quantity")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Quantity must be a positive integer")
+    .toInt(),
 ];
 
-export const removeItemCartRules = [
+export const removeItemRules = [
   body("productId")
-    .exists()
+    .notEmpty()
+    .withMessage("Product is required")
     .isMongoId()
-    .withMessage("productId is required and must be a valid ID"),
-  body("shopId").exists().isMongoId().withMessage("shopId is required and must be a valid ID"),
+    .withMessage("Invalid product id"),
+  body("shopId")
+    .notEmpty()
+    .withMessage("Shop is required")
+    .isMongoId()
+    .withMessage("Invalid shop id"),
 ];

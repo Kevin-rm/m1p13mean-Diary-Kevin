@@ -10,20 +10,20 @@ import { UPLOAD_FOLDERS } from "#utils/constants.js";
 
 export async function updateProfile(userId, { firstName, lastName }) {
   const user = await User.findByIdAndUpdate(userId, { firstName, lastName }, { new: true });
-  if (!user) throw new NotFoundError("User not found");
+  if (!user) throw new NotFoundError(User.modelName);
   return user;
 }
 
 export async function updateAvatar(userId, file) {
   const user = await User.findById(userId);
-  if (!user) throw new NotFoundError("User not found");
+  if (!user) throw new NotFoundError(User.modelName);
 
   return replaceDocumentImage(user, "avatarUrl", file, UPLOAD_FOLDERS.AVATARS);
 }
 
 export async function changePassword(userId, { currentPassword, newPassword }) {
   const user = await User.findById(userId).select("+password");
-  if (!user) throw new NotFoundError("User not found");
+  if (!user) throw new NotFoundError(User.modelName);
 
   const isMatch = await user.comparePassword(currentPassword);
   if (!isMatch) throw new BadRequestError("Current password is incorrect");

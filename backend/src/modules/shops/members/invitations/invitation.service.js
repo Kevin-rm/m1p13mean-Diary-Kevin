@@ -2,11 +2,12 @@ import User from "#modules/users/user.model.js";
 import UserContext from "#modules/users/userContext.model.js";
 import Role from "#modules/users/role.model.js";
 import Invitation from "./invitation.model.js";
+import { transitionStatus } from "#utils/db/status.js";
 import { NotFoundError, BadRequestError } from "#utils/http/errors.js";
 
 export async function invite(shopId, { email, roleId }, invitedById) {
   const user = await User.findOne({ email });
-  if (!user) throw new NotFoundError("User not found");
+  if (!user) throw new NotFoundError(User.modelName);
 
   const existing = await UserContext.findOne({ user: user._id, shop: shopId });
   if (existing) throw new BadRequestError("User is already a member");
@@ -41,42 +42,24 @@ export async function listByUser(userId) {
 }
 
 export async function accept(invitationId, userId, session) {
-  const invitation = await Invitation.findOne({
-    _id: invitationId,
-    user: userId,
-    status: "pending",
-  })
-    .populate("role")
-    .session(session);
-  if (!invitation) throw new NotFoundError("Invitation not found");
-
-  invitation.status = "accepted";
-  await invitation.save({ session });
-  return invitation;
+  return transitionStatus(Invitation, {
+    filter: { _id: invitationId, user: userId, status: "pending" },
+    toStatus: "accepted",
+    populate: "role",
+    session,
+  });
 }
 
 export async function decline(invitationId, userId) {
-  const invitation = await Invitation.findOne({
-    _id: invitationId,
-    user: userId,
-    status: "pending",
+  return transitionStatus(Invitation, {
+    filter: { _id: invitationId, user: userId, status: "pending" },
+    toStatus: "declined",
   });
-  if (!invitation) throw new NotFoundError("Invitation not found");
-
-  invitation.status = "declined";
-  await invitation.save();
-  return invitation;
 }
 
 export async function cancel(invitationId, shopId) {
-  const invitation = await Invitation.findOne({
-    _id: invitationId,
-    shop: shopId,
-    status: "pending",
+  return transitionStatus(Invitation, {
+    filter: { _id: invitationId, shop: shopId, status: "pending" },
+    toStatus: "cancelled",
   });
-  if (!invitation) throw new NotFoundError("Invitation not found");
-
-  invitation.status = "cancelled";
-  await invitation.save();
-  return invitation;
 }

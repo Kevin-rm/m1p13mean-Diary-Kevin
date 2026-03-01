@@ -1,8 +1,8 @@
-import { mongoIdRules, paginationRules, searchRule } from "#utils/validators.js";
+import { paramIdRules, paginationRules, searchRule } from "#utils/validators.js";
 import { body, query } from "express-validator";
-import { ORDER_STATUSES } from "./order.model";
+import { ORDER_STATUSES } from "./order.model.js";
 
-export const listOrdersRules = [
+export const listRules = [
   searchRule,
   query("status")
     .optional()
@@ -11,7 +11,7 @@ export const listOrdersRules = [
   ...paginationRules,
 ];
 
-export const getOrderRules = [mongoIdRules()];
-export const confirmOrderRules = [mongoIdRules()];
-export const refuseOrderRules = [mongoIdRules(), body("reason").optional().isString().trim()];
-export const cancelOrderRules = [mongoIdRules(), body("reason").optional().isString().trim()];
+export const getRules = [paramIdRules()];
+export const confirmRules = [paramIdRules()];
+export const refuseRules = [paramIdRules(), body("reason").optional().isString().trim()];
+export const cancelRules = [paramIdRules(), body("reason").optional().isString().trim()];

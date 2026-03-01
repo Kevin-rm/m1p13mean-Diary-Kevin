@@ -1,6 +1,6 @@
 import UserContext from "#modules/users/userContext.model.js";
 import Role from "#modules/users/role.model.js";
-import { toggleActiveStatus } from "#utils/db/toggleActive.js";
+import { toggleActiveStatus } from "#utils/db/status.js";
 import { NotFoundError, BadRequestError } from "#utils/http/errors.js";
 
 const MEMBER_POPULATE = [
@@ -10,7 +10,7 @@ const MEMBER_POPULATE = [
 
 async function findMember(memberId, shopId) {
   const context = await UserContext.findOne({ _id: memberId, shop: shopId }).populate("role");
-  if (!context) throw new NotFoundError("Member not found");
+  if (!context) throw new NotFoundError("Member");
   if (context.role?.code === "owner") throw new BadRequestError("Cannot modify the owner");
   return context;
 }

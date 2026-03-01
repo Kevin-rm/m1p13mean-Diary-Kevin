@@ -1,36 +1,20 @@
-import { ok, created, okOrNotFound, notFound, badRequest } from "#utils/http/apiResponse.js";
+import { ok, created } from "#utils/http/apiResponse.js";
+import * as stockMovementService from "./stockmovement.service.js";
 
-import * as stockService from "./stockmovement.service.js";
-
-export async function listStockMovements(req, res) {
-  const result = await stockService.listStockMovements({
+export async function list(req, res) {
+  const result = await stockMovementService.list({
     ...req.query,
-    shop: req.context.shop,
+    shop: req.user.shop,
   });
-
   return ok(res, result.data, undefined, result.meta);
 }
 
-export async function getStockMovement(req, res) {
-  const movement = await stockService.getStockMovementById(req.params.id, req.context.shop);
-
-  return okOrNotFound(res, movement, {
-    entityName: "Stock movement",
-  });
+export async function get(req, res) {
+  const movement = await stockMovementService.getById(req.params.id, req.user.shop);
+  return ok(res, movement);
 }
 
-export async function createStockMovement(req, res) {
-  const result = await stockService.createStockMovement(
-    req.body,
-    req.context.shop,
-    req.context.user._id,
-  );
-
-  if (result.error === "invalid_type") return badRequest(res, "Invalid stock movement type");
-
-  if (result.error === "not_found") return notFound(res, "Product not found");
-
-  if (result.error === "insufficient_stock") return badRequest(res, "Insufficient stock");
-
-  return created(res, result.data, "Stock updated successfully");
+export async function create(req, res) {
+  const movement = await stockMovementService.create(req.body, req.user.shop, req.user.userId);
+  return created(res, movement, "Stock updated");
 }

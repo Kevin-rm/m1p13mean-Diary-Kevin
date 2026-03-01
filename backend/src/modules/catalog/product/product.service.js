@@ -2,7 +2,7 @@ import Product from "./product.model.js";
 import { paginate } from "#utils/db/paginate.js";
 import { throwIfDuplicateKey } from "#utils/db/errors.js";
 import { pickDefined } from "#utils/objects.js";
-import { toggleActiveStatus } from "#utils/db/toggleActive.js";
+import { toggleActiveStatus } from "#utils/db/status.js";
 import { uploadImages, addDocumentImages, removeDocumentImage } from "#utils/upload/cloudinary.js";
 import { UPLOAD_FOLDERS } from "#utils/constants.js";
 import { NotFoundError } from "#utils/http/errors.js";
@@ -23,7 +23,7 @@ export async function list({ shop, search, category, isActive, page, limit }) {
 
 export async function getById(id, shop) {
   const product = await Product.findOne({ _id: id, shop }).populate("category", "name");
-  if (!product) throw new NotFoundError("Product not found");
+  if (!product) throw new NotFoundError(Product.modelName);
   return product;
 }
 
@@ -61,7 +61,7 @@ export async function update(id, shop, data) {
       new: true,
       runValidators: true,
     }).populate("category", "name");
-    if (!product) throw new NotFoundError("Product not found");
+    if (!product) throw new NotFoundError(Product.modelName);
     return product;
   } catch (error) {
     throwIfDuplicateKey(error, { name: "A product with this name already exists in your shop" });
@@ -78,14 +78,14 @@ export async function toggleActive(id, shop) {
 
 export async function addImages(id, shop, imageFiles) {
   const product = await Product.findOne({ _id: id, shop });
-  if (!product) throw new NotFoundError("Product not found");
+  if (!product) throw new NotFoundError(Product.modelName);
   await addDocumentImages(product, imageFiles, UPLOAD_FOLDERS.PRODUCTS);
   return product.populate("category", "name");
 }
 
 export async function removeImage(id, shop, imageUrl) {
   const product = await Product.findOne({ _id: id, shop });
-  if (!product) throw new NotFoundError("Product not found");
+  if (!product) throw new NotFoundError(Product.modelName);
   await removeDocumentImage(product, imageUrl);
   return product.populate("category", "name");
 }

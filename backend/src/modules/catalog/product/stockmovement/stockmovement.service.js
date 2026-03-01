@@ -1,46 +1,39 @@
-import { StockMovement } from "./stockmovement.model.js";
-import Product from "../product/product.model.js";
+import StockMovement from "./stockmovement.model.js";
+import Product from "../product.model.js";
 import { paginate } from "#utils/db/paginate.js";
-import { err, success } from "#utils/objects.js";
+import { NotFoundError, BadRequestError } from "#utils/http/errors.js";
 
-export async function listStockMovements({ shop, product, page, limit }) {
+const POPULATE = [
+  { path: "product", select: "name" },
+  { path: "performedBy", select: "firstName lastName email" },
+];
+
+export async function list({ shop, product, page, limit }) {
   const filter = { shop };
   if (product) filter.product = product;
 
-  return paginate(StockMovement, {
-    filter,
-    page,
-    limit,
-    populate: [
-      { path: "product", select: "name" },
-      { path: "performedBy", select: "firstName lastName email" },
-    ],
-  });
+  return paginate(StockMovement, { filter, page, limit, populate: POPULATE });
 }
 
-export async function getStockMovementById(id, shop) {
-  return StockMovement.findOne({ _id: id, shop })
-    .populate("product", "name")
-    .populate("performedBy", "firstName lastName email");
+export async function getById(id, shop) {
+  const movement = await StockMovement.findOne({ _id: id, shop }).populate(POPULATE);
+  if (!movement) throw new NotFoundError(StockMovement.modelName);
+  return movement;
 }
 
-export async function createStockMovement({ productId, type, quantity, reason }, shop, userId) {
+export async function create({ productId, type, quantity, reason }, shop, userId) {
   const product = await Product.findOne({ _id: productId, shop });
-  if (!product) return err("not_found");
+  if (!product) throw new NotFoundError(Product.modelName);
 
   const previousStock = product.stock;
-  let newStock = previousStock;
+  let newStock;
 
   if (type === "in") {
-    newStock += quantity;
-  }
-
-  if (type === "out") {
-    if (previousStock < quantity) return err("insufficient_stock");
-    newStock -= quantity;
-  }
-
-  if (type === "adjustment") {
+    newStock = previousStock + quantity;
+  } else if (type === "out") {
+    if (previousStock < quantity) throw new BadRequestError("Insufficient stock");
+    newStock = previousStock - quantity;
+  } else {
     newStock = quantity;
   }
 
@@ -58,10 +51,5 @@ export async function createStockMovement({ productId, type, quantity, reason },
     newStock,
   });
 
-  return success(
-    await movement.populate([
-      { path: "product", select: "name" },
-      { path: "performedBy", select: "firstName lastName email" },
-    ]),
-  );
+  return movement.populate(POPULATE);
 }

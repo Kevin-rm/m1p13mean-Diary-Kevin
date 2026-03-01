@@ -14,7 +14,7 @@ import { canAccessItem, SIDEBAR_ITEMS, SidebarItem } from "./sidebar-items.confi
 export class SidebarNav {
   private readonly authService = inject(AuthService);
   private readonly nav = inject(BackofficeNavigation);
-  private readonly expandedItems = signal(new Set<string>());
+  private readonly manualOverrides = signal(new Map<string, boolean>());
   private readonly canAccess = canAccessItem(p => this.authService.hasPermission(p));
 
   protected readonly linkActiveOptions = {
@@ -38,11 +38,11 @@ export class SidebarNav {
 
   protected readonly expanded = computed(() => {
     const url = this.nav.currentUrl();
-    const manual = this.expandedItems();
-    const labels = new Set(manual);
+    const overrides = this.manualOverrides();
+    const labels = new Set<string>();
     for (const section of this.sections()) {
       for (const item of section.items) {
-        if (item.children?.some(c => url.startsWith(c.routerLink!))) {
+        if (overrides.get(item.label) ?? item.children?.some(c => url.startsWith(c.routerLink!))) {
           labels.add(item.label);
         }
       }
@@ -53,12 +53,8 @@ export class SidebarNav {
   collapsed = input(false);
 
   protected toggle(item: SidebarItem): void {
-    this.expandedItems.update(set => {
-      const next = new Set(set);
-      if (next.has(item.label)) next.delete(item.label);
-      else next.add(item.label);
-      return next;
-    });
+    const wasExpanded = this.expanded().has(item.label);
+    this.manualOverrides.update(map => new Map(map).set(item.label, !wasExpanded));
   }
 
   protected isExpanded(item: SidebarItem): boolean {

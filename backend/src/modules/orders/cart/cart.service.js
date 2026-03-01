@@ -1,72 +1,60 @@
 import Cart from "./cart.model.js";
 import Order from "../order.model.js";
-import { err, success } from "#utils/objects.js";
+import { NotFoundError, BadRequestError } from "#utils/http/errors.js";
 
-export async function getCartOrder(userId) {
+export async function get(userId) {
   const cart = await Cart.findOne({ user: userId })
     .populate("items.product", "name price imageUrl")
     .populate("items.shop", "name");
 
-  if (!cart) return success({ items: [] });
-
-  return success(cart);
+  return cart ?? { items: [] };
 }
 
-export async function addItemCart(userId, { productId, shopId, quantity = 1 }) {
+export async function addItem(userId, { productId, shopId, quantity = 1 }) {
   let cart = await Cart.findOne({ user: userId });
 
   if (!cart) {
     cart = new Cart({ user: userId, items: [] });
   }
 
-  // Vérifier si le produit existe déjà dans le panier
   const existingItem = cart.items.find(
     item => item.product.toString() === productId && item.shop.toString() === shopId,
   );
 
   if (existingItem) {
-    // Si le produit existe déjà, on incrémente la quantité
     existingItem.quantity += quantity;
   } else {
-    // Ajouter le produit
-    cart.items.push({
-      product: productId,
-      shop: shopId,
-      quantity,
-    });
+    cart.items.push({ product: productId, shop: shopId, quantity });
   }
 
   await cart.save();
-  return success(cart);
+  return cart;
 }
 
-export async function removeItemCart(userId, { productId, shopId }) {
+export async function removeItem(userId, { productId, shopId }) {
   const cart = await Cart.findOne({ user: userId });
-  if (!cart) return err("Cart not found");
+  if (!cart) throw new NotFoundError(Cart.modelName);
 
   cart.items = cart.items.filter(
     item => !(item.product.toString() === productId && item.shop.toString() === shopId),
   );
 
   await cart.save();
-  return success(cart);
+  return cart;
 }
 
-export async function validateCart(userId) {
+export async function validate(userId) {
   const cart = await Cart.findOne({ user: userId }).populate(
     "items.product",
     "name price imageUrl",
   );
 
   if (!cart || cart.items.length === 0) {
-    return err("Cart is empty");
+    throw new BadRequestError("Cart is empty");
   }
 
-  // Pour chaque shop, créer une commande séparée
-  const orders = [];
   const itemsByShop = {};
-
-  cart.items.forEach(item => {
+  for (const item of cart.items) {
     const shopId = item.shop.toString();
     if (!itemsByShop[shopId]) itemsByShop[shopId] = [];
     itemsByShop[shopId].push({
@@ -77,29 +65,26 @@ export async function validateCart(userId) {
       quantity: item.quantity,
       subtotal: item.product.price * item.quantity,
     });
-  });
+  }
 
+  const orders = [];
   for (const shopId in itemsByShop) {
     const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const items = itemsByShop[shopId];
     const totalAmount = items.reduce((sum, i) => sum + i.subtotal, 0);
 
-    const order = new Order({
+    const order = await Order.create({
       orderNumber,
       buyer: userId,
       shop: shopId,
       items,
       totalAmount,
-      status: "pending",
-      statusHistory: [],
     });
-
-    await order.save();
     orders.push(order);
   }
 
   cart.items = [];
   await cart.save();
 
-  return success({ orders });
+  return { orders };
 }

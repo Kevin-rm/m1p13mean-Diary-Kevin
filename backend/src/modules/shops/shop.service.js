@@ -1,7 +1,8 @@
 import Shop from "./shop.model.js";
 import { paginate } from "#utils/db/paginate.js";
 import { pickDefined } from "#utils/objects.js";
-import { NotFoundError, BadRequestError } from "#utils/http/errors.js";
+import { transitionStatus } from "#utils/db/status.js";
+import { NotFoundError } from "#utils/http/errors.js";
 import {
   addDocumentImages,
   removeDocumentImage,
@@ -24,7 +25,7 @@ export async function list({ search, status, page, limit }) {
 
 export async function getById(id) {
   const shop = await Shop.findById(id).populate("owner", "firstName lastName email");
-  if (!shop) throw new NotFoundError("Shop not found");
+  if (!shop) throw new NotFoundError(Shop.modelName);
   return shop;
 }
 
@@ -33,43 +34,41 @@ const UPDATABLE_FIELDS = ["description", "contactEmail", "contactPhone", "schedu
 export async function update(id, data) {
   const update = pickDefined(data, UPDATABLE_FIELDS);
   const shop = await Shop.findByIdAndUpdate(id, update, { new: true, runValidators: true });
-  if (!shop) throw new NotFoundError("Shop not found");
+  if (!shop) throw new NotFoundError(Shop.modelName);
   return shop;
 }
 
 export async function setLogo(id, file) {
   const shop = await Shop.findById(id);
-  if (!shop) throw new NotFoundError("Shop not found");
+  if (!shop) throw new NotFoundError(Shop.modelName);
 
   return replaceDocumentImage(shop, "logoUrl", file, UPLOAD_FOLDERS.SHOPS);
 }
 
 export async function addImages(id, imageFiles) {
   const shop = await Shop.findById(id);
-  if (!shop) throw new NotFoundError("Shop not found");
+  if (!shop) throw new NotFoundError(Shop.modelName);
   return addDocumentImages(shop, imageFiles, UPLOAD_FOLDERS.SHOPS);
 }
 
 export async function removeImage(id, imageUrl) {
   const shop = await Shop.findById(id);
-  if (!shop) throw new NotFoundError("Shop not found");
+  if (!shop) throw new NotFoundError(Shop.modelName);
   return removeDocumentImage(shop, imageUrl);
 }
 
-async function transitionStatus(id, fromStatus, toStatus, errorMessage) {
-  const shop = await Shop.findById(id);
-  if (!shop) throw new NotFoundError("Shop not found");
-  if (shop.status !== fromStatus) throw new BadRequestError(errorMessage);
-
-  shop.status = toStatus;
-  await shop.save();
-  return shop;
-}
-
 export async function validate(id) {
-  return transitionStatus(id, "pending", "active", "Only pending shops can be validated");
+  return transitionStatus(Shop, {
+    filter: { _id: id },
+    fromStatus: "pending",
+    toStatus: "active",
+  });
 }
 
 export async function suspend(id) {
-  return transitionStatus(id, "active", "suspended", "Only active shops can be suspended");
+  return transitionStatus(Shop, {
+    filter: { _id: id },
+    fromStatus: "active",
+    toStatus: "suspended",
+  });
 }
