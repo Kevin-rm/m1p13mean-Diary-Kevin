@@ -12,8 +12,9 @@ export interface StockMovement extends BaseModel {
   date: string;
   type: "in" | "out" | "adjustment";
   note?: string;
+  lineCount: number;
   lines: MovementLine[];
-  performedBy: { id: string; firstName: string; lastName: string; email: string };
+  performedBy: { id: string; firstName: string; lastName: string };
 }
 
 export const MOVEMENT_TYPES = ["in", "out", "adjustment"] as const;

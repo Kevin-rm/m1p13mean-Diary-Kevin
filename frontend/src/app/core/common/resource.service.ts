@@ -43,14 +43,16 @@ export function Listable<T>() {
 export function Selectable() {
   return <TBase extends AbstractCtor<ResourceService>>(Base: TBase) => {
     abstract class SelectableResource extends Base {
-      listForSelect(): Observable<ApiResponse<SelectOption[]>> {
-        return this.http.get<ApiResponse<SelectOption[]>>(`${this.baseUrl}/select`);
+      listForSelect(params: Record<string, unknown> = {}): Observable<ApiResponse<SelectOption[]>> {
+        return this.http.get<ApiResponse<SelectOption[]>>(`${this.baseUrl}/select`, {
+          params: buildQueryParams(params),
+        });
       }
 
-      selectQueryOptions() {
+      selectQueryOptions(params: Record<string, unknown> = {}) {
         return {
-          queryKey: [this.resourcePath, "select"] as const,
-          queryFn: () => lastValueFrom(this.listForSelect()),
+          queryKey: [this.resourcePath, "select", params] as const,
+          queryFn: () => lastValueFrom(this.listForSelect(params)),
         };
       }
     }

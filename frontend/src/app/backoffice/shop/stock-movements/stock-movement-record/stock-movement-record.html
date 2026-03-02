@@ -1,24 +1,14 @@
 <app-record-page title="Détail du mouvement" [loading]="loading()" defaultTabLabel="Résumé">
   @if (movement(); as m) {
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      <div>
-        <span class="text-muted-color text-sm">Date</span>
-        <p class="mt-1 mb-0 font-medium">{{ m.date | date: "dd/MM/yyyy" }}</p>
-      </div>
-      <div>
-        <span class="text-muted-color text-sm">Type</span>
-        <p class="mt-1 mb-0">
-          <app-tag [value]="m.type" [config]="movementTypeTag" />
-        </p>
-      </div>
-      <div>
-        <span class="text-muted-color text-sm">Note</span>
-        <p class="mt-1 mb-0">{{ m.note | noValue }}</p>
-      </div>
-      <div>
-        <span class="text-muted-color text-sm">Effectué par</span>
-        <p class="mt-1 mb-0">{{ m.performedBy | fullName }}</p>
-      </div>
+      <app-readonly-field inputId="date" label="Date" [value]="m.date | date: 'dd/MM/yyyy'" />
+      <app-readonly-field inputId="type" label="Type" [value]="movementTypeTag[m.type]?.label" />
+      <app-readonly-field inputId="note" label="Note" [value]="m.note" />
+      <app-readonly-field
+        inputId="performedBy"
+        label="Effectué par"
+        [value]="m.performedBy | fullName"
+      />
     </div>
 
     <h3 class="text-lg font-semibold mt-6 mb-3">Lignes ({{ m.lines.length }})</h3>
@@ -33,7 +23,14 @@
       </ng-template>
       <ng-template #body let-line>
         <tr>
-          <td class="font-medium">{{ line.product.name }}</td>
+          <td class="font-medium">
+            <a
+              [routerLink]="['/backoffice/shop/products', line.product.id]"
+              class="text-primary hover:underline"
+            >
+              {{ line.product.name }}
+            </a>
+          </td>
           <td>{{ line.quantity }}</td>
           <td>{{ line.previousStock }}</td>
           <td>{{ line.newStock }}</td>

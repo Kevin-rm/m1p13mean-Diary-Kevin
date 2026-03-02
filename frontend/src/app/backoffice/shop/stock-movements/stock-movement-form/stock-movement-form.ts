@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from "@angular/core";
 import { Router } from "@angular/router";
 import { NgTemplateOutlet } from "@angular/common";
 import {
@@ -20,6 +27,7 @@ import { Card } from "primeng/card";
 import { Fieldset } from "primeng/fieldset";
 import { Fluid } from "primeng/fluid";
 import { FormField } from "@shared/components/form-field";
+import { FormRepeater } from "@backoffice/components/form-repeater";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/components/page-header";
 import { extractErrorMessage } from "@core/utils/error";
@@ -48,6 +56,7 @@ interface LineForm {
     Fieldset,
     Fluid,
     FormField,
+    FormRepeater,
     PageHeader,
   ],
   templateUrl: "./stock-movement-form.html",
@@ -60,8 +69,12 @@ export class StockMovementForm implements OnInit {
   private readonly toast = inject(Toast);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly productsQuery = injectQuery(() => ({
+    ...this.productService.selectQueryOptions({ search: this.productSearch() }),
+    enabled: this.productSearch().length > 0,
+  }));
 
-  private readonly productsQuery = injectQuery(() => this.productService.selectQueryOptions());
+  protected readonly productSearch = signal("");
 
   protected readonly form = this.fb.nonNullable.group({
     date: [new Date(), Validators.required],

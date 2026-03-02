@@ -4,20 +4,29 @@ import { paginate } from "#utils/db/paginate.js";
 import { withTransaction } from "#utils/db/withTransaction.js";
 import { NotFoundError, BadRequestError } from "#utils/http/errors.js";
 
-const POPULATE = [
-  { path: "lines.product", select: "name" },
-  { path: "performedBy", select: "firstName lastName email" },
-];
-
-export async function list({ shop, product, page, limit }) {
+export async function list({ shop, type, dateFrom, dateTo, page, limit }) {
   const filter = { shop };
-  if (product) filter["lines.product"] = product;
+  if (type) filter.type = type;
+  if (dateFrom || dateTo) {
+    filter.date = {};
+    if (dateFrom) filter.date.$gte = new Date(dateFrom);
+    if (dateTo) filter.date.$lte = new Date(dateTo);
+  }
 
-  return paginate(StockMovement, { filter, page, limit, populate: POPULATE });
+  return paginate(StockMovement, {
+    filter,
+    page,
+    limit,
+    select: "-lines",
+    populate: { path: "performedBy", select: "firstName lastName" },
+  });
 }
 
 export async function getById(id, shop) {
-  const movement = await StockMovement.findOne({ _id: id, shop }).populate(POPULATE);
+  const movement = await StockMovement.findOne({ _id: id, shop }).populate([
+    { path: "lines.product", select: "name" },
+    { path: "performedBy", select: "firstName lastName" },
+  ]);
   if (!movement) throw new NotFoundError(StockMovement.modelName);
   return movement;
 }
@@ -64,10 +73,23 @@ export async function create({ date, type, lines, note }, shop, userId) {
     );
 
     const [movement] = await StockMovement.create(
-      [{ shop, performedBy: userId, date, type, note, lines: movementLines }],
+      [
+        {
+          shop,
+          performedBy: userId,
+          date,
+          type,
+          note,
+          lines: movementLines,
+          lineCount: movementLines.length,
+        },
+      ],
       { session },
     );
 
-    return movement.populate(POPULATE);
+    return movement.populate([
+      { path: "lines.product", select: "name" },
+      { path: "performedBy", select: "firstName lastName" },
+    ]);
   });
 }

@@ -17,7 +17,7 @@ import { MenuItem } from "primeng/api";
 import { AuthService } from "@auth/auth.service";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/components/page-header";
-import { ActiveTag } from "@shared/components/active-tag";
+import { ActiveTag } from "@backoffice/components/active-tag";
 import { UserAvatar } from "@shared/components/user-avatar";
 import { ContactLink } from "@shared/components/contact-link";
 import { Loader } from "@shared/components/loader";

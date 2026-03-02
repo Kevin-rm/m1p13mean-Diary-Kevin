@@ -10,7 +10,7 @@ import { ConfirmationService } from "primeng/api";
 import { ConfirmDialog } from "primeng/confirmdialog";
 import { Image } from "primeng/image";
 import { Button } from "primeng/button";
-import { ImageUpload } from "@shared/components/image-upload";
+import { ImageUpload } from "@backoffice/components/image-upload";
 
 @Component({
   selector: "app-image-section",

@@ -71,7 +71,7 @@ export class RecordPageTab {
           </div>
         </div>
       }
-      <p-tabs [value]="activeTab()">
+      <p-tabs [value]="activeTab() ?? defaultTabLabel()">
         <p-tablist>
           <p-tab [value]="defaultTabLabel()" (click)="onTabClick(defaultTabLabel())">{{
             defaultTabLabel()
@@ -98,8 +98,8 @@ export class RecordPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly extraTabs = contentChildren(RecordPageTab);
-  protected readonly activeTab = signal<string | number>(
-    this.route.snapshot.queryParams["tab"] || "Informations",
+  protected readonly activeTab = signal<string | null>(
+    this.route.snapshot.queryParams["tab"] ?? null,
   );
 
   title = input.required<string>();
@@ -112,8 +112,8 @@ export class RecordPage {
   imageClick = output();
 
   protected onTabClick(label: string): void {
-    this.activeTab.set(label);
     const isDefault = label === this.defaultTabLabel();
+    this.activeTab.set(isDefault ? null : label);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { tab: isDefault ? undefined : label },

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { createSchema } from "#utils/db/createSchema.js";
-import { PERMISSIONS } from "./profile.model.js";
+import { PERMISSIONS } from "../profile.model.js";
 
 export const ROLE_CODES = ["owner", "manager", "seller"];
 

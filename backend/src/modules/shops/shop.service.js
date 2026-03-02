@@ -19,12 +19,12 @@ export async function list({ search, status, page, limit }) {
     filter,
     page,
     limit,
-    populate: { path: "owner", select: "firstName lastName email" },
+    populate: { path: "owner", select: "firstName lastName" },
   });
 }
 
 export async function getById(id) {
-  const shop = await Shop.findById(id).populate("owner", "firstName lastName email");
+  const shop = await Shop.findById(id).populate("owner", "firstName lastName");
   if (!shop) throw new NotFoundError(Shop.modelName);
   return shop;
 }

@@ -1,17 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { DatePipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { injectQuery } from "@tanstack/angular-query-experimental";
 import { TableModule } from "primeng/table";
 import { Select } from "primeng/select";
+import { DatePicker } from "primeng/datepicker";
 import { Button } from "primeng/button";
 import { DataTable } from "@shared/components/data-table/data-table";
 import { AppTag } from "@shared/components/app-tag";
@@ -20,8 +13,6 @@ import { NoValuePipe } from "@shared/pipes/no-value";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/components/page-header";
 import { TableState, injectTableQuery } from "@core/utils/table-state";
-import { SelectOption } from "@core/common/resource.service";
-import { ProductService } from "@core/domains/catalog/product/product.service";
 import { StockMovementService } from "@core/domains/catalog/stock-movement/stock-movement.service";
 import {
   StockMovement,
@@ -37,6 +28,7 @@ import {
     RouterLink,
     TableModule,
     Select,
+    DatePicker,
     Button,
     DataTable,
     AppTag,
@@ -49,14 +41,12 @@ import {
 })
 export class StockMovementList implements OnInit {
   private readonly stockMovementService = inject(StockMovementService);
-  private readonly productService = inject(ProductService);
   private readonly breadcrumb = inject(BreadcrumbService);
   private readonly router = inject(Router);
-  private readonly productsQuery = injectQuery(() => this.productService.selectQueryOptions());
 
   protected readonly table = new TableState<StockMovement>(inject(ActivatedRoute), this.router);
   protected readonly typeFilter = signal(this.table.readFilterParam("type"));
-  protected readonly productFilter = signal(this.table.readFilterParam("product"));
+  protected readonly dateRange = signal<Date[] | null>(null);
 
   protected readonly query = injectTableQuery(
     this.table,
@@ -64,21 +54,14 @@ export class StockMovementList implements OnInit {
     {
       filters: () => ({
         type: this.typeFilter() || undefined,
-        product: this.productFilter() || undefined,
+        dateFrom: this.dateRange()?.[0]?.toISOString() || undefined,
+        dateTo: this.dateRange()?.[1]?.toISOString() || undefined,
       }),
     },
   );
 
   protected readonly typeOptions = MOVEMENT_TYPE_OPTIONS;
   protected readonly movementTypeTag = MOVEMENT_TYPE_TAG;
-
-  protected readonly products = computed(() => [
-    { label: "Tous les produits", value: "" },
-    ...(this.productsQuery.data()?.data ?? []).map((p: SelectOption) => ({
-      label: p.name,
-      value: p.id,
-    })),
-  ]);
 
   ngOnInit(): void {
     this.breadcrumb.set([{ label: "Mouvements de stock" }]);

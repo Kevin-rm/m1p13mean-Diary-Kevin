@@ -6,7 +6,7 @@ import { lastValueFrom } from "rxjs";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { Button } from "primeng/button";
 import { Card } from "primeng/card";
-import { ImageUpload } from "@shared/components/image-upload";
+import { ImageUpload } from "@backoffice/components/image-upload";
 import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";

@@ -21,6 +21,12 @@ export async function list({ shop, search, category, isActive, page, limit }) {
   });
 }
 
+export async function select(shop, search) {
+  const filter = { shop, isActive: true };
+  if (search) filter.name = { $regex: search, $options: "i" };
+  return Product.find(filter).select("name").sort("name");
+}
+
 export async function getById(id, shop) {
   const product = await Product.findOne({ _id: id, shop }).populate("category", "name");
   if (!product) throw new NotFoundError(Product.modelName);

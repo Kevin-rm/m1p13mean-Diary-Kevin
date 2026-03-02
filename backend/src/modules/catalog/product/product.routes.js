@@ -19,6 +19,8 @@ router.use(authenticate);
 
 router.get("/", authorize("products:read"), validate(listRules), productController.list);
 
+router.get("/select", authorize("products:read"), productController.select);
+
 router.get("/:id", authorize("products:read"), validate(getRules), productController.get);
 
 router.post(

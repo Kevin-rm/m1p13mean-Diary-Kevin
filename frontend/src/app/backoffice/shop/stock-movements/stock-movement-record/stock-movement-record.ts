@@ -7,13 +7,12 @@ import {
   OnInit,
   untracked,
 } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { DatePipe } from "@angular/common";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { TableModule } from "primeng/table";
-import { AppTag } from "@shared/components/app-tag";
+import { ReadonlyField } from "@shared/components/readonly-field";
 import { FullNamePipe } from "@shared/pipes/full-name";
-import { NoValuePipe } from "@shared/pipes/no-value";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { RecordPage } from "@backoffice/components/record-page";
 import { Toast } from "@core/utils/toast";
@@ -22,7 +21,7 @@ import { MOVEMENT_TYPE_TAG } from "@core/domains/catalog/stock-movement/stock-mo
 
 @Component({
   selector: "app-stock-movement-record",
-  imports: [DatePipe, TableModule, AppTag, FullNamePipe, NoValuePipe, RecordPage],
+  imports: [DatePipe, RouterLink, TableModule, ReadonlyField, FullNamePipe, RecordPage],
   templateUrl: "./stock-movement-record.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

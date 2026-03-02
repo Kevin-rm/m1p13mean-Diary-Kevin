@@ -15,7 +15,7 @@ import { TableModule } from "primeng/table";
 import { DataTable } from "@shared/components/data-table/data-table";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
-import { ActiveTag } from "@shared/components/active-tag";
+import { ActiveTag } from "@backoffice/components/active-tag";
 import { Tooltip } from "primeng/tooltip";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { PageHeader } from "@backoffice/components/page-header";

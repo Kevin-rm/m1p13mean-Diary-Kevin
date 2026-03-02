@@ -10,6 +10,11 @@ export async function list(req, res) {
   return ok(res, result.data, undefined, result.meta);
 }
 
+export async function select(req, res) {
+  const products = await productService.select(req.user.shop, req.query.search);
+  return ok(res, products);
+}
+
 export async function get(req, res) {
   const product = await productService.getById(req.params.id, req.user.shop);
   return ok(res, product);

@@ -9,7 +9,7 @@ import { Drawer } from "primeng/drawer";
 import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
 import { Button } from "primeng/button";
-import { ActiveTag } from "@shared/components/active-tag";
+import { ActiveTag } from "@backoffice/components/active-tag";
 import { Fluid } from "primeng/fluid";
 import { Tooltip } from "primeng/tooltip";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";

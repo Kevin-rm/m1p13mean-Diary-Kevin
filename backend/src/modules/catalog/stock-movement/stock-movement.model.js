@@ -60,6 +60,11 @@ const stockMovementSchema = createSchema({
       message: "A stock movement must contain at least one line",
     },
   },
+  lineCount: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
 });
 
 stockMovementSchema.index({ shop: 1, createdAt: -1 });
