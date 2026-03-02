@@ -20,8 +20,8 @@ import { Toast } from "@core/utils/toast";
 import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
 import { RecordPage, RecordPageTab } from "@backoffice/components/record-page";
 import { ProductFormFields } from "../product-form-fields/product-form-fields";
-import { ProductService } from "@core/domains/product/product.service";
-import { Product } from "@core/domains/product/product.model";
+import { ProductService } from "@core/domains/catalog/product/product.service";
+import { Product } from "@core/domains/catalog/product/product.model";
 import { ApiResponse } from "@core/common/models/api-response";
 
 @Component({

@@ -15,7 +15,7 @@ import { Fluid } from "primeng/fluid";
 import { FormField } from "@shared/components/form-field";
 import { AriaryPipe } from "@shared/pipes/ariary";
 import { SelectOption } from "@core/common/resource.service";
-import { CategoryService } from "@core/domains/category/category.service";
+import { CategoryService } from "@core/domains/catalog/category/category.service";
 
 @Component({
   selector: "app-product-form-fields",

@@ -6,7 +6,7 @@ import { Button } from "primeng/button";
 import { Fluid } from "primeng/fluid";
 import { FormField } from "@shared/components/form-field";
 import { SelectOption } from "@core/common/resource.service";
-import { Member } from "@core/domains/member/member.model";
+import { Member } from "@core/domains/shop/member/member.model";
 
 @Component({
   selector: "app-edit-member-dialog",

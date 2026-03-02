@@ -1,0 +1,44 @@
+<app-record-page title="Détail du mouvement" [loading]="loading()" defaultTabLabel="Résumé">
+  @if (movement(); as m) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div>
+        <span class="text-muted-color text-sm">Date</span>
+        <p class="mt-1 mb-0 font-medium">{{ m.date | date: "dd/MM/yyyy" }}</p>
+      </div>
+      <div>
+        <span class="text-muted-color text-sm">Type</span>
+        <p class="mt-1 mb-0">
+          <app-tag [value]="m.type" [config]="movementTypeTag" />
+        </p>
+      </div>
+      <div>
+        <span class="text-muted-color text-sm">Note</span>
+        <p class="mt-1 mb-0">{{ m.note | noValue }}</p>
+      </div>
+      <div>
+        <span class="text-muted-color text-sm">Effectué par</span>
+        <p class="mt-1 mb-0">{{ m.performedBy | fullName }}</p>
+      </div>
+    </div>
+
+    <h3 class="text-lg font-semibold mt-6 mb-3">Lignes ({{ m.lines.length }})</h3>
+    <p-table [value]="m.lines" [showGridlines]="true" [tableStyle]="{ 'min-width': '40rem' }">
+      <ng-template #header>
+        <tr>
+          <th>Produit</th>
+          <th>Quantité</th>
+          <th>Stock avant</th>
+          <th>Stock après</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-line>
+        <tr>
+          <td class="font-medium">{{ line.product.name }}</td>
+          <td>{{ line.quantity }}</td>
+          <td>{{ line.previousStock }}</td>
+          <td>{{ line.newStock }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</app-record-page>

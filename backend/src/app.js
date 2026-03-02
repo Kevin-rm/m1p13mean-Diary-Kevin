@@ -11,7 +11,7 @@ import promotionRoutes from "./modules/catalog/promotion/promotion.routes.js";
 import stockMovementRoutes from "./modules/catalog/stock-movement/stock-movement.routes.js";
 import cartRoutes from "./modules/orders/cart/cart.routes.js";
 import orderRoutes from "./modules/orders/order.routes.js";
-import roleRoutes from "./modules/users/role.routes.js";
+import roleRoutes from "./modules/users/role/role.routes.js";
 import { notFound } from "./utils/http/apiResponse.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { createRateLimiter } from "./utils/http/rateLimiter.js";

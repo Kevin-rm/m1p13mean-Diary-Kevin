@@ -1,6 +1,6 @@
 import User from "#modules/users/user.model.js";
 import UserContext from "#modules/users/userContext.model.js";
-import Role from "#modules/users/role.model.js";
+import Role from "#modules/users/role/role.model.js";
 import Invitation from "./invitation.model.js";
 import { transitionStatus } from "#utils/db/status.js";
 import { NotFoundError, BadRequestError } from "#utils/http/errors.js";

@@ -10,66 +10,94 @@ export interface SelectOption {
   name: string;
 }
 
-export interface ListParams {
-  search?: string;
-  page?: number;
-  limit?: number;
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AbstractCtor<T = object> = abstract new (...args: any[]) => T;
 
-export abstract class ResourceService<T> {
+export abstract class ResourceService {
   protected readonly http = inject(HttpClient);
   abstract readonly resourcePath: string;
 
   protected get baseUrl(): string {
     return `${environment.apiUrl}/${this.resourcePath}`;
   }
+}
 
-  list<P extends ListParams>(params: P = {} as P): Observable<ApiResponse<T[]>> {
-    return this.http.get<ApiResponse<T[]>>(this.baseUrl, { params: buildQueryParams(params) });
-  }
+export function Listable<T>() {
+  return <TBase extends AbstractCtor<ResourceService>>(Base: TBase) => {
+    abstract class ListableResource extends Base {
+      list(params: Record<string, unknown> = {}): Observable<ApiResponse<T[]>> {
+        return this.http.get<ApiResponse<T[]>>(this.baseUrl, { params: buildQueryParams(params) });
+      }
 
-  listQueryOptions(params: Record<string, unknown> = {}) {
-    return {
-      queryKey: [this.resourcePath, params] as const,
-      queryFn: () => lastValueFrom(this.list(params)),
-    };
-  }
+      listQueryOptions(params: Record<string, unknown> = {}) {
+        return {
+          queryKey: [this.resourcePath, params] as const,
+          queryFn: () => lastValueFrom(this.list(params)),
+        };
+      }
+    }
+    return ListableResource;
+  };
+}
 
-  listForSelect(): Observable<ApiResponse<SelectOption[]>> {
-    return this.http.get<ApiResponse<SelectOption[]>>(`${this.baseUrl}/select`);
-  }
+export function Selectable() {
+  return <TBase extends AbstractCtor<ResourceService>>(Base: TBase) => {
+    abstract class SelectableResource extends Base {
+      listForSelect(): Observable<ApiResponse<SelectOption[]>> {
+        return this.http.get<ApiResponse<SelectOption[]>>(`${this.baseUrl}/select`);
+      }
 
-  selectQueryOptions() {
-    return {
-      queryKey: [this.resourcePath, "select"] as const,
-      queryFn: () => lastValueFrom(this.listForSelect()),
-    };
-  }
+      selectQueryOptions() {
+        return {
+          queryKey: [this.resourcePath, "select"] as const,
+          queryFn: () => lastValueFrom(this.listForSelect()),
+        };
+      }
+    }
+    return SelectableResource;
+  };
+}
 
-  getById(id: string): Observable<ApiResponse<T>> {
-    return this.http.get<ApiResponse<T>>(`${this.baseUrl}/${id}`);
-  }
+export function Gettable<T>() {
+  return <TBase extends AbstractCtor<ResourceService>>(Base: TBase) => {
+    abstract class GettableResource extends Base {
+      getById(id: string): Observable<ApiResponse<T>> {
+        return this.http.get<ApiResponse<T>>(`${this.baseUrl}/${id}`);
+      }
 
-  getByIdQueryOptions(id: string) {
-    return {
-      queryKey: [this.resourcePath, id] as const,
-      queryFn: () => lastValueFrom(this.getById(id)),
-    };
-  }
+      getByIdQueryOptions(id: string) {
+        return {
+          queryKey: [this.resourcePath, id] as const,
+          queryFn: () => lastValueFrom(this.getById(id)),
+        };
+      }
+    }
+    return GettableResource;
+  };
+}
 
-  create(data: FormData | object): Observable<ApiResponse<T>> {
-    return this.http.post<ApiResponse<T>>(this.baseUrl, data);
-  }
+export function Creatable<T>() {
+  return <TBase extends AbstractCtor<ResourceService>>(Base: TBase) => {
+    abstract class CreatableResource extends Base {
+      create(data: FormData | object): Observable<ApiResponse<T>> {
+        return this.http.post<ApiResponse<T>>(this.baseUrl, data);
+      }
+    }
+    return CreatableResource;
+  };
+}
 
-  update(id: string, data: object): Observable<ApiResponse<T>> {
-    return this.http.patch<ApiResponse<T>>(`${this.baseUrl}/${id}`, data);
-  }
+export function Editable<T>() {
+  return <TBase extends AbstractCtor<ResourceService>>(Base: TBase) => {
+    abstract class EditableResource extends Base {
+      update(id: string, data: object): Observable<ApiResponse<T>> {
+        return this.http.patch<ApiResponse<T>>(`${this.baseUrl}/${id}`, data);
+      }
 
-  toggleActive(id: string): Observable<ApiResponse<T>> {
-    return this.http.patch<ApiResponse<T>>(`${this.baseUrl}/${id}/toggle-active`, {});
-  }
-
-  remove(id: string): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/${id}`);
-  }
+      toggleActive(id: string): Observable<ApiResponse<T>> {
+        return this.http.patch<ApiResponse<T>>(`${this.baseUrl}/${id}/toggle-active`, {});
+      }
+    }
+    return EditableResource;
+  };
 }

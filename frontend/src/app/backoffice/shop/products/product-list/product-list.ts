@@ -23,13 +23,13 @@ import { extractErrorMessage } from "@core/utils/error";
 import { TableState, injectTableQuery } from "@core/utils/table-state";
 import { Toast } from "@core/utils/toast";
 import { SelectOption } from "@core/common/resource.service";
-import { CategoryService } from "@core/domains/category/category.service";
-import { ProductService } from "@core/domains/product/product.service";
+import { CategoryService } from "@core/domains/catalog/category/category.service";
+import { ProductService } from "@core/domains/catalog/product/product.service";
 import { NoValuePipe } from "@shared/pipes/no-value";
-import { Product } from "@core/domains/product/product.model";
+import { Product } from "@core/domains/catalog/product/product.model";
 
 const STATUS_OPTIONS = [
-  { label: "Tous", value: "" },
+  { label: "Tous les statuts", value: "" },
   { label: "Actif", value: "true" },
   { label: "Inactif", value: "false" },
 ];
@@ -89,7 +89,7 @@ export class ShopProductList implements OnInit {
 
   protected readonly statusOptions = STATUS_OPTIONS;
   protected readonly categories = computed(() => [
-    { label: "Toutes", value: "" },
+    { label: "Toutes les catégories", value: "" },
     ...(this.categoriesQuery.data()?.data ?? []).map((c: SelectOption) => ({
       label: c.name,
       value: c.id,

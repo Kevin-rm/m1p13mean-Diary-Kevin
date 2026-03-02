@@ -48,7 +48,7 @@ const stockMovementSchema = createSchema({
     enum: MOVEMENT_TYPES,
     required: true,
   },
-  reason: {
+  note: {
     type: String,
     trim: true,
   },

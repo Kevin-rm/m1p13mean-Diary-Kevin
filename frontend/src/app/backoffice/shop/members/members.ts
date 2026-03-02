@@ -24,10 +24,10 @@ import { Loader } from "@shared/components/loader";
 import { FullNamePipe } from "@shared/pipes/full-name";
 import { extractErrorMessage } from "@core/utils/error";
 import { Toast } from "@core/utils/toast";
-import { MemberService } from "@core/domains/member/member.service";
-import { InvitationService } from "@core/domains/member/invitation/invitation.service";
+import { MemberService } from "@core/domains/shop/member/member.service";
+import { InvitationService } from "@core/domains/shop/member/invitation/invitation.service";
 import { RoleService } from "@core/domains/role/role.service";
-import { Member } from "@core/domains/member/member.model";
+import { Member } from "@core/domains/shop/member/member.model";
 import { InviteDialog } from "./invite-dialog";
 import { EditMemberDialog } from "./edit-member-dialog";
 

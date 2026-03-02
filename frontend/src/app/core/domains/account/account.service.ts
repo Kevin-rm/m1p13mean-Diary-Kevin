@@ -4,7 +4,7 @@ import { lastValueFrom, Observable } from "rxjs";
 import { environment } from "@env/environment";
 import { ApiResponse } from "@core/common/models/api-response";
 import { AuthData, User } from "@auth/auth.models";
-import { Invitation } from "@core/domains/member/invitation/invitation.model";
+import { Invitation } from "@core/domains/shop/member/invitation/invitation.model";
 
 @Injectable({ providedIn: "root" })
 export class AccountService {

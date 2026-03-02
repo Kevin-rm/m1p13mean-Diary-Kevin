@@ -65,7 +65,23 @@ export const SIDEBAR_ITEMS: Record<string, SidebarSection[]> = {
             },
           ],
         },
-        { label: "Inventaire", icon: "pi pi-warehouse", routerLink: "/backoffice/shop/inventory" },
+        {
+          label: "Stock",
+          icon: "pi pi-arrow-right-arrow-left",
+          children: [
+            {
+              label: "Liste",
+              icon: "pi pi-list",
+              routerLink: "/backoffice/shop/stock-movements",
+            },
+            {
+              label: "Nouveau",
+              icon: "pi pi-plus",
+              routerLink: "/backoffice/shop/stock-movements/new",
+              permission: "products:write",
+            },
+          ],
+        },
       ],
     },
     {

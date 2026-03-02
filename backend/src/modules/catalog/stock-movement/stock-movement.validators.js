@@ -13,7 +13,7 @@ export const createRules = [
     .withMessage("Type is required")
     .isIn(MOVEMENT_TYPES)
     .withMessage(`Invalid type. Must be one of: ${MOVEMENT_TYPES.join(", ")}`),
-  body("reason").optional().isString().trim(),
+  body("note").optional().isString().trim(),
   body("lines").isArray({ min: 1 }).withMessage("At least one line is required"),
   body("lines.*.productId")
     .notEmpty()

@@ -46,8 +46,28 @@ export const shopRoutes: Routes = [
       ),
   },
   {
-    path: "inventory",
-    loadComponent: () => import("@backoffice/shop/inventory/inventory").then(m => m.ShopInventory),
+    path: "stock-movements",
+    canActivate: [permissionGuard("products:read", FORBIDDEN)],
+    loadComponent: () =>
+      import("@backoffice/shop/stock-movements/stock-movement-list/stock-movement-list").then(
+        m => m.StockMovementList,
+      ),
+  },
+  {
+    path: "stock-movements/new",
+    canActivate: [permissionGuard("products:write", FORBIDDEN)],
+    loadComponent: () =>
+      import("@backoffice/shop/stock-movements/stock-movement-form/stock-movement-form").then(
+        m => m.StockMovementForm,
+      ),
+  },
+  {
+    path: "stock-movements/:id",
+    canActivate: [permissionGuard("products:read", FORBIDDEN)],
+    loadComponent: () =>
+      import("@backoffice/shop/stock-movements/stock-movement-record/stock-movement-record").then(
+        m => m.StockMovementRecord,
+      ),
   },
   {
     path: "orders",

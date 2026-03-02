@@ -1,6 +1,6 @@
 import User from "#modules/users/user.model.js";
 import Profile from "#modules/users/profile.model.js";
-import Role from "#modules/users/role.model.js";
+import Role from "#modules/users/role/role.model.js";
 import UserContext from "#modules/users/userContext.model.js";
 import Shop from "#modules/shops/shop.model.js";
 import RefreshToken from "./refreshToken.model.js";

@@ -1,11 +1,13 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ApiResponse } from "@core/common/models/api-response";
-import { ResourceService } from "@core/common/resource.service";
+import { Listable, ResourceService } from "@core/common/resource.service";
 import { Shop } from "./shop.model";
 
+const _Base = Listable<Shop>()(ResourceService);
+
 @Injectable({ providedIn: "root" })
-export class ShopService extends ResourceService<Shop> {
+export class ShopService extends _Base {
   readonly resourcePath = "shops";
 
   getMe(): Observable<ApiResponse<Shop>> {

@@ -12,6 +12,17 @@ import { ReadonlyField } from "./readonly-field";
   template: `
     <ng-template #inputTpl><ng-content /></ng-template>
 
+    <ng-template #fieldContent>
+      @if (floatLabel()) {
+        <p-floatlabel variant="on">
+          <ng-container [ngTemplateOutlet]="inputRef()" />
+          <label [for]="inputId()">{{ label() }}</label>
+        </p-floatlabel>
+      } @else {
+        <ng-container [ngTemplateOutlet]="inputRef()" />
+      }
+    </ng-template>
+
     @if (readonly()) {
       <app-readonly-field
         [inputId]="inputId()"
@@ -22,19 +33,14 @@ import { ReadonlyField } from "./readonly-field";
       />
     } @else {
       <div>
-        <p-inputgroup>
-          @if (floatLabel()) {
-            <p-floatlabel variant="on">
-              <ng-container [ngTemplateOutlet]="inputRef()" />
-              <label [for]="inputId()">{{ label() }}</label>
-            </p-floatlabel>
-          } @else {
-            <ng-container [ngTemplateOutlet]="inputRef()" />
-          }
-          @if (addon()) {
+        @if (addon()) {
+          <p-inputgroup>
+            <ng-container [ngTemplateOutlet]="fieldContent" />
             <p-inputgroup-addon>{{ addon() }}</p-inputgroup-addon>
-          }
-        </p-inputgroup>
+          </p-inputgroup>
+        } @else {
+          <ng-container [ngTemplateOutlet]="fieldContent" />
+        }
         @for (error of visibleErrors; track error.key) {
           <small class="text-red-500">{{ error.message }}</small>
         }

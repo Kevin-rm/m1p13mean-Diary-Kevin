@@ -1,0 +1,63 @@
+<app-page-header title="Mouvements de stock">
+  <p-button label="Nouveau mouvement" icon="pi pi-plus" (click)="navigateToNew()" />
+</app-page-header>
+
+<ng-template #headerTpl>
+  <tr>
+    <th pResizableColumn>Date</th>
+    <th pResizableColumn>Type</th>
+    <th pResizableColumn>Produits</th>
+    <th pResizableColumn>Note</th>
+    <th pResizableColumn>Effectué par</th>
+  </tr>
+</ng-template>
+
+<ng-template #bodyTpl let-movement>
+  <tr class="cursor-pointer" [routerLink]="['/backoffice/shop/stock-movements', movement.id]">
+    <td>{{ movement.date | date: "dd/MM/yyyy" }}</td>
+    <td>
+      <app-tag [value]="movement.type" [config]="movementTypeTag" />
+    </td>
+    <td>{{ movement.lines.length }} produit{{ movement.lines.length > 1 ? "s" : "" }}</td>
+    <td class="text-muted-color">{{ movement.note | noValue }}</td>
+    <td>{{ movement.performedBy | fullName }}</td>
+  </tr>
+</ng-template>
+
+<app-data-table
+  [state]="table"
+  [headerTpl]="headerTpl"
+  [bodyTpl]="bodyTpl"
+  [columns]="5"
+  searchPlaceholder="Rechercher un mouvement..."
+  emptyMessage="Aucun mouvement trouvé"
+  [tableStyle]="{ 'min-width': '50rem' }"
+  (lazyLoad)="table.handleLazyLoad($event)"
+>
+  <p-select
+    filters
+    inputId="movementTypeFilter"
+    [options]="typeOptions"
+    [ngModel]="typeFilter()"
+    (ngModelChange)="typeFilter.set($event)"
+    (onChange)="onFilter()"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Type"
+    [checkmark]="true"
+    class="w-full sm:w-40"
+  />
+  <p-select
+    filters
+    inputId="movementProductFilter"
+    [options]="products()"
+    [ngModel]="productFilter()"
+    (ngModelChange)="productFilter.set($event)"
+    (onChange)="onFilter()"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Produit"
+    [checkmark]="true"
+    class="w-full sm:w-48"
+  />
+</app-data-table>

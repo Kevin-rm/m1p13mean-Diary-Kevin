@@ -22,7 +22,7 @@ export async function getById(id, shop) {
   return movement;
 }
 
-export async function create({ date, type, lines, reason }, shop, userId) {
+export async function create({ date, type, lines, note }, shop, userId) {
   const uniqueIds = [...new Set(lines.map(l => l.productId))];
   if (uniqueIds.length !== lines.length) {
     throw new BadRequestError("Duplicate products are not allowed");
@@ -64,7 +64,7 @@ export async function create({ date, type, lines, reason }, shop, userId) {
     );
 
     const [movement] = await StockMovement.create(
-      [{ shop, performedBy: userId, date, type, reason, lines: movementLines }],
+      [{ shop, performedBy: userId, date, type, note, lines: movementLines }],
       { session },
     );
 
