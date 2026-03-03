@@ -104,6 +104,10 @@ const orderSchema = createSchema({
     type: String,
     trim: true,
   },
+  checkoutRef: {
+    type: String,
+    index: true,
+  },
 });
 
 orderSchema.index({ buyer: 1, createdAt: -1 });

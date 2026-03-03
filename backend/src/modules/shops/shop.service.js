@@ -72,3 +72,13 @@ export async function suspend(id) {
     toStatus: "suspended",
   });
 }
+
+export async function stats() {
+  const counts = await Shop.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]);
+  const byStatus = Object.fromEntries(counts.map(s => [s._id, s.count]));
+
+  return {
+    total: Object.values(byStatus).reduce((sum, c) => sum + c, 0),
+    byStatus,
+  };
+}

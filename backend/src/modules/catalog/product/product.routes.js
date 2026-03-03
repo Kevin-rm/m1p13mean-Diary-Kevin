@@ -21,6 +21,8 @@ router.get("/", authorize("products:read"), validate(listRules), productControll
 
 router.get("/select", authorize("products:read"), productController.select);
 
+router.get("/stats", authorize("products:read"), productController.stats);
+
 router.get("/:id", authorize("products:read"), validate(getRules), productController.get);
 
 router.post(

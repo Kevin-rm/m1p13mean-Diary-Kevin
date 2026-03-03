@@ -47,3 +47,8 @@ export async function removeImage(req, res) {
   const product = await productService.removeImage(req.params.id, req.user.shop, imageUrl);
   return ok(res, product, "Image removed");
 }
+
+export async function stats(req, res) {
+  const result = await productService.stats(req.user.shop);
+  return ok(res, result);
+}

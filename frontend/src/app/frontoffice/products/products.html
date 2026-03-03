@@ -1,5 +1,90 @@
-<div class="flex flex-col items-center justify-center gap-4 mt-16">
-  <i class="pi pi-box text-6xl text-muted-color"></i>
-  <h1 class="text-2xl font-semibold">Produits</h1>
-  <p class="text-muted-color">Bientôt disponible</p>
-</div>
+<app-catalog
+  title="Produits"
+  subtitle="Explorez l'ensemble des produits disponibles dans le mall"
+  searchPlaceholder="Rechercher un produit..."
+  [(search)]="search"
+  [totalRecords]="totalRecords()"
+  (clearFilters)="clearFilters()"
+>
+  <ng-template catalogFilters>
+    <div class="bg-surface-0 border border-surface rounded-xl p-4">
+      <h3 class="font-medium text-sm uppercase tracking-wide mb-3">Catégorie</h3>
+      <p-select
+        [options]="categories()"
+        [ngModel]="categoryFilter()"
+        (ngModelChange)="onCategoryChange($event)"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Toutes"
+        [showClear]="true"
+        class="w-full"
+      />
+    </div>
+
+    <div class="bg-surface-0 border border-surface rounded-xl p-4">
+      <h3 class="font-medium text-sm uppercase tracking-wide mb-3">Trier par</h3>
+      <p-select
+        [options]="sortOptions"
+        [ngModel]="sortBy()"
+        (ngModelChange)="onSortChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Par défaut"
+        [showClear]="true"
+        class="w-full"
+      />
+    </div>
+
+    <div class="bg-surface-0 border border-surface rounded-xl p-4">
+      <h3 class="font-medium text-sm uppercase tracking-wide mb-3">Prix</h3>
+      <div class="flex flex-col gap-3">
+        <p-inputgroup>
+          <p-inputnumber
+            [ngModel]="minPrice()"
+            (ngModelChange)="onMinPriceChange($event)"
+            placeholder="Min"
+            [min]="0"
+          />
+          <p-inputgroup-addon>Ar</p-inputgroup-addon>
+        </p-inputgroup>
+        <p-inputgroup>
+          <p-inputnumber
+            [ngModel]="maxPrice()"
+            (ngModelChange)="onMaxPriceChange($event)"
+            placeholder="Max"
+            [min]="0"
+          />
+          <p-inputgroup-addon>Ar</p-inputgroup-addon>
+        </p-inputgroup>
+      </div>
+    </div>
+  </ng-template>
+
+  <div content>
+    @if (loading()) {
+      <app-loader />
+    } @else if (products().length === 0) {
+      <app-empty
+        icon="pi pi-box"
+        title="Aucun produit trouvé"
+        description="Essayez de modifier vos filtres ou votre recherche"
+      />
+    } @else {
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (product of products(); track product.id) {
+          <app-product-card [product]="product" />
+        }
+      </div>
+
+      @if (totalRecords() > limit()) {
+        <p-paginator
+          [rows]="limit()"
+          [totalRecords]="totalRecords()"
+          [first]="(page() - 1) * limit()"
+          (onPageChange)="onPageChange($event)"
+          class="mt-6"
+        />
+      }
+    }
+  </div>
+</app-catalog>

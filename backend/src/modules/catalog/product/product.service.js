@@ -95,3 +95,16 @@ export async function removeImage(id, shop, imageUrl) {
   await removeDocumentImage(product, imageUrl);
   return product.populate("category", "name");
 }
+
+export async function stats(shop) {
+  const [total, active, lowStock] = await Promise.all([
+    Product.countDocuments({ shop }),
+    Product.countDocuments({ shop, isActive: true }),
+    Product.find({ shop, stock: { $lte: 5 }, isActive: true })
+      .sort({ stock: 1 })
+      .limit(5)
+      .select("name stock"),
+  ]);
+
+  return { total, active, lowStock };
+}

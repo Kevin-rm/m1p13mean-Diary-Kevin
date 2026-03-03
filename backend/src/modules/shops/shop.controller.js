@@ -46,3 +46,8 @@ export async function suspend(req, res) {
   const shop = await shopService.suspend(req.params.id);
   return ok(res, shop, "Shop suspended");
 }
+
+export async function stats(_req, res) {
+  const result = await shopService.stats();
+  return ok(res, result);
+}

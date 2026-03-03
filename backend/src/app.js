@@ -12,6 +12,8 @@ import stockMovementRoutes from "./modules/catalog/stock-movement/stock-movement
 import cartRoutes from "./modules/orders/cart/cart.routes.js";
 import orderRoutes from "./modules/orders/order.routes.js";
 import roleRoutes from "./modules/users/role/role.routes.js";
+import reviewRoutes from "./modules/reviews/review.routes.js";
+import publicRoutes from "./modules/public/public.routes.js";
 import { notFound } from "./utils/http/apiResponse.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { createRateLimiter } from "./utils/http/rateLimiter.js";
@@ -38,6 +40,8 @@ app.use("/api/stock-movements", stockMovementRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/roles", roleRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/public", publicRoutes);
 
 app.use((_req, res) => notFound(res, "Route not found"));
 app.use(errorHandler);

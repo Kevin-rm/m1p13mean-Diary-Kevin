@@ -18,6 +18,7 @@ const router = Router();
 router.use(authenticate);
 
 router.get("/", validate(listRules), shopController.list);
+router.get("/stats", authorize("stats:global"), shopController.stats);
 
 const meRouter = Router();
 meRouter.use(authorize("shops:manage"), (req, _res, next) => {

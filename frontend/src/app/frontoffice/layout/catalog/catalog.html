@@ -1,0 +1,69 @@
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="mb-2">
+    <h1 class="text-2xl font-bold">{{ title() }}</h1>
+    @if (subtitle()) {
+      <p class="text-muted-color text-sm mt-1">{{ subtitle() }}</p>
+    }
+  </div>
+
+  <div class="my-5">
+    <p-iconfield class="w-full">
+      <p-inputicon class="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        [placeholder]="searchPlaceholder()"
+        class="w-full"
+        [value]="search()"
+        (input)="onSearchInput($any($event.target).value)"
+      />
+    </p-iconfield>
+  </div>
+
+  <div class="hidden lg:grid grid-cols-[18rem_1fr] gap-x-6 gap-y-4">
+    <div class="flex items-center gap-2">
+      <span class="font-semibold">Filtres</span>
+      <p-button
+        label="Tout effacer"
+        [text]="true"
+        size="small"
+        class="ml-auto"
+        (onClick)="clearFilters.emit()"
+      />
+    </div>
+    <div class="flex items-center justify-between">
+      <span class="text-sm text-muted-color">
+        {{ totalRecords() }} résultat{{ totalRecords() > 1 ? "s" : "" }}
+      </span>
+      <ng-content select="[toolbar]" />
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <ng-container *ngTemplateOutlet="filtersTemplate" />
+    </div>
+    <div class="min-w-0">
+      <ng-content select="[content]" />
+    </div>
+  </div>
+
+  <div class="lg:hidden">
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-3">
+        <p-button
+          icon="pi pi-filter"
+          label="Filtres"
+          [outlined]="true"
+          size="small"
+          (onClick)="mobileFiltersOpen.set(true)"
+        />
+      </div>
+    </div>
+    <ng-content select="[content]" />
+  </div>
+
+  <p-drawer [(visible)]="mobileFiltersOpen" header="Filtres" styleClass="w-80">
+    <div class="flex flex-col gap-4">
+      <ng-container *ngTemplateOutlet="filtersTemplate" />
+    </div>
+  </p-drawer>
+</div>

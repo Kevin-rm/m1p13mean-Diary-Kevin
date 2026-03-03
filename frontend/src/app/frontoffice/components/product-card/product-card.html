@@ -1,0 +1,61 @@
+<div
+  class="group bg-surface-0 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+>
+  <!-- Image -->
+  <div class="relative overflow-hidden">
+    @if (product().images.length) {
+      <img
+        [src]="product().images[0]"
+        [alt]="product().name"
+        class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+        loading="lazy"
+      />
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      ></div>
+    } @else {
+      <div class="w-full h-48 bg-surface-100 flex items-center justify-center">
+        <i class="pi pi-image text-4xl text-muted-color"></i>
+      </div>
+    }
+    <div class="absolute top-3 left-3">
+      <p-tag [value]="product().category.name" severity="info" />
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="p-4">
+    <a
+      [routerLink]="['/products', product().id]"
+      class="line-clamp-1 font-semibold no-underline text-inherit hover:text-primary transition-colors"
+    >
+      {{ product().name }}
+    </a>
+    <a
+      [routerLink]="['/shops', product().shop.id]"
+      class="text-sm text-muted-color no-underline hover:text-primary transition-colors line-clamp-1 mt-0.5 block"
+    >
+      {{ product().shop.name }}
+    </a>
+    <p class="font-bold text-lg mt-2 text-primary">{{ product().price | ariary }}</p>
+  </div>
+
+  <!-- Footer -->
+  <div class="px-4 pb-4 flex items-center gap-2">
+    <p-button
+      label="Ajouter au panier"
+      icon="pi pi-shopping-cart"
+      [outlined]="true"
+      size="small"
+      class="flex-1 [&>button]:w-full"
+      (onClick)="addToCart()"
+    />
+    <p-button
+      [icon]="isFavorite() ? 'pi pi-heart-fill' : 'pi pi-heart'"
+      severity="danger"
+      [outlined]="!isFavorite()"
+      size="small"
+      (onClick)="toggleFavorite()"
+    />
+  </div>
+</div>

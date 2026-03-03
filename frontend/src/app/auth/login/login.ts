@@ -31,8 +31,8 @@ import { FormField } from "@shared/components/form-field";
 })
 export class Login {
   private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   protected readonly errorMessage = signal("");
 
@@ -44,9 +44,8 @@ export class Login {
   protected readonly loginMutation = injectMutation(() => ({
     mutationFn: (credentials: { email: string; password: string }) =>
       lastValueFrom(this.authService.login(credentials)),
-    onSuccess: () => {
-      this.router.navigate(["/backoffice"]);
-    },
+    onSuccess: () =>
+      this.router.navigate([this.authService.hasProfile("customer") ? "/home" : "/backoffice"]),
     onError: error => {
       this.errorMessage.set(extractErrorMessage(error));
     },

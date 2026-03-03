@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { lastValueFrom, Observable } from "rxjs";
 import { ApiResponse } from "@core/common/models/api-response";
 import {
   Creatable,
@@ -10,6 +10,12 @@ import {
   Selectable,
 } from "@core/common/resource.service";
 import { Product } from "./product.model";
+
+export interface ProductStats {
+  total: number;
+  active: number;
+  lowStock: { id: string; name: string; stock: number }[];
+}
 
 const _Base = Editable<Product>()(
   Creatable<Product>()(Selectable()(Gettable<Product>()(Listable<Product>()(ResourceService)))),
@@ -31,5 +37,16 @@ export class ProductService extends _Base {
     return this.http.delete<ApiResponse<Product>>(`${this.baseUrl}/${id}/images`, {
       body: { imageUrl },
     });
+  }
+
+  stats(): Observable<ApiResponse<ProductStats>> {
+    return this.http.get<ApiResponse<ProductStats>>(`${this.baseUrl}/stats`);
+  }
+
+  statsQueryOptions() {
+    return {
+      queryKey: ["product-stats"] as const,
+      queryFn: () => lastValueFrom(this.stats()),
+    };
   }
 }

@@ -4,18 +4,8 @@ import { DatePicker } from "primeng/datepicker";
 import { Select } from "primeng/select";
 import { Button } from "primeng/button";
 import { ScheduleSlot } from "@core/domains/shop/shop.model";
+import { buildScheduleSummary, DAYS } from "@core/domains/shop/schedule.utils";
 
-const DAYS = [
-  { value: "monday", label: "Lundi" },
-  { value: "tuesday", label: "Mardi" },
-  { value: "wednesday", label: "Mercredi" },
-  { value: "thursday", label: "Jeudi" },
-  { value: "friday", label: "Vendredi" },
-  { value: "saturday", label: "Samedi" },
-  { value: "sunday", label: "Dimanche" },
-];
-
-const DAY_INDEX = new Map(DAYS.map((d, i) => [d.value, i]));
 const MAX_SLOTS = DAYS.length;
 const DEFAULT_OPEN = "08:00";
 const DEFAULT_CLOSE = "18:00";
@@ -48,59 +38,6 @@ function toRow(slot: ScheduleSlot): ScheduleRow {
 
 function toSlot(row: ScheduleRow): ScheduleSlot {
   return { day: row.day, openTime: dateToTime(row.openTime), closeTime: dateToTime(row.closeTime) };
-}
-
-function dayLabel(value: string): string {
-  return DAYS[DAY_INDEX.get(value) ?? 0]?.label ?? value;
-}
-
-function buildScheduleSummary(slots: ScheduleSlot[]): { label: string; time: string }[] {
-  if (slots.length === 0) return [];
-
-  const groups = new Map<string, string[]>();
-  for (const slot of slots) {
-    const key = `${slot.openTime}|${slot.closeTime}`;
-    const days = groups.get(key);
-    if (days) {
-      days.push(slot.day);
-    } else {
-      groups.set(key, [slot.day]);
-    }
-  }
-
-  return Array.from(groups.entries()).map(([key, days]) => {
-    const [openTime, closeTime] = key.split("|");
-    days.sort((a, b) => (DAY_INDEX.get(a) ?? 0) - (DAY_INDEX.get(b) ?? 0));
-    return { label: formatDayRange(days), time: `${openTime} — ${closeTime}` };
-  });
-}
-
-function formatDayRange(days: string[]): string {
-  if (days.length === DAYS.length) return "Tous les jours";
-
-  const ranges = findConsecutiveRanges(days);
-  return ranges
-    .map(range => {
-      if (range.length <= 2) return range.map(dayLabel).join(", ");
-      return `Du ${dayLabel(range[0])} au ${dayLabel(range[range.length - 1])}`;
-    })
-    .join(", ");
-}
-
-function findConsecutiveRanges(days: string[]): string[][] {
-  const ranges: string[][] = [];
-  let current: string[] = [days[0]];
-
-  for (let i = 1; i < days.length; i++) {
-    if ((DAY_INDEX.get(days[i]) ?? 0) === (DAY_INDEX.get(days[i - 1]) ?? 0) + 1) {
-      current.push(days[i]);
-    } else {
-      ranges.push(current);
-      current = [days[i]];
-    }
-  }
-  ranges.push(current);
-  return ranges;
 }
 
 @Component({

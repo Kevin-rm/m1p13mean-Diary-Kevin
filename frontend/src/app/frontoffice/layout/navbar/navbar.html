@@ -6,34 +6,65 @@
   }"
 >
   <ng-template #start>
-    <a routerLink="/" class="no-underline text-inherit font-medium text-xl">MallHub</a>
+    <a [routerLink]="homeRoute()" class="no-underline text-inherit font-medium text-xl">MallHub</a>
   </ng-template>
 
   <ng-template #end>
-    @if (authService.isAuthenticated()) {
-      <app-user-menu [extraItems]="userMenuItems()" />
-    } @else {
-      <p-button
-        label="Se connecter"
-        [text]="true"
-        routerLink="/login"
-        class="hidden sm:inline-flex"
-      />
-      <p-button
-        icon="pi pi-sign-in"
-        [text]="true"
-        [rounded]="true"
-        routerLink="/login"
-        class="sm:hidden"
-      />
-      <p-button
-        icon="pi pi-user-plus"
-        [text]="true"
-        [rounded]="true"
-        routerLink="/register"
-        class="sm:hidden"
-      />
-      <p-button label="S'inscrire" routerLink="/register" class="hidden ml-2 sm:inline-flex" />
-    }
+    <div class="flex items-center gap-1">
+      <a
+        routerLink="/favorites"
+        class="relative p-2 text-inherit hover:text-primary transition-colors no-underline"
+      >
+        <i class="pi pi-heart text-xl"></i>
+        @if (favoritesService.count()) {
+          <p-badge
+            [value]="'' + favoritesService.count()"
+            severity="danger"
+            class="absolute -top-0.5 -right-0.5"
+          />
+        }
+      </a>
+      <a
+        routerLink="/cart"
+        class="relative p-2 text-inherit hover:text-primary transition-colors no-underline"
+      >
+        <i class="pi pi-shopping-cart text-xl"></i>
+        @if (cartService.count()) {
+          <p-badge
+            [value]="'' + cartService.count()"
+            severity="danger"
+            class="absolute -top-0.5 -right-0.5"
+          />
+        }
+      </a>
+
+      <div class="ml-2">
+        @if (authService.isAuthenticated()) {
+          <app-user-menu [extraItems]="userMenuItems()" />
+        } @else {
+          <p-button
+            label="Se connecter"
+            [text]="true"
+            routerLink="/login"
+            class="hidden sm:inline-flex"
+          />
+          <p-button
+            icon="pi pi-sign-in"
+            [text]="true"
+            [rounded]="true"
+            routerLink="/login"
+            class="sm:hidden"
+          />
+          <p-button
+            icon="pi pi-user-plus"
+            [text]="true"
+            [rounded]="true"
+            routerLink="/register"
+            class="sm:hidden"
+          />
+          <p-button label="S'inscrire" routerLink="/register" class="hidden ml-2 sm:inline-flex" />
+        }
+      </div>
+    </div>
   </ng-template>
 </p-menubar>

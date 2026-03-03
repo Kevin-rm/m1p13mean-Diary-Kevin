@@ -1,8 +1,13 @@
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { lastValueFrom, Observable } from "rxjs";
 import { ApiResponse } from "@core/common/models/api-response";
 import { Listable, ResourceService } from "@core/common/resource.service";
 import { Shop } from "./shop.model";
+
+export interface ShopStats {
+  total: number;
+  byStatus: Record<string, number>;
+}
 
 const _Base = Listable<Shop>()(ResourceService);
 
@@ -44,5 +49,16 @@ export class ShopService extends _Base {
 
   suspend(id: string): Observable<ApiResponse<Shop>> {
     return this.http.patch<ApiResponse<Shop>>(`${this.baseUrl}/${id}/suspend`, {});
+  }
+
+  stats(): Observable<ApiResponse<ShopStats>> {
+    return this.http.get<ApiResponse<ShopStats>>(`${this.baseUrl}/stats`);
+  }
+
+  statsQueryOptions() {
+    return {
+      queryKey: ["shop-stats"] as const,
+      queryFn: () => lastValueFrom(this.stats()),
+    };
   }
 }

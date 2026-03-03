@@ -25,16 +25,40 @@ export const routes: Routes = [
         loadComponent: () => import("@auth/register/register").then(m => m.Register),
       },
       {
+        path: "home",
+        canActivate: [authGuard],
+        loadComponent: () => import("@frontoffice/home/home").then(m => m.Home),
+      },
+      {
         path: "shops",
         loadComponent: () => import("@frontoffice/shops/shops").then(m => m.Shops),
+      },
+      {
+        path: "shops/:id",
+        loadComponent: () =>
+          import("@frontoffice/shops/shop-detail/shop-detail").then(m => m.ShopDetail),
       },
       {
         path: "products",
         loadComponent: () => import("@frontoffice/products/products").then(m => m.Products),
       },
       {
-        path: "categories",
-        loadComponent: () => import("@frontoffice/categories/categories").then(m => m.Categories),
+        path: "products/:id",
+        loadComponent: () =>
+          import("@frontoffice/products/product-detail/product-detail").then(m => m.ProductDetail),
+      },
+      {
+        path: "favorites",
+        loadComponent: () => import("@frontoffice/favorites/favorites").then(m => m.Favorites),
+      },
+      {
+        path: "cart",
+        loadComponent: () => import("@frontoffice/cart/cart").then(m => m.Cart),
+      },
+      {
+        path: "orders",
+        canActivate: [authGuard],
+        loadComponent: () => import("@frontoffice/orders/orders").then(m => m.MyOrders),
       },
       {
         path: "profile",
