@@ -36,6 +36,11 @@ coverage
 .claude/settings.local.json
 CLAUDE.local.md
 
+# Documentation
+generate_doc.py
+*.docx
+~$*
+
 # System files
 .DS_Store
 Thumbs.db
