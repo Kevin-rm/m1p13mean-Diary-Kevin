@@ -1,0 +1,66 @@
+<app-record-page
+  title="Ma boutique"
+  [heading]="shop()?.name ?? ''"
+  [subheading]="shop()?.contactEmail ?? ''"
+  [loading]="loading()"
+  [showImage]="true"
+  [image]="shop()?.logoUrl ?? ''"
+  (imageClick)="logoInput.click()"
+>
+  <input #logoInput type="file" accept="image/*" class="hidden" (change)="uploadLogo($event)" />
+  <div actions class="flex gap-2">
+    @if (shop()) {
+      @if (editing()) {
+        <p-button
+          label="Annuler"
+          severity="secondary"
+          [outlined]="true"
+          (click)="cancelEditing()"
+        />
+        <p-button
+          [label]="saveMutation.isPending() ? 'Enregistrement...' : 'Enregistrer'"
+          [disabled]="form.invalid || saveMutation.isPending()"
+          [loading]="saveMutation.isPending()"
+          (click)="saveShop()"
+        />
+      } @else {
+        <p-button
+          label="Modifier"
+          icon="pi pi-pencil"
+          severity="info"
+          [outlined]="true"
+          (click)="startEditing()"
+        />
+      }
+    }
+  </div>
+
+  @if (shop(); as s) {
+    @if (editing()) {
+      <form id="editShopForm" [formGroup]="form" (ngSubmit)="saveShop()">
+        <app-shop-form-fields [form]="form" idPrefix="edit" />
+      </form>
+    } @else {
+      <app-shop-form-fields [form]="form" [readonly]="true" />
+    }
+  }
+
+  <ng-template recordTab="Horaires">
+    @if (shop(); as s) {
+      <app-schedule-editor [schedule]="s.schedule" [readonly]="!editing()" />
+    }
+  </ng-template>
+
+  <ng-template recordTab="Images">
+    @if (shop(); as s) {
+      <app-image-section
+        #imageSection
+        [images]="s.images"
+        [alt]="s.name"
+        [removable]="true"
+        (upload)="uploadImages($event)"
+        (remove)="removeImage($event)"
+      />
+    }
+  </ng-template>
+</app-record-page>

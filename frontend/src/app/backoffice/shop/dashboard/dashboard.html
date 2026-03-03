@@ -1,0 +1,103 @@
+<app-page-header title="Tableau de bord" />
+
+@if (orderStats.isPending() || productStats.isPending()) {
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    @for (_ of [1, 2, 3, 4]; track $index) {
+      <p-skeleton height="6rem" />
+    }
+  </div>
+} @else {
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="p-4 rounded-lg border border-surface flex items-center gap-4">
+      <div class="flex items-center justify-center size-12 rounded-full bg-blue-50 text-blue-500">
+        <i class="pi pi-box text-xl"></i>
+      </div>
+      <div>
+        <p class="text-sm text-muted-color">Produits actifs</p>
+        <p class="text-2xl font-bold">
+          {{ products().active }}
+          <span class="text-sm font-normal text-muted-color">/ {{ products().total }}</span>
+        </p>
+      </div>
+    </div>
+    <div class="p-4 rounded-lg border border-surface flex items-center gap-4">
+      <div class="flex items-center justify-center size-12 rounded-full bg-green-50 text-green-500">
+        <i class="pi pi-shopping-cart text-xl"></i>
+      </div>
+      <div>
+        <p class="text-sm text-muted-color">Commandes</p>
+        <p class="text-2xl font-bold">{{ orders().total }}</p>
+      </div>
+    </div>
+    <div class="p-4 rounded-lg border border-surface flex items-center gap-4">
+      <div class="flex items-center justify-center size-12 rounded-full bg-amber-50 text-amber-500">
+        <i class="pi pi-clock text-xl"></i>
+      </div>
+      <div>
+        <p class="text-sm text-muted-color">En attente</p>
+        <p class="text-2xl font-bold">{{ orders().byStatus["pending"] || 0 }}</p>
+      </div>
+    </div>
+    <div class="p-4 rounded-lg border border-surface flex items-center gap-4">
+      <div
+        class="flex items-center justify-center size-12 rounded-full bg-emerald-50 text-emerald-500"
+      >
+        <i class="pi pi-wallet text-xl"></i>
+      </div>
+      <div>
+        <p class="text-sm text-muted-color">Chiffre d'affaires</p>
+        <p class="text-2xl font-bold">{{ orders().revenue | ariary }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    @if (orders().recentOrders?.length) {
+      <div class="border border-surface rounded-lg">
+        <h3 class="font-semibold p-4 pb-2">Commandes récentes</h3>
+        <p-table [value]="orders().recentOrders!" [tableStyle]="{ 'min-width': '25rem' }">
+          <ng-template #header>
+            <tr>
+              <th>N° Commande</th>
+              <th>Acheteur</th>
+              <th>Montant</th>
+              <th>Statut</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-order>
+            <tr>
+              <td class="font-mono text-sm">{{ order.orderNumber }}</td>
+              <td>{{ order.buyer | fullName }}</td>
+              <td>{{ order.totalAmount | ariary }}</td>
+              <td><app-tag [value]="order.status" [config]="orderStatusConfig" /></td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+    @if (products().lowStock.length) {
+      <div class="border border-surface rounded-lg">
+        <h3 class="font-semibold p-4 pb-2">Stock faible</h3>
+        <p-table [value]="products().lowStock" [tableStyle]="{ 'min-width': '15rem' }">
+          <ng-template #header>
+            <tr>
+              <th>Produit</th>
+              <th>Stock</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-item>
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>
+                <p-tag
+                  [value]="'' + item.stock"
+                  [severity]="item.stock === 0 ? 'danger' : 'warn'"
+                />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+  </div>
+}

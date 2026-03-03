@@ -1,0 +1,66 @@
+<app-record-page title="Détail du produit" [loading]="loading()">
+  <div actions class="flex gap-2">
+    @if (product(); as p) {
+      @if (editing()) {
+        <p-button
+          label="Annuler"
+          severity="secondary"
+          [outlined]="true"
+          (click)="cancelEditing()"
+        />
+        <p-button
+          [label]="saveMutation.isPending() ? 'Enregistrement...' : 'Enregistrer'"
+          [disabled]="form.invalid || saveMutation.isPending()"
+          [loading]="saveMutation.isPending()"
+          (click)="saveProduct()"
+        />
+      } @else {
+        <p-button
+          label="Modifier"
+          icon="pi pi-pencil"
+          severity="info"
+          [outlined]="true"
+          (click)="startEditing()"
+        />
+        <p-button
+          [label]="p.isActive ? 'Désactiver' : 'Activer'"
+          [icon]="p.isActive ? 'pi pi-eye-slash' : 'pi pi-check-circle'"
+          [severity]="p.isActive ? 'warn' : 'success'"
+          [outlined]="true"
+          (click)="toggleActive()"
+        />
+      }
+    }
+  </div>
+
+  @if (product(); as p) {
+    @if (editing()) {
+      <form id="editProductForm" [formGroup]="form" (ngSubmit)="saveProduct()">
+        <app-product-form-fields
+          [form]="form"
+          idPrefix="edit"
+          [categoryNameHint]="p.category.name"
+        />
+      </form>
+    } @else {
+      <app-product-form-fields
+        [form]="form"
+        [readonly]="true"
+        [categoryNameHint]="p.category.name"
+      />
+    }
+  }
+
+  <ng-template recordTab="Images">
+    @if (product(); as p) {
+      <app-image-section
+        #imageSection
+        [images]="p.images"
+        [alt]="p.name"
+        [removable]="true"
+        (upload)="uploadImages($event)"
+        (remove)="removeImage($event)"
+      />
+    }
+  </ng-template>
+</app-record-page>

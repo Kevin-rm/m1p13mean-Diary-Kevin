@@ -1,0 +1,113 @@
+<app-page-header title="Nouvelle commande" [back]="true" />
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <div class="border border-surface rounded-lg p-4">
+      <h3 class="font-semibold mb-4">Sélectionner des produits</h3>
+
+      <div class="flex gap-2">
+        <p-select
+          [options]="availableProducts()"
+          [ngModel]="selectedProduct()"
+          (ngModelChange)="selectedProduct.set($event)"
+          optionLabel="name"
+          placeholder="Rechercher un produit..."
+          [filter]="true"
+          filterBy="name"
+          class="flex-1"
+        >
+          <ng-template #selectedItem let-product>
+            {{ product.name }} — {{ product.price | ariary }}
+          </ng-template>
+          <ng-template #item let-product>
+            <div class="flex justify-between w-full gap-4">
+              <span>{{ product.name }}</span>
+              <span class="text-muted-color">{{ product.price | ariary }}</span>
+            </div>
+          </ng-template>
+        </p-select>
+
+        <p-button
+          label="Ajouter"
+          icon="pi pi-plus"
+          size="small"
+          [disabled]="!selectedProduct()"
+          (onClick)="addItem()"
+        />
+      </div>
+    </div>
+
+    @if (items().length) {
+      <div class="border border-surface rounded-lg mt-4">
+        <p-table [value]="items()">
+          <ng-template #header>
+            <tr>
+              <th>Produit</th>
+              <th class="w-24">Prix</th>
+              <th class="w-32">Quantité</th>
+              <th class="w-28">Sous-total</th>
+              <th class="w-16"></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-item let-i="rowIndex">
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.price | ariary }}</td>
+              <td>
+                <p-inputNumber
+                  [ngModel]="item.quantity"
+                  (ngModelChange)="updateItemQty(i, $event)"
+                  [min]="1"
+                  [showButtons]="true"
+                  inputStyleClass="w-16"
+                />
+              </td>
+              <td class="font-semibold">{{ item.price * item.quantity | ariary }}</td>
+              <td>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  size="small"
+                  (onClick)="removeItem(i)"
+                />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+  </div>
+
+  <div class="p-6 rounded-lg border border-surface h-fit">
+    <h3 class="font-semibold mb-4">Récapitulatif</h3>
+    <div class="flex justify-between mb-2">
+      <span class="text-muted-color">Articles</span>
+      <span>{{ totalItems() }}</span>
+    </div>
+    <hr class="border-surface my-3" />
+    <div class="flex justify-between text-lg font-bold">
+      <span>Total</span>
+      <span>{{ totalAmount() | ariary }}</span>
+    </div>
+    <div class="mt-4">
+      <label class="text-sm text-muted-color mb-1 block">Note (optionnel)</label>
+      <textarea
+        pTextarea
+        [ngModel]="note()"
+        (ngModelChange)="note.set($event)"
+        rows="3"
+        class="w-full"
+      ></textarea>
+    </div>
+    <p-button
+      label="Créer la commande"
+      icon="pi pi-check"
+      class="w-full mt-4"
+      styleClass="w-full"
+      [disabled]="!items().length"
+      [loading]="saving()"
+      (onClick)="createOrder()"
+    />
+  </div>
+</div>

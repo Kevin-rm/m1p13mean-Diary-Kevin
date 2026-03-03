@@ -1,0 +1,173 @@
+<!-- Hero -->
+<section
+  class="relative overflow-hidden bg-gradient-to-br from-primary/10 via-surface-0 to-blue-50 py-20 sm:py-28"
+>
+  <div class="absolute top-10 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl"></div>
+  <div class="absolute bottom-10 right-10 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl"></div>
+  <div class="relative max-w-7xl mx-auto px-4 text-center">
+    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+      Bienvenue sur
+      <span class="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent"
+        >MallHub</span
+      >
+    </h1>
+    <p class="text-base sm:text-lg max-w-2xl mx-auto mb-8 text-muted-color">
+      Parcourez les boutiques, explorez des milliers de produits et profitez d'une expérience
+      d'achat simple et rapide.
+    </p>
+    <div class="flex items-center justify-center gap-3">
+      <p-button
+        label="Découvrir les produits"
+        routerLink="/products"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+      />
+      <p-button label="Voir les boutiques" routerLink="/shops" [outlined]="true" />
+    </div>
+  </div>
+</section>
+
+<!-- Categories -->
+@if (categories().length) {
+  <section class="max-w-7xl mx-auto px-4 py-12">
+    <h2 class="text-xl font-bold mb-6">Catégories</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      @for (cat of categories(); track cat.id) {
+        <a
+          [routerLink]="['/products']"
+          [queryParams]="{ category: cat.id }"
+          class="flex flex-col items-center gap-3 p-5 rounded-2xl bg-surface-0 shadow-sm hover:shadow-md transition-all duration-300 no-underline text-inherit"
+        >
+          @if (cat.imageUrl) {
+            <img [src]="cat.imageUrl" [alt]="cat.name" class="size-14 rounded-xl object-cover" />
+          } @else {
+            <div class="size-14 rounded-xl bg-primary/10 flex items-center justify-center">
+              <i class="pi pi-tag text-xl text-primary"></i>
+            </div>
+          }
+          <span class="text-sm font-medium text-center">{{ cat.name }}</span>
+        </a>
+      }
+    </div>
+  </section>
+}
+
+<!-- Featured products -->
+<section class="bg-surface-50 py-12">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold">Nouveautés</h2>
+      <a routerLink="/products" class="text-sm text-primary hover:underline no-underline"
+        >Tout voir</a
+      >
+    </div>
+    @if (productsLoading()) {
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        @for (_ of [1, 2, 3, 4]; track $index) {
+          <div class="bg-surface-0 rounded-2xl overflow-hidden shadow-sm">
+            <p-skeleton width="100%" height="12rem" borderRadius="0" />
+            <div class="p-4">
+              <p-skeleton width="60%" height="1rem" class="mb-2" />
+              <p-skeleton width="40%" height="1.25rem" />
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <p-carousel
+        [value]="products()"
+        [numVisible]="4"
+        [numScroll]="1"
+        [circular]="true"
+        [responsiveOptions]="carouselOptions"
+        [showNavigators]="products().length > 4"
+        [showIndicators]="false"
+      >
+        <ng-template #item let-product>
+          <div class="px-2">
+            <app-product-card [product]="product" />
+          </div>
+        </ng-template>
+      </p-carousel>
+    }
+  </div>
+</section>
+
+<!-- Featured shops -->
+<section class="max-w-7xl mx-auto px-4 py-12">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-xl font-bold">Boutiques populaires</h2>
+    <a routerLink="/shops" class="text-sm text-primary hover:underline no-underline">Tout voir</a>
+  </div>
+  @if (shopsLoading()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      @for (_ of [1, 2, 3, 4]; track $index) {
+        <div class="bg-surface-0 rounded-2xl overflow-hidden shadow-sm">
+          <p-skeleton width="100%" height="10rem" borderRadius="0" />
+          <div class="p-4">
+            <p-skeleton width="70%" height="1rem" class="mb-2" />
+            <p-skeleton width="100%" height="0.875rem" />
+            <p-skeleton width="80%" height="0.875rem" class="mt-1" />
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      @for (shop of shops(); track shop.id) {
+        <a
+          [routerLink]="['/shops', shop.id]"
+          class="group block no-underline text-inherit bg-surface-0 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          <div class="relative overflow-hidden">
+            @if (shop.logoUrl || shop.images!.length) {
+              <img
+                [src]="shop.logoUrl || shop.images[0]"
+                [alt]="shop.name"
+                class="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              ></div>
+            } @else {
+              <div class="w-full h-40 bg-surface-100 flex items-center justify-center">
+                <i class="pi pi-shop text-4xl text-muted-color"></i>
+              </div>
+            }
+          </div>
+          <div class="p-4">
+            <h3 class="font-semibold line-clamp-1">{{ shop.name }}</h3>
+            <p class="text-sm text-muted-color line-clamp-2 mt-1">{{ shop.description }}</p>
+            <div class="flex items-center justify-between mt-3">
+              @if (shop.averageRating > 0) {
+                <div class="flex items-center gap-2">
+                  <p-rating [ngModel]="shop.averageRating" [readonly]="true" [stars]="5" />
+                  <span class="text-xs text-muted-color">({{ shop.totalReviews }})</span>
+                </div>
+              } @else {
+                <span class="text-xs text-muted-color">Aucun avis</span>
+              }
+              <span class="text-sm text-primary group-hover:underline">Visiter</span>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</section>
+
+<!-- CTA bottom -->
+<section
+  class="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-blue-50 py-12"
+>
+  <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+  <div class="relative max-w-7xl mx-auto px-4 text-center">
+    <i class="pi pi-shopping-bag text-4xl text-primary/30 mb-4"></i>
+    <h2 class="text-xl font-bold mb-2">Prêt à commencer ?</h2>
+    <p class="text-muted-color mb-6">
+      Créez un compte gratuit et commencez vos achats dès maintenant.
+    </p>
+    <p-button label="Créer un compte" routerLink="/register" icon="pi pi-user-plus" />
+  </div>
+</section>

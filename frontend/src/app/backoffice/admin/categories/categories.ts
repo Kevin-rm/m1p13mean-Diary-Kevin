@@ -1,0 +1,123 @@
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { lastValueFrom } from "rxjs";
+import { injectMutation, QueryClient } from "@tanstack/angular-query-experimental";
+import { TableModule } from "primeng/table";
+import { DataTable } from "@shared/components/data-table/data-table";
+import { Drawer } from "primeng/drawer";
+import { InputText } from "primeng/inputtext";
+import { Textarea } from "primeng/textarea";
+import { Button } from "primeng/button";
+import { ActiveTag } from "@backoffice/components/active-tag";
+import { Fluid } from "primeng/fluid";
+import { Tooltip } from "primeng/tooltip";
+import { BreadcrumbService } from "@backoffice/layout/breadcrumb.service";
+import { PageHeader } from "@backoffice/components/page-header";
+import { extractErrorMessage } from "@core/utils/error";
+import { TableState, injectTableQuery } from "@core/utils/table-state";
+import { Toast } from "@core/utils/toast";
+import { CategoryService } from "@core/domains/catalog/category/category.service";
+import { Category } from "@core/domains/catalog/category/category.model";
+import { FormField } from "@shared/components/form-field";
+import { NoValuePipe } from "@shared/pipes/no-value";
+
+@Component({
+  selector: "app-admin-categories",
+  imports: [
+    ReactiveFormsModule,
+    TableModule,
+    DataTable,
+    Drawer,
+    InputText,
+    Textarea,
+    Button,
+    ActiveTag,
+    Fluid,
+    Tooltip,
+    PageHeader,
+    FormField,
+    NoValuePipe,
+  ],
+  templateUrl: "./categories.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class AdminCategories implements OnInit {
+  private readonly categoryService = inject(CategoryService);
+  private readonly breadcrumb = inject(BreadcrumbService);
+  private readonly toast = inject(Toast);
+  private readonly fb = inject(FormBuilder);
+  private readonly queryClient = inject(QueryClient);
+  private editingId: string | null = null;
+
+  protected readonly table = new TableState<Category>(inject(ActivatedRoute), inject(Router));
+
+  protected readonly query = injectTableQuery(this.table, params =>
+    this.categoryService.listQueryOptions(params),
+  );
+
+  protected readonly saveMutation = injectMutation(() => ({
+    mutationFn: (data: { id: string | null; body: object }) =>
+      lastValueFrom(
+        data.id
+          ? this.categoryService.update(data.id, data.body)
+          : this.categoryService.create(data.body),
+      ),
+    onSuccess: (response: { message: string }) => {
+      this.toast.success(response.message);
+      this.queryClient.invalidateQueries({ queryKey: [this.categoryService.resourcePath] });
+      this.drawerVisible.set(false);
+    },
+    onError: error => {
+      this.toast.error(extractErrorMessage(error));
+    },
+  }));
+
+  protected readonly toggleActiveMutation = injectMutation(() => ({
+    mutationFn: (id: string) => lastValueFrom(this.categoryService.toggleActive(id)),
+    onSuccess: (response: { message: string }) => {
+      this.toast.success(response.message);
+      this.queryClient.invalidateQueries({ queryKey: [this.categoryService.resourcePath] });
+    },
+    onError: (error: unknown) => {
+      this.toast.error(extractErrorMessage(error, "Impossible de modifier le statut"));
+    },
+  }));
+
+  protected readonly drawerVisible = signal(false);
+  protected readonly editing = signal(false);
+  protected readonly form = this.fb.nonNullable.group({
+    name: ["", Validators.required],
+    description: [""],
+  });
+
+  ngOnInit(): void {
+    this.breadcrumb.set([{ label: "Catégories" }]);
+  }
+
+  protected openCreateDrawer(): void {
+    this.editing.set(false);
+    this.editingId = null;
+    this.form.reset();
+    this.drawerVisible.set(true);
+  }
+
+  protected openEditDrawer(category: Category): void {
+    this.editing.set(true);
+    this.editingId = category.id;
+    this.form.patchValue({
+      name: category.name,
+      description: category.description ?? "",
+    });
+    this.drawerVisible.set(true);
+  }
+
+  protected saveCategory(): void {
+    if (this.form.invalid) return;
+    this.saveMutation.mutate({ id: this.editingId, body: this.form.getRawValue() });
+  }
+
+  protected toggleActive(category: Category): void {
+    this.toggleActiveMutation.mutate(category.id);
+  }
+}

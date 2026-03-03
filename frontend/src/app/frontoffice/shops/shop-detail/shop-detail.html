@@ -1,0 +1,249 @@
+@if (loading()) {
+  <app-loader />
+} @else if (shop(); as shop) {
+  <div class="max-w-7xl mx-auto pb-10">
+    <div class="bg-surface-0 rounded-2xl overflow-hidden shadow-sm">
+      <!-- Banner + Logo -->
+      <div class="relative">
+        @if (shop.images.length) {
+          <p-galleria
+            [value]="shop.images"
+            [showIndicators]="false"
+            [showThumbnails]="false"
+            [circular]="true"
+            [autoPlay]="true"
+            [transitionInterval]="8000"
+            [containerStyle]="{ width: '100%' }"
+          >
+            <ng-template #item let-item>
+              <img [src]="item" [alt]="shop.name" class="w-full h-48 md:h-64 object-cover" />
+            </ng-template>
+          </p-galleria>
+        } @else {
+          <div class="w-full h-48 md:h-64 bg-gradient-to-br from-primary/10 to-blue-50"></div>
+        }
+        @if (shop.logoUrl) {
+          <img
+            [src]="shop.logoUrl"
+            [alt]="shop.name"
+            class="absolute -bottom-12 left-8 w-28 h-28 rounded-2xl object-cover border-4 border-surface-0 shadow-md bg-surface-0 z-10"
+          />
+        }
+      </div>
+
+      <!-- Content -->
+      <div class="px-8 pt-16 pb-6">
+        <!-- Name + Rating -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
+          <h1 class="text-2xl font-bold">{{ shop.name }}</h1>
+          @if (shop.averageRating > 0) {
+            <div class="flex items-center gap-2">
+              <p-rating [ngModel]="shop.averageRating" [readonly]="true" [stars]="5" />
+              <span class="text-sm text-muted-color">({{ shop.totalReviews }} avis)</span>
+            </div>
+          }
+        </div>
+
+        <!-- Description -->
+        <p class="text-muted-color mb-6">{{ shop.description }}</p>
+
+        <!-- Info Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+          @if (shop.contactEmail) {
+            <div class="flex items-center gap-3 p-4 bg-surface-50 rounded-2xl">
+              <div
+                class="flex items-center justify-center size-10 rounded-full bg-blue-50 text-blue-500 shrink-0"
+              >
+                <i class="pi pi-envelope"></i>
+              </div>
+              <div class="min-w-0">
+                <span class="text-xs text-muted-color">Contact</span>
+                <p class="text-sm font-medium truncate">{{ shop.contactEmail }}</p>
+              </div>
+            </div>
+          }
+          @if (shop.contactPhone) {
+            <div class="flex items-center gap-3 p-4 bg-surface-50 rounded-2xl">
+              <div
+                class="flex items-center justify-center size-10 rounded-full bg-green-50 text-green-500 shrink-0"
+              >
+                <i class="pi pi-phone"></i>
+              </div>
+              <div>
+                <span class="text-xs text-muted-color">Téléphone</span>
+                <p class="text-sm font-medium">{{ shop.contactPhone }}</p>
+              </div>
+            </div>
+          }
+          @if (scheduleSummary().length) {
+            <div class="flex items-center gap-3 p-4 bg-surface-50 rounded-2xl">
+              <div
+                class="flex items-center justify-center size-10 rounded-full bg-orange-50 text-orange-500 shrink-0"
+              >
+                <i class="pi pi-clock"></i>
+              </div>
+              <div>
+                <span class="text-xs text-muted-color">Horaires</span>
+                <p class="text-sm font-medium">{{ scheduleSummary()[0].label }}</p>
+                <p class="text-xs text-muted-color">{{ scheduleSummary()[0].time }}</p>
+              </div>
+            </div>
+          }
+          @if (shop.totalReviews > 0) {
+            <div class="flex items-center gap-3 p-4 bg-surface-50 rounded-2xl">
+              <div
+                class="flex items-center justify-center size-10 rounded-full bg-amber-50 text-amber-500 shrink-0"
+              >
+                <i class="pi pi-star"></i>
+              </div>
+              <div>
+                <span class="text-xs text-muted-color">Avis clients</span>
+                <p class="text-sm font-medium">{{ shop.totalReviews }} avis</p>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Schedule detail (if multiple lines) -->
+        @if (scheduleSummary().length > 1) {
+          <p-divider />
+          <div class="flex flex-col gap-2 mb-6">
+            <h3 class="text-sm font-semibold flex items-center gap-2">
+              <i class="pi pi-info-circle"></i>Horaires d'ouverture
+            </h3>
+            @for (line of scheduleSummary(); track $index) {
+              <div class="flex items-center gap-2 text-sm">
+                <span class="font-medium">{{ line.label }}</span>
+                <span class="text-muted-color">{{ line.time }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Products -->
+    <div class="px-4 mt-8">
+      <h2 class="text-lg font-semibold mb-4">Produits de la boutique</h2>
+
+      @if (productsLoading()) {
+        <app-loader />
+      } @else if (products().length === 0) {
+        <app-empty icon="pi pi-box" title="Aucun produit disponible" />
+      } @else {
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          @for (product of products(); track product.id) {
+            <app-product-card [product]="product" />
+          }
+        </div>
+
+        @if (productsTotalRecords() > limit()) {
+          <p-paginator
+            [rows]="limit()"
+            [totalRecords]="productsTotalRecords()"
+            [first]="(page() - 1) * limit()"
+            (onPageChange)="onPageChange($event)"
+            class="mt-6"
+          />
+        }
+      }
+    </div>
+
+    <!-- Reviews -->
+    <div class="px-4 mt-10">
+      <h2 class="text-lg font-semibold mb-4">Avis clients</h2>
+
+      <!-- Submit review form -->
+      @if (canReview()) {
+        <div class="bg-surface-0 rounded-2xl shadow-sm p-5 mb-6">
+          <h3 class="font-medium mb-3">Donner votre avis</h3>
+          <div class="flex flex-col gap-3">
+            <div>
+              <p-rating
+                [ngModel]="newRating()"
+                (ngModelChange)="newRating.set($event)"
+                [stars]="5"
+              />
+            </div>
+            <textarea
+              pTextarea
+              [ngModel]="newComment()"
+              (ngModelChange)="newComment.set($event)"
+              placeholder="Votre commentaire (optionnel)"
+              [rows]="3"
+              [autoResize]="true"
+              class="w-full"
+            ></textarea>
+            <div>
+              <p-button
+                label="Envoyer"
+                icon="pi pi-send"
+                size="small"
+                [disabled]="!newRating()"
+                [loading]="submitReviewMutation.isPending()"
+                (onClick)="submitReview()"
+              />
+            </div>
+          </div>
+        </div>
+      } @else if (authService.isAuthenticated() && myReview()) {
+        <div
+          class="bg-surface-50 rounded-2xl p-4 mb-6 text-sm text-muted-color flex items-center gap-2"
+        >
+          <i class="pi pi-check-circle text-green-500"></i>
+          Vous avez déjà donné votre avis sur cette boutique
+        </div>
+      }
+
+      <!-- Reviews list -->
+      @if (reviewsLoading()) {
+        <app-loader />
+      } @else if (reviews().length === 0) {
+        <div class="text-center py-8 text-muted-color">
+          <i class="pi pi-comments text-3xl mb-2"></i>
+          <p>Aucun avis pour le moment</p>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (review of reviews(); track review.id) {
+            <div class="bg-surface-0 rounded-2xl shadow-sm p-4">
+              <div class="flex items-start gap-3">
+                <div
+                  class="flex items-center justify-center size-10 rounded-full bg-primary/10 text-primary font-semibold text-sm shrink-0"
+                >
+                  {{ getInitials(review.user) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-medium text-sm"
+                      >{{ review.user.firstName }} {{ review.user.lastName }}</span
+                    >
+                    <span class="text-xs text-muted-color">{{
+                      review.createdAt | date: "dd/MM/yyyy"
+                    }}</span>
+                  </div>
+                  <p-rating [ngModel]="review.rating" [readonly]="true" [stars]="5" class="mt-1" />
+                  @if (review.comment) {
+                    <p class="text-sm text-muted-color mt-2 leading-relaxed">
+                      {{ review.comment }}
+                    </p>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (reviewsTotalRecords() > reviewLimit()) {
+          <p-paginator
+            [rows]="reviewLimit()"
+            [totalRecords]="reviewsTotalRecords()"
+            [first]="(reviewPage() - 1) * reviewLimit()"
+            (onPageChange)="onReviewPageChange($event)"
+            class="mt-4"
+          />
+        }
+      }
+    </div>
+  </div>
+}

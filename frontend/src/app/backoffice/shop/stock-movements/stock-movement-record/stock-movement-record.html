@@ -1,0 +1,41 @@
+<app-record-page title="Détail du mouvement" [loading]="loading()" defaultTabLabel="Résumé">
+  @if (movement(); as m) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <app-readonly-field inputId="date" label="Date" [value]="m.date | date: 'dd/MM/yyyy'" />
+      <app-readonly-field inputId="type" label="Type" [value]="movementTypeTag[m.type]?.label" />
+      <app-readonly-field inputId="note" label="Note" [value]="m.note" />
+      <app-readonly-field
+        inputId="performedBy"
+        label="Effectué par"
+        [value]="m.performedBy | fullName"
+      />
+    </div>
+
+    <h3 class="text-lg font-semibold mt-6 mb-3">Lignes ({{ m.lines.length }})</h3>
+    <p-table [value]="m.lines" [showGridlines]="true" [tableStyle]="{ 'min-width': '40rem' }">
+      <ng-template #header>
+        <tr>
+          <th>Produit</th>
+          <th>Quantité</th>
+          <th>Stock avant</th>
+          <th>Stock après</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-line>
+        <tr>
+          <td class="font-medium">
+            <a
+              [routerLink]="['/backoffice/shop/products', line.product.id]"
+              class="text-primary hover:underline"
+            >
+              {{ line.product.name }}
+            </a>
+          </td>
+          <td>{{ line.quantity }}</td>
+          <td>{{ line.previousStock }}</td>
+          <td>{{ line.newStock }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</app-record-page>

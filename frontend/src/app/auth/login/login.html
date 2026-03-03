@@ -1,0 +1,61 @@
+<div class="flex justify-center items-center min-h-[calc(100vh-var(--app-navbar-height)-2rem)]">
+  <p-card class="w-full max-w-md">
+    <ng-template #title>Se connecter</ng-template>
+    <ng-template #subtitle>Accédez à votre espace personnel</ng-template>
+
+    <p-fluid>
+      @if (errorMessage()) {
+        <p-message severity="error" class="mb-4">{{ errorMessage() }}</p-message>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <app-form-field
+          inputId="email"
+          label="Email"
+          [control]="form.controls.email"
+          [errors]="{ required: 'Email requis', email: 'Format d\'email invalide' }"
+        >
+          <input
+            pInputText
+            id="email"
+            type="email"
+            autocomplete="email"
+            formControlName="email"
+            [invalid]="form.controls.email.touched && form.controls.email.invalid"
+          />
+        </app-form-field>
+
+        <app-form-field
+          inputId="password"
+          label="Mot de passe"
+          [control]="form.controls.password"
+          [errors]="{ required: 'Mot de passe requis' }"
+        >
+          <p-password
+            inputId="password"
+            formControlName="password"
+            autocomplete="current-password"
+            [feedback]="false"
+            [toggleMask]="true"
+            [invalid]="form.controls.password.touched && form.controls.password.invalid"
+          />
+        </app-form-field>
+
+        <p-button
+          label="{{ loginMutation.isPending() ? 'Connexion...' : 'Se connecter' }}"
+          type="submit"
+          [disabled]="form.invalid || loginMutation.isPending()"
+        />
+      </form>
+
+      <div class="text-center mt-4">
+        <p-button
+          label="Pas encore de compte ? S'inscrire"
+          [text]="true"
+          [link]="true"
+          routerLink="/register"
+        />
+      </div>
+    </p-fluid>
+  </p-card>
+</div>

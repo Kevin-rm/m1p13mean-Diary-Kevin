@@ -1,0 +1,67 @@
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Mes favoris</h1>
+    @if (favoritesService.favoriteItems().length) {
+      <span class="text-sm text-muted-color"
+        >{{ favoritesService.favoriteItems().length }} article(s)</span
+      >
+    }
+  </div>
+
+  @if (favoritesService.favoriteItems().length) {
+    <div class="flex flex-col gap-3">
+      @for (item of favoritesService.favoriteItems(); track item.productId) {
+        <div
+          class="flex items-center gap-4 p-4 rounded-2xl bg-surface-0 shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          @if (item.image) {
+            <img
+              [src]="item.image"
+              [alt]="item.name"
+              class="size-20 rounded-xl object-cover shrink-0"
+            />
+          } @else {
+            <div
+              class="size-20 rounded-xl bg-surface-100 flex items-center justify-center shrink-0"
+            >
+              <i class="pi pi-image text-xl text-muted-color"></i>
+            </div>
+          }
+          <div class="flex-1 min-w-0">
+            <a
+              [routerLink]="['/products', item.productId]"
+              class="font-medium text-inherit hover:text-primary transition-colors no-underline"
+            >
+              {{ item.name }}
+            </a>
+            <p class="font-semibold mt-1 text-primary">{{ item.price | ariary }}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <p-button
+              icon="pi pi-shopping-cart"
+              [outlined]="true"
+              size="small"
+              pTooltip="Ajouter au panier"
+              (onClick)="addToCart(item)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              size="small"
+              pTooltip="Retirer des favoris"
+              (onClick)="remove(item.productId)"
+            />
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <app-empty
+      icon="pi pi-heart"
+      title="Aucun favori"
+      description="Les produits ajoutés en favoris apparaîtront ici"
+      actionLink="/products"
+    />
+  }
+</div>

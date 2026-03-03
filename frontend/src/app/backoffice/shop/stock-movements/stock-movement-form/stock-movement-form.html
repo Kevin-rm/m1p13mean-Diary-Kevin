@@ -1,0 +1,126 @@
+<ng-template #formActions>
+  <p-button label="Réinitialiser" severity="secondary" [outlined]="true" (click)="resetForm()" />
+  <p-button
+    [label]="createMutation.isPending() ? 'Enregistrement...' : 'Créer le mouvement'"
+    [disabled]="form.invalid || lines.length === 0 || createMutation.isPending()"
+    [loading]="createMutation.isPending()"
+    (click)="submit()"
+  />
+</ng-template>
+
+<app-page-header title="Nouveau mouvement" [back]="true">
+  <div class="flex gap-2">
+    <ng-container *ngTemplateOutlet="formActions" />
+  </div>
+</app-page-header>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <p-card>
+    <p-fieldset legend="Détails">
+      <p-fluid>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <app-form-field
+            inputId="movementDate"
+            label="Date"
+            [control]="form.controls.date"
+            [errors]="{ required: 'Date requise' }"
+          >
+            <p-datepicker
+              inputId="movementDate"
+              formControlName="date"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              appendTo="body"
+              [invalid]="form.controls.date.touched && form.controls.date.invalid"
+            />
+          </app-form-field>
+
+          <app-form-field
+            inputId="movementType"
+            label="Type"
+            [control]="form.controls.type"
+            [errors]="{ required: 'Type requis' }"
+            [floatLabel]="false"
+          >
+            <p-select
+              inputId="movementType"
+              formControlName="type"
+              [options]="typeOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Type"
+              appendTo="body"
+              [invalid]="form.controls.type.touched && form.controls.type.invalid"
+            />
+          </app-form-field>
+
+          <app-form-field inputId="movementNote" label="Note" [control]="form.controls.note">
+            <input pInputText id="movementNote" formControlName="note" />
+          </app-form-field>
+        </div>
+      </p-fluid>
+    </p-fieldset>
+
+    <app-form-repeater
+      legend="Produits"
+      [count]="lines.length"
+      (add)="addLine()"
+      (remove)="removeLine($event)"
+    >
+      <ng-template let-index>
+        <div class="flex gap-3" [formGroup]="lines.at(index)">
+          <div class="flex-1">
+            <app-form-field
+              [inputId]="'lineProduct' + index"
+              label="Produit"
+              [control]="lines.at(index).controls.productId"
+              [errors]="{ required: 'Produit requis' }"
+              [floatLabel]="false"
+            >
+              <p-select
+                [inputId]="'lineProduct' + index"
+                [formControl]="lines.at(index).controls.productId"
+                [options]="products()"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Sélectionner un produit"
+                [filter]="true"
+                [showClear]="true"
+                [fluid]="true"
+                (onFilter)="productSearch.set($event.filter)"
+                appendTo="body"
+                [invalid]="
+                  lines.at(index).controls.productId.touched &&
+                  lines.at(index).controls.productId.invalid
+                "
+              />
+            </app-form-field>
+          </div>
+          <div class="w-40">
+            <app-form-field
+              [inputId]="'lineQuantity' + index"
+              label="Quantité"
+              [control]="lines.at(index).controls.quantity"
+              [errors]="{ required: 'Requis', min: 'Min 1' }"
+            >
+              <p-inputnumber
+                [inputId]="'lineQuantity' + index"
+                [formControl]="lines.at(index).controls.quantity"
+                [fluid]="true"
+                [min]="1"
+                [invalid]="
+                  lines.at(index).controls.quantity.touched &&
+                  lines.at(index).controls.quantity.invalid
+                "
+              />
+            </app-form-field>
+          </div>
+        </div>
+      </ng-template>
+    </app-form-repeater>
+  </p-card>
+</form>
+
+<div class="flex justify-end gap-3 mt-4">
+  <ng-container *ngTemplateOutlet="formActions" />
+</div>

@@ -1,0 +1,244 @@
+<div class="flex flex-col gap-6 pt-4">
+  <div class="flex items-center gap-4">
+    <div class="relative shrink-0">
+      @if (avatarPreview() || authService.avatarUrl()) {
+        <p-image
+          [src]="avatarPreview() || authService.avatarUrl()!"
+          [alt]="authService.fullName()"
+          [preview]="true"
+          imageClass="size-28 rounded-full object-cover border border-surface shadow-sm"
+        />
+      } @else {
+        <div
+          class="size-28 rounded-full bg-surface-100 flex items-center justify-center border border-surface"
+        >
+          <span class="text-3xl font-semibold text-muted-color">{{
+            authService.avatarLabel()
+          }}</span>
+        </div>
+      }
+      <button
+        type="button"
+        class="absolute bottom-0 right-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary text-primary-contrast border-2 border-surface cursor-pointer"
+        (click)="avatarInput.click()"
+      >
+        <i class="pi pi-camera text-xs"></i>
+      </button>
+      <input
+        #avatarInput
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        class="hidden"
+        (change)="onAvatarSelected($event)"
+      />
+    </div>
+    <div class="flex flex-col">
+      <span class="text-2xl font-semibold">{{ authService.fullName() }}</span>
+      <span class="text-muted-color">{{ authService.user()?.email }}</span>
+    </div>
+  </div>
+
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="0">Informations personnelles</p-tab>
+      <p-tab value="1">
+        @if (invitations().length > 0) {
+          <p-overlaybadge [value]="'' + invitations().length">Invitations</p-overlaybadge>
+        } @else {
+          Invitations
+        }
+      </p-tab>
+      <p-tab value="2">Sécurité</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <p-tabpanel value="0">
+        <p-fluid>
+          <form
+            [formGroup]="profileForm"
+            (ngSubmit)="onProfileSubmit()"
+            class="flex flex-col gap-4"
+          >
+            <app-form-field
+              inputId="firstName"
+              label="Prénom"
+              [control]="profileForm.controls.firstName"
+              [errors]="{ required: 'Prénom requis' }"
+            >
+              <input
+                pInputText
+                id="firstName"
+                autocomplete="given-name"
+                formControlName="firstName"
+                [invalid]="
+                  profileForm.controls.firstName.touched && profileForm.controls.firstName.invalid
+                "
+              />
+            </app-form-field>
+
+            <app-form-field
+              inputId="lastName"
+              label="Nom"
+              [control]="profileForm.controls.lastName"
+              [errors]="{ required: 'Nom requis' }"
+            >
+              <input
+                pInputText
+                id="lastName"
+                autocomplete="family-name"
+                formControlName="lastName"
+                [invalid]="
+                  profileForm.controls.lastName.touched && profileForm.controls.lastName.invalid
+                "
+              />
+            </app-form-field>
+
+            <p-button
+              label="{{ profileMutation.isPending() ? 'Enregistrement...' : 'Enregistrer' }}"
+              type="submit"
+              [fluid]="false"
+              [disabled]="
+                profileForm.invalid || profileForm.pristine || profileMutation.isPending()
+              "
+            />
+          </form>
+        </p-fluid>
+      </p-tabpanel>
+
+      <p-tabpanel value="1">
+        @if (invitationsQuery.isPending()) {
+          <app-loader />
+        } @else if (invitations().length === 0) {
+          <p class="text-center text-muted-color py-8 m-0">Aucune invitation en attente</p>
+        } @else {
+          <div class="flex flex-col gap-3">
+            @for (invitation of invitations(); track invitation.id) {
+              <div class="flex flex-wrap items-center gap-3 p-4 rounded-lg border border-surface">
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium">{{ invitation.shop?.name }}</div>
+                  <div class="text-sm text-muted-color">
+                    Rôle : {{ invitation.role.label }} · Invité par
+                    {{ invitation.invitedBy | fullName }}
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <p-button
+                    label="Décliner"
+                    severity="secondary"
+                    [outlined]="true"
+                    size="small"
+                    [loading]="declineMutation.isPending()"
+                    (click)="declineMutation.mutate(invitation.id)"
+                  />
+                  <p-button
+                    label="Accepter"
+                    size="small"
+                    [loading]="acceptMutation.isPending()"
+                    (click)="acceptMutation.mutate(invitation.id)"
+                  />
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </p-tabpanel>
+
+      <p-tabpanel value="2">
+        <p-fluid>
+          <form
+            [formGroup]="passwordForm"
+            (ngSubmit)="onPasswordSubmit()"
+            class="flex flex-col gap-4"
+          >
+            <input
+              type="email"
+              name="username"
+              autocomplete="username"
+              [value]="authService.user()?.email"
+              class="hidden"
+              aria-hidden="true"
+              tabindex="-1"
+            />
+            <app-form-field
+              inputId="currentPassword"
+              label="Mot de passe actuel"
+              [control]="passwordForm.controls.currentPassword"
+              [errors]="{ required: 'Mot de passe actuel requis' }"
+            >
+              <p-password
+                inputId="currentPassword"
+                formControlName="currentPassword"
+                autocomplete="current-password"
+                [feedback]="false"
+                [toggleMask]="true"
+                [invalid]="
+                  passwordForm.controls.currentPassword.touched &&
+                  passwordForm.controls.currentPassword.invalid
+                "
+              />
+            </app-form-field>
+
+            <app-form-field
+              inputId="newPassword"
+              label="Nouveau mot de passe"
+              [control]="passwordForm.controls.newPassword"
+              [errors]="{
+                required: 'Nouveau mot de passe requis',
+                minlength: 'Minimum 8 caractères',
+              }"
+            >
+              <p-password
+                inputId="newPassword"
+                formControlName="newPassword"
+                autocomplete="new-password"
+                [feedback]="false"
+                [toggleMask]="true"
+                [invalid]="
+                  passwordForm.controls.newPassword.touched &&
+                  passwordForm.controls.newPassword.invalid
+                "
+              />
+            </app-form-field>
+
+            <p-button
+              label="{{
+                passwordMutation.isPending() ? 'Modification...' : 'Modifier le mot de passe'
+              }}"
+              type="submit"
+              [fluid]="false"
+              [disabled]="passwordForm.invalid || passwordMutation.isPending()"
+            />
+          </form>
+        </p-fluid>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+
+  <p-dialog
+    header="Changer la photo de profil"
+    [(visible)]="cropperVisible"
+    [modal]="true"
+    [style]="{ width: '35rem' }"
+    [dt]="{ footer: { padding: '1.25rem 1.5rem' } }"
+    (onHide)="cancelCrop()"
+  >
+    <p class="p-text-secondary block mb-4">Recadrez la photo avant de l'enregistrer</p>
+    @if (cropperFile()) {
+      <image-cropper
+        [imageFile]="cropperFile()!"
+        [aspectRatio]="1"
+        [roundCropper]="true"
+        format="png"
+        (imageCropped)="onImageCropped($event)"
+      />
+    }
+    <ng-template #footer>
+      <p-button label="Annuler" severity="secondary" (onClick)="cancelCrop()" />
+      <p-button
+        label="Confirmer"
+        [loading]="avatarMutation.isPending()"
+        (onClick)="confirmCrop()"
+      />
+    </ng-template>
+  </p-dialog>
+</div>

@@ -1,0 +1,112 @@
+<app-catalog
+  title="Boutiques"
+  subtitle="Parcourez les boutiques disponibles et découvrez ce qu'elles proposent"
+  searchPlaceholder="Rechercher une boutique..."
+  [(search)]="search"
+  [totalRecords]="totalRecords()"
+  (clearFilters)="clearFilters()"
+>
+  <ng-template catalogFilters>
+    <div class="bg-surface-0 border border-surface rounded-xl p-4">
+      <h3 class="font-medium text-sm uppercase tracking-wide mb-3">Trier par</h3>
+      <p-select
+        [options]="sortOptions"
+        [ngModel]="sortBy()"
+        (ngModelChange)="onSortChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Par défaut"
+        [showClear]="true"
+        class="w-full"
+      />
+    </div>
+  </ng-template>
+
+  <div content>
+    @if (loading()) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+        @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
+          <app-shop-card-skeleton />
+        }
+      </div>
+    } @else if (shops().length === 0) {
+      <app-empty
+        icon="pi pi-shop"
+        title="Aucune boutique trouvée"
+        description="Essayez de modifier vos filtres ou votre recherche"
+      />
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+        @for (shop of shops(); track shop.id) {
+          <a
+            [routerLink]="['/shops', shop.id]"
+            class="group block no-underline text-inherit bg-surface-0 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+          >
+            <div class="relative overflow-hidden">
+              @if (shop.logoUrl || shop.images!.length) {
+                <img
+                  [src]="shop.logoUrl || shop.images[0]"
+                  [alt]="shop.name"
+                  class="w-full h-44 object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                ></div>
+              } @else {
+                <div class="w-full h-44 bg-surface-100 flex items-center justify-center">
+                  <i class="pi pi-shop text-4xl text-muted-color"></i>
+                </div>
+              }
+            </div>
+            <div class="p-4">
+              <h3 class="font-semibold line-clamp-1">{{ shop.name }}</h3>
+              <p class="text-sm text-muted-color line-clamp-3 mt-1">{{ shop.description }}</p>
+              @if (shop.contactEmail || shop.contactPhone) {
+                <div class="flex flex-wrap gap-2 mt-3">
+                  @if (shop.contactEmail) {
+                    <span
+                      class="inline-flex items-center gap-1.5 text-xs bg-surface-50 rounded-full px-2.5 py-1"
+                    >
+                      <i class="pi pi-envelope text-xs"></i>
+                      <span class="truncate max-w-32">{{ shop.contactEmail }}</span>
+                    </span>
+                  }
+                  @if (shop.contactPhone) {
+                    <span
+                      class="inline-flex items-center gap-1.5 text-xs bg-surface-50 rounded-full px-2.5 py-1"
+                    >
+                      <i class="pi pi-phone text-xs"></i>
+                      {{ shop.contactPhone }}
+                    </span>
+                  }
+                </div>
+              }
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-surface">
+                @if (shop.averageRating > 0) {
+                  <div class="flex items-center gap-2">
+                    <p-rating [ngModel]="shop.averageRating" [readonly]="true" [stars]="5" />
+                    <span class="text-xs text-muted-color">({{ shop.totalReviews }})</span>
+                  </div>
+                } @else {
+                  <span class="text-xs text-muted-color">Aucun avis</span>
+                }
+                <span class="text-sm text-primary group-hover:underline">Consulter</span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+
+      @if (totalRecords() > limit()) {
+        <p-paginator
+          [rows]="limit()"
+          [totalRecords]="totalRecords()"
+          [first]="(page() - 1) * limit()"
+          (onPageChange)="onPageChange($event)"
+          class="mt-6"
+        />
+      }
+    }
+  </div>
+</app-catalog>

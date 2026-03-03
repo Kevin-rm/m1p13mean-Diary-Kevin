@@ -1,0 +1,110 @@
+<app-page-header title="Catégories">
+  <p-button label="Nouvelle catégorie" icon="pi pi-plus" (click)="openCreateDrawer()" />
+</app-page-header>
+
+<ng-template #headerTpl>
+  <tr>
+    <th pResizableColumn>Nom</th>
+    <th pResizableColumn>Description</th>
+    <th pResizableColumn>Statut</th>
+    <th class="w-28">Actions</th>
+  </tr>
+</ng-template>
+
+<ng-template #bodyTpl let-category>
+  <tr>
+    <td class="font-medium">{{ category.name }}</td>
+    <td class="text-muted-color">{{ category.description | noValue }}</td>
+    <td>
+      <app-active-tag [isActive]="category.isActive" />
+    </td>
+    <td>
+      <div class="flex justify-end gap-1">
+        <p-button
+          icon="pi pi-pencil"
+          [text]="true"
+          [rounded]="true"
+          severity="info"
+          (click)="openEditDrawer(category)"
+          pTooltip="Modifier"
+        />
+        <p-button
+          [icon]="category.isActive ? 'pi pi-eye-slash' : 'pi pi-eye'"
+          [text]="true"
+          [rounded]="true"
+          [severity]="category.isActive ? 'warn' : 'success'"
+          (click)="toggleActive(category)"
+          [pTooltip]="category.isActive ? 'Désactiver' : 'Activer'"
+        />
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<app-data-table
+  [state]="table"
+  [headerTpl]="headerTpl"
+  [bodyTpl]="bodyTpl"
+  [columns]="4"
+  searchPlaceholder="Rechercher une catégorie..."
+  emptyMessage="Aucune catégorie trouvée"
+  (lazyLoad)="table.handleLazyLoad($event)"
+/>
+
+<p-drawer
+  [header]="editing() ? 'Modifier la catégorie' : 'Nouvelle catégorie'"
+  [(visible)]="drawerVisible"
+  [modal]="true"
+  position="right"
+  styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+>
+  <p-fluid>
+    <form
+      id="categoryForm"
+      [formGroup]="form"
+      (ngSubmit)="saveCategory()"
+      class="flex flex-col gap-4 pt-4"
+    >
+      <app-form-field
+        inputId="categoryName"
+        label="Nom"
+        [control]="form.controls.name"
+        [errors]="{ required: 'Le nom est requis' }"
+      >
+        <input pInputText id="categoryName" formControlName="name" />
+      </app-form-field>
+
+      <app-form-field
+        inputId="categoryDescription"
+        label="Description"
+        [control]="form.controls.description"
+      >
+        <textarea
+          pTextarea
+          id="categoryDescription"
+          formControlName="description"
+          rows="3"
+        ></textarea>
+      </app-form-field>
+    </form>
+  </p-fluid>
+
+  <ng-template #footer>
+    <div class="flex items-center justify-end gap-4">
+      <p-button
+        label="Annuler"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        (click)="drawerVisible.set(false)"
+      />
+      <p-button
+        [label]="saveMutation.isPending() ? 'Enregistrement...' : 'Enregistrer'"
+        icon="pi pi-check"
+        [disabled]="form.invalid || saveMutation.isPending()"
+        [loading]="saveMutation.isPending()"
+        (click)="saveCategory()"
+      />
+    </div>
+  </ng-template>
+</p-drawer>

@@ -1,0 +1,223 @@
+<div class="flex justify-center items-center min-h-[calc(100vh-var(--app-navbar-height)-2rem)]">
+  <p-card [class]="'w-full ' + (accountType() === 'shop' ? 'max-w-md lg:max-w-4xl' : 'max-w-md')">
+    <ng-template #title>S'inscrire</ng-template>
+    <ng-template #subtitle>
+      {{
+        accountType() === "shop"
+          ? "Créez votre compte et déposez une demande de boutique"
+          : "Créez votre compte pour commencer"
+      }}
+    </ng-template>
+
+    @if (errorMessage()) {
+      <p-message severity="error" class="mb-4">{{ errorMessage() }}</p-message>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="flex gap-4 mb-4">
+        <div class="flex items-center gap-2">
+          <p-radiobutton
+            inputId="customer"
+            value="customer"
+            [ngModel]="accountType()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onTypeChange($event)"
+          />
+          <label for="customer">Client</label>
+        </div>
+        <div class="flex items-center gap-2">
+          <p-radiobutton
+            inputId="shop"
+            value="shop"
+            [ngModel]="accountType()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onTypeChange($event)"
+          />
+          <label for="shop">Boutique</label>
+        </div>
+      </div>
+
+      <ng-template #accountFields>
+        <p-fluid>
+          <div class="flex flex-col gap-4">
+            <div class="flex gap-4">
+              <app-form-field
+                inputId="firstName"
+                label="Prénom"
+                [control]="form.controls.firstName"
+                [errors]="{ required: 'Prénom requis' }"
+                class="flex-1"
+              >
+                <input
+                  pInputText
+                  id="firstName"
+                  autocomplete="given-name"
+                  formControlName="firstName"
+                  [invalid]="form.controls.firstName.touched && form.controls.firstName.invalid"
+                />
+              </app-form-field>
+
+              <app-form-field
+                inputId="lastName"
+                label="Nom"
+                [control]="form.controls.lastName"
+                [errors]="{ required: 'Nom requis' }"
+                class="flex-1"
+              >
+                <input
+                  pInputText
+                  id="lastName"
+                  autocomplete="family-name"
+                  formControlName="lastName"
+                  [invalid]="form.controls.lastName.touched && form.controls.lastName.invalid"
+                />
+              </app-form-field>
+            </div>
+
+            <app-form-field
+              inputId="register-email"
+              label="Email"
+              [control]="form.controls.email"
+              [errors]="{ required: 'Email requis', email: 'Format d\'email invalide' }"
+            >
+              <input
+                pInputText
+                id="register-email"
+                type="email"
+                autocomplete="email"
+                formControlName="email"
+                [invalid]="form.controls.email.touched && form.controls.email.invalid"
+              />
+            </app-form-field>
+
+            <app-form-field
+              inputId="register-password"
+              label="Mot de passe"
+              [control]="form.controls.password"
+              [errors]="{ required: 'Mot de passe requis', minlength: '8 caractères minimum' }"
+            >
+              <p-password
+                inputId="register-password"
+                formControlName="password"
+                autocomplete="new-password"
+                [feedback]="false"
+                [toggleMask]="true"
+                [invalid]="form.controls.password.touched && form.controls.password.invalid"
+              />
+            </app-form-field>
+          </div>
+        </p-fluid>
+      </ng-template>
+
+      @if (accountType() === "customer") {
+        <ng-container *ngTemplateOutlet="accountFields" />
+      } @else {
+        <div class="flex flex-col lg:flex-row gap-6">
+          <p-fieldset legend="Votre compte" class="flex-1">
+            <ng-container *ngTemplateOutlet="accountFields" />
+          </p-fieldset>
+
+          <p-fieldset legend="Boutique" class="flex-1">
+            <p-fluid>
+              <div class="flex flex-col gap-4">
+                <app-form-field
+                  inputId="shopName"
+                  label="Nom"
+                  [control]="form.controls.shopName"
+                  [errors]="{ required: 'Nom de boutique requis' }"
+                >
+                  <input
+                    pInputText
+                    id="shopName"
+                    formControlName="shopName"
+                    [invalid]="form.controls.shopName.touched && form.controls.shopName.invalid"
+                  />
+                </app-form-field>
+
+                <app-form-field
+                  inputId="shopDescription"
+                  label="Description"
+                  [control]="form.controls.shopDescription"
+                  [errors]="{ required: 'Description requise' }"
+                >
+                  <textarea
+                    pTextarea
+                    id="shopDescription"
+                    formControlName="shopDescription"
+                    rows="3"
+                    [invalid]="
+                      form.controls.shopDescription.touched && form.controls.shopDescription.invalid
+                    "
+                  ></textarea>
+                </app-form-field>
+
+                <app-form-field
+                  inputId="contactEmail"
+                  label="Email"
+                  [control]="form.controls.contactEmail"
+                  [errors]="{ email: 'Format d\'email invalide' }"
+                >
+                  <input
+                    pInputText
+                    id="contactEmail"
+                    type="email"
+                    autocomplete="email"
+                    formControlName="contactEmail"
+                    [invalid]="
+                      form.controls.contactEmail.touched && form.controls.contactEmail.invalid
+                    "
+                  />
+                </app-form-field>
+
+                <app-form-field
+                  inputId="contactPhone"
+                  label="Téléphone"
+                  [control]="form.controls.contactPhone"
+                >
+                  <input
+                    pInputText
+                    id="contactPhone"
+                    type="tel"
+                    autocomplete="tel"
+                    formControlName="contactPhone"
+                  />
+                </app-form-field>
+              </div>
+            </p-fluid>
+          </p-fieldset>
+        </div>
+      }
+
+      @if (accountType() === "customer") {
+        <div class="mt-4">
+          <p-fluid>
+            <p-button
+              label="{{ registerMutation.isPending() ? 'Inscription...' : 'S\'inscrire' }}"
+              type="submit"
+              [disabled]="form.invalid || registerMutation.isPending()"
+            />
+          </p-fluid>
+        </div>
+        <div class="text-center mt-4">
+          <p-button
+            label="Déjà un compte ? Se connecter"
+            [text]="true"
+            [link]="true"
+            routerLink="/login"
+          />
+        </div>
+      }
+    </form>
+
+    <ng-template #footer>
+      @if (accountType() === "shop") {
+        <p-divider />
+        <p-button
+          label="{{ registerMutation.isPending() ? 'Inscription...' : 'S\'inscrire' }}"
+          (onClick)="onSubmit()"
+          [disabled]="form.invalid || registerMutation.isPending()"
+        />
+      }
+    </ng-template>
+  </p-card>
+</div>

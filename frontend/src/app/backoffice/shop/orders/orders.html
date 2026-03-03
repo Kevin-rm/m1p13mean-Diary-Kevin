@@ -1,0 +1,81 @@
+<app-page-header title="Commandes" />
+
+<ng-template #headerTpl>
+  <tr>
+    <th pResizableColumn>N° Commande</th>
+    <th pResizableColumn>Acheteur</th>
+    <th pResizableColumn>Articles</th>
+    <th pResizableColumn>Montant</th>
+    <th pResizableColumn>Statut</th>
+    <th pResizableColumn>Date</th>
+    <th class="w-32">Actions</th>
+  </tr>
+</ng-template>
+
+<ng-template #bodyTpl let-order>
+  <tr>
+    <td class="font-mono text-sm">{{ order.orderNumber }}</td>
+    <td>{{ order.buyer | fullName }}</td>
+    <td class="text-muted-color">{{ order.items.length }} article(s)</td>
+    <td class="font-semibold">{{ order.totalAmount | ariary }}</td>
+    <td><app-tag [value]="order.status" [config]="statusConfig" /></td>
+    <td class="text-sm text-muted-color">{{ order.createdAt | date: "dd/MM/yyyy HH:mm" }}</td>
+    <td>
+      <div class="flex justify-end gap-1">
+        @if (order.status === "pending") {
+          <p-button
+            icon="pi pi-check"
+            [text]="true"
+            [rounded]="true"
+            severity="success"
+            (click)="confirmOrder(order.id)"
+            pTooltip="Confirmer"
+          />
+          <p-button
+            icon="pi pi-times"
+            [text]="true"
+            [rounded]="true"
+            severity="danger"
+            (click)="refuseOrder(order.id)"
+            pTooltip="Refuser"
+          />
+        }
+        @if (order.status === "confirmed") {
+          <p-button
+            icon="pi pi-ban"
+            [text]="true"
+            [rounded]="true"
+            severity="warn"
+            (click)="cancelOrder(order.id)"
+            pTooltip="Annuler"
+          />
+        }
+      </div>
+    </td>
+  </tr>
+</ng-template>
+
+<app-data-table
+  [state]="table"
+  [headerTpl]="headerTpl"
+  [bodyTpl]="bodyTpl"
+  [columns]="7"
+  searchPlaceholder="Rechercher par n° de commande..."
+  emptyMessage="Aucune commande trouvée"
+  [tableStyle]="{ 'min-width': '55rem' }"
+  (lazyLoad)="table.handleLazyLoad($event)"
+>
+  <p-select
+    filters
+    inputId="orderStatusFilter"
+    [options]="statusOptions"
+    [ngModel]="statusFilter()"
+    (ngModelChange)="statusFilter.set($event)"
+    (onChange)="onStatusFilter()"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Filtrer par statut"
+    [checkmark]="true"
+    class="w-full sm:w-48"
+  />
+</app-data-table>

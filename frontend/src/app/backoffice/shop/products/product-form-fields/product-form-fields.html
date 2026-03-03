@@ -1,0 +1,78 @@
+<p-fluid [formGroup]="form()" class="flex flex-col gap-5">
+  <app-form-field
+    [inputId]="idPrefix() + 'Name'"
+    label="Nom"
+    [control]="form().controls['name']"
+    [errors]="{ required: 'Le nom est requis' }"
+    [readonly]="readonly()"
+    [copyable]="true"
+  >
+    <input pInputText [id]="idPrefix() + 'Name'" formControlName="name" />
+  </app-form-field>
+
+  <app-form-field
+    [inputId]="idPrefix() + 'Description'"
+    label="Description"
+    [control]="form().controls['description']"
+    [readonly]="readonly()"
+    [multiline]="true"
+  >
+    <textarea
+      pTextarea
+      [id]="idPrefix() + 'Description'"
+      formControlName="description"
+      rows="3"
+    ></textarea>
+  </app-form-field>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <app-form-field
+      [inputId]="idPrefix() + 'Price'"
+      label="Prix"
+      [control]="form().controls['price']"
+      [errors]="{ required: 'Le prix est requis', min: 'Le prix doit être positif' }"
+      [readonly]="readonly()"
+      [displayValue]="form().controls['price'].value | ariary"
+      [copyable]="true"
+      addon="Ar"
+    >
+      <p-inputnumber [inputId]="idPrefix() + 'Price'" formControlName="price" [min]="0" />
+    </app-form-field>
+
+    <app-form-field
+      [inputId]="idPrefix() + 'Stock'"
+      label="Stock"
+      [control]="form().controls['stock']"
+      [errors]="{ min: 'Le stock doit être positif' }"
+      [readonly]="readonly()"
+    >
+      <p-inputnumber
+        [inputId]="idPrefix() + 'Stock'"
+        formControlName="stock"
+        [min]="0"
+        [showButtons]="true"
+      />
+    </app-form-field>
+  </div>
+
+  <app-form-field
+    [inputId]="idPrefix() + 'Category'"
+    label="Catégorie"
+    [control]="form().controls['category']"
+    [errors]="{ required: 'La catégorie est requise' }"
+    [readonly]="readonly()"
+    [displayValue]="categoryName"
+    [floatLabel]="false"
+  >
+    <p-select
+      [inputId]="idPrefix() + 'Category'"
+      [options]="categories()"
+      formControlName="category"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Sélectionner une catégorie"
+      [checkmark]="true"
+      [showClear]="true"
+    />
+  </app-form-field>
+</p-fluid>

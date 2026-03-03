@@ -1,0 +1,38 @@
+<p-fluid [formGroup]="form()" class="flex flex-col gap-5">
+  <app-form-field
+    [inputId]="idPrefix() + 'Description'"
+    label="Description"
+    [control]="form().controls['description']"
+    [readonly]="readonly()"
+    [multiline]="true"
+  >
+    <textarea
+      pTextarea
+      [id]="idPrefix() + 'Description'"
+      formControlName="description"
+      rows="3"
+    ></textarea>
+  </app-form-field>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <app-form-field
+      [inputId]="idPrefix() + 'ContactEmail'"
+      label="Email de contact"
+      [control]="form().controls['contactEmail']"
+      [readonly]="readonly()"
+      [copyable]="true"
+    >
+      <input pInputText [id]="idPrefix() + 'ContactEmail'" formControlName="contactEmail" />
+    </app-form-field>
+
+    <app-form-field
+      [inputId]="idPrefix() + 'ContactPhone'"
+      label="Téléphone de contact"
+      [control]="form().controls['contactPhone']"
+      [readonly]="readonly()"
+      [copyable]="true"
+    >
+      <input pInputText [id]="idPrefix() + 'ContactPhone'" formControlName="contactPhone" />
+    </app-form-field>
+  </div>
+</p-fluid>
