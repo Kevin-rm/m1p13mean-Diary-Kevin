@@ -10,7 +10,7 @@ const REFRESH_COOKIE_PATH = "/api/auth";
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: isProduction,
-  sameSite: "strict",
+  sameSite: "none",
 };
 
 export function setAuthCookies(res, { accessToken, refreshToken }) {
